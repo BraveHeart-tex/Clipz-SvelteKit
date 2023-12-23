@@ -6,6 +6,7 @@ import {
 	FIREBASE_PROJECT_ID
 } from '$env/static/private';
 import pkg from 'firebase-admin';
+import { getStorage } from 'firebase/storage';
 
 try {
 	pkg.initializeApp({
@@ -25,3 +26,4 @@ try {
 
 export const adminDB = getFirestore();
 export const adminAuth = getAuth();
+export const adminStorage = getStorage();
