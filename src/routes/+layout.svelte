@@ -1,17 +1,24 @@
 <script lang="ts">
-	import '../app.postcss';
-	import { AppBar, AppShell } from '@skeletonlabs/skeleton';
+  import Header from '$lib/components/Header.svelte';
+  import Navigation from '$lib/components/Navigation.svelte';
+  import '../app.postcss';
+  import { AppShell, Drawer, initializeStores } from '@skeletonlabs/skeleton';
+
+  initializeStores();
 </script>
 
-<AppShell slotSidebarLeft="w-52 bg-surface-500/10 p-4">
-	<svelte:fragment slot="header">
-		<AppBar>Header</AppBar>
-	</svelte:fragment>
-	<svelte:fragment slot="sidebarLeft">
-		<div id="sidebar-left" class="hidden lg:block">Sidebar Left</div>
-	</svelte:fragment>
-	<div class="container p-10 mx-auto">
-		<slot />
-	</div>
-	<svelte:fragment slot="pageFooter">Page Footer</svelte:fragment>
+<Drawer>
+  <Navigation />
+</Drawer>
+
+<AppShell slotSidebarLeft="w-0 md:w-52 bg-surface-500/10">
+  <svelte:fragment slot="header">
+    <Header />
+  </svelte:fragment>
+  <svelte:fragment slot="sidebarLeft">
+    <Navigation />
+  </svelte:fragment>
+  <div class="container p-10 mx-auto">
+    <slot />
+  </div>
 </AppShell>
