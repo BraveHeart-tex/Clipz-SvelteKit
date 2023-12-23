@@ -1,6 +1,6 @@
 import type { DocumentSnapshot } from 'firebase/firestore';
-import { auth } from '$lib/firebase';
-import { GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
+import type { RequestEvent } from '@sveltejs/kit';
+import { adminAuth } from './server/admin';
 
 export const mapDocumentWithId = (doc: DocumentSnapshot) => ({
   id: doc.id,
@@ -36,23 +36,17 @@ export const lazyLoad = (image: HTMLImageElement, src: string) => {
   };
 };
 
-export async function signInWithGoogle() {
-  const provider = new GoogleAuthProvider();
-  const credential = await signInWithPopup(auth, provider);
-  const idToken = await credential.user.getIdToken();
+export async function authenticateUser(event: RequestEvent) {
+  const { cookies } = event;
 
-  await fetch('/api/signin', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ idToken })
-  });
-}
+  const token = cookies.get('__session');
+  if (!token) return null;
 
-export async function signOutSSR() {
-  await fetch('/api/signout', {
-    method: 'DELETE'
-  });
-  await signOut(auth);
+  const sessionCookie = await adminAuth.verifySessionCookie(token);
+  if (!sessionCookie) return null;
+
+  const { uid } = sessionCookie;
+  const user = await adminAuth.getUser(uid);
+
+  return user || null;
 }
