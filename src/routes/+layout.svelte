@@ -2,8 +2,12 @@
   import { onNavigate } from '$app/navigation';
   import Header from '$lib/components/Header.svelte';
   import Navigation from '$lib/components/Navigation.svelte';
+  import Transition from '$lib/components/Transition.svelte';
   import '../app.postcss';
   import { AppShell, Drawer, initializeStores } from '@skeletonlabs/skeleton';
+  import type { LayoutData } from './$types';
+
+  export let data: LayoutData;
 
   initializeStores();
 
@@ -18,7 +22,7 @@
   });
 </script>
 
-<Drawer>
+<Drawer duration={500} rounded="rounded-none">
   <Navigation />
 </Drawer>
 
@@ -30,6 +34,8 @@
     <Navigation />
   </svelte:fragment>
   <div class="p-10 mx-auto">
-    <slot />
+    <Transition url={data.url}>
+      <slot />
+    </Transition>
   </div>
 </AppShell>
