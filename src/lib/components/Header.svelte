@@ -2,6 +2,7 @@
   import { LightSwitch } from '@skeletonlabs/skeleton';
   import { AppBar } from '@skeletonlabs/skeleton';
   import { getDrawerStore } from '@skeletonlabs/skeleton';
+  import UserMenu from './UserMenu.svelte';
 
   const drawerStore = getDrawerStore();
 
@@ -27,6 +28,6 @@
   </slot:fragment>
   <!-- User Menu -->
   <slot:fragment slot="trail">
-    <LightSwitch class="" />
+    <UserMenu />
   </slot:fragment>
 </AppBar>

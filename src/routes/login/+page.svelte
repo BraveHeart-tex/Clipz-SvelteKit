@@ -1,30 +1,5 @@
 <script lang="ts">
-  import { GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
-  import type { PageData } from './$types';
-  import { auth, user } from '$lib/firebase';
-
-  export let data: PageData;
-
-  export async function signInWithGoogle() {
-    const provider = new GoogleAuthProvider();
-    const credential = await signInWithPopup(auth, provider);
-    const idToken = await credential.user.getIdToken();
-
-    await fetch('/api/signin', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ idToken })
-    });
-  }
-
-  export async function signOutSSR() {
-    await fetch('/api/signout', {
-      method: 'DELETE'
-    });
-    await signOut(auth);
-  }
+  import { signInWithGoogle, user } from '$lib/firebase';
 </script>
 
 {#if !$user}

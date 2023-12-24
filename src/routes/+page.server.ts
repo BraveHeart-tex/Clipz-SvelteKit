@@ -1,5 +1,11 @@
-import type { PageServerLoad } from './$types';
+import { LoginSchema } from '$lib/schemas/LoginSchema.js';
+import { superValidate } from 'sveltekit-superforms/server';
 
-export const load: PageServerLoad = async ({ locals }) => {
-  console.log(locals.user);
+export const load = async (event) => {
+  const form = await superValidate(event, LoginSchema);
+  return {
+    form
+  };
 };
+
+export const actions = {};

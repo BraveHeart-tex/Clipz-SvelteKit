@@ -1,7 +1,7 @@
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
-import { getAuth, onAuthStateChanged, type User } from 'firebase/auth';
+import { getAuth, onAuthStateChanged, signOut, type User } from 'firebase/auth';
 import { writable } from 'svelte/store';
 
 const firebaseConfig = {
@@ -43,3 +43,10 @@ function userStore() {
 }
 
 export const user = userStore();
+
+export async function signOutSSR() {
+  await fetch('/api/signout', {
+    method: 'DELETE'
+  });
+  await signOut(auth);
+}

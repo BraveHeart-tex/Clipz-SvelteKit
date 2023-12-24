@@ -3,13 +3,36 @@
   import Header from '$lib/components/Header.svelte';
   import Navigation from '$lib/components/Navigation.svelte';
   import Transition from '$lib/components/Transition.svelte';
+  import {
+    computePosition,
+    autoUpdate,
+    offset,
+    shift,
+    flip,
+    arrow
+  } from '@floating-ui/dom';
   import '../app.postcss';
-  import { AppShell, Drawer, initializeStores } from '@skeletonlabs/skeleton';
+  import {
+    AppShell,
+    Drawer,
+    Modal,
+    initializeStores,
+    type ModalComponent,
+    Toast
+  } from '@skeletonlabs/skeleton';
   import type { LayoutData } from './$types';
+  import AuthenticationForm from '$lib/components/AuthenticationModal.svelte';
+  import { storePopup } from '@skeletonlabs/skeleton';
 
   export let data: LayoutData;
 
+  const modalRegistry: Record<string, ModalComponent> = {
+    authenticationForm: { ref: AuthenticationForm }
+  };
+
   initializeStores();
+
+  storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 
   onNavigate(() => {
     // @ts-ignore
@@ -22,6 +45,8 @@
   });
 </script>
 
+<Modal components={modalRegistry} />
+<Toast />
 <Drawer duration={500} rounded="rounded-none">
   <Navigation />
 </Drawer>
