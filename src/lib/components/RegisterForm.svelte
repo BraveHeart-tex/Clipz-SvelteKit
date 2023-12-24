@@ -7,34 +7,35 @@
     type ToastSettings
   } from '@skeletonlabs/skeleton';
   import { reporter, ValidationMessage } from '@felte/reporter-svelte';
-  import { auth } from '$lib/firebase';
-  import { createUserWithEmailAndPassword } from 'firebase/auth';
   import type { RegisterSchema } from '$lib/schemas/RegisterSchema';
   import registerSchema from '$lib/schemas/RegisterSchema';
+  import { goto } from '$app/navigation';
 
-  const { form } = createForm({
-    extend: [validator({ schema: registerSchema }), reporter],
-    onSubmit: async (values: RegisterSchema) => {
-      const { email, password, fullName } = values;
-    }
+  const toastStore = getToastStore();
+
+  const { form: customForm } = createForm({
+    extend: [validator({ schema: registerSchema }), reporter]
   });
-
-  async function signUpWithGoogle() {}
-
-  async function signUpWithEmailAndPassword({
-    email,
-    password
-  }: {
-    email: string;
-    password: string;
-  }) {
-    try {
-      createUserWithEmailAndPassword(auth, email, password);
-    } catch (error) {}
-  }
 </script>
 
-<form use:form class="grid grid-cols-1 gap-2">
+<form
+  use:customForm
+  class="grid grid-cols-1 gap-2"
+  method="post"
+  action="/register"
+>
+  <div>
+    <label class="label" for="email">Full Name</label>
+    <input
+      class="input rounded-md"
+      type="text"
+      name="fullName"
+      placeholder="John Doe"
+    />
+    <ValidationMessage for="fullName" let:messages={message}>
+      <span class="text-error-500">{message || ''}</span>
+    </ValidationMessage>
+  </div>
   <div>
     <label class="label" for="email">Email</label>
     <input
@@ -59,7 +60,19 @@
       <span class="text-error-500">{message || ''}</span>
     </ValidationMessage>
   </div>
+  <div>
+    <label class="label" for="email">Confirm Password</label>
+    <input
+      class="input rounded-md"
+      type="password"
+      name="confirmPassword"
+      placeholder="Your password"
+    />
+    <ValidationMessage for="confirmPassword" let:messages={message}>
+      <span class="text-error-500">{message || ''}</span>
+    </ValidationMessage>
+  </div>
   <button class="btn variant-filled-primary rounded-md" type="submit"
-    >Login</button
+    >Register</button
   >
 </form>

@@ -1,6 +1,6 @@
 <script lang="ts">
   import LoginForm from '../../routes/LoginForm.svelte';
-  import RegisterForm from '../../routes/RegisterForm.svelte';
+  import RegisterForm from './RegisterForm.svelte';
   import { TabGroup, Tab } from '@skeletonlabs/skeleton';
 
   let selectedTab: string = 'login';

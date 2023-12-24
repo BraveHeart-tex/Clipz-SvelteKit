@@ -23,6 +23,12 @@ dependencies:
   '@prisma/client':
     specifier: 5.7.1
     version: 5.7.1(prisma@5.7.1)
+  '@types/bcryptjs':
+    specifier: ^2.4.6
+    version: 2.4.6
+  bcryptjs:
+    specifier: ^2.4.3
+    version: 2.4.3
   felte:
     specifier: ^1.2.12
     version: 1.2.12(svelte@4.2.8)
@@ -1418,6 +1424,10 @@ packages:
     dev: false
     optional: true
 
+  /@types/bcryptjs@2.4.6:
+    resolution: {integrity: sha512-9xlo6R2qDs5uixm0bcIqCeMCE6HiQsIyel9KQySStiyqNl2tnj2mP3DX1Nf56MD6KMenNNlBBsy3LJ7gUEQPXQ==}
+    dev: false
+
   /@types/body-parser@1.19.5:
     resolution: {integrity: sha512-fB3Zu92ucau0iQ0JMCFQE7b/dv8Ot07NI3KaZIkIUNXq82k4eBAqUaneXfleGY9JWskeS9y+u0nXMyspcuQrCg==}
     dependencies:
@@ -1884,6 +1894,10 @@ packages:
     requiresBuild: true
     dev: false
     optional: true
+
+  /bcryptjs@2.4.3:
+    resolution: {integrity: sha512-V/Hy/X9Vt7f3BbPJEi8BdVFMByHi+jNXrYkW3huaybV/kQ0KJg0Y6PkEMbn+zeT+i+SiKZ/HMqJGIIt4LZDqNQ==}
+    dev: false
 
   /bignumber.js@9.1.2:
     resolution: {integrity: sha512-2/mKyZH9K85bzOEfhXDBFZTGd1CTs+5IHpeFQo9luiBG7hghdC851Pj2WAhb6E3R6b9tZj/XKhbg4fum+Kepug==}
