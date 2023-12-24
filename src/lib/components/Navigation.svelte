@@ -6,32 +6,27 @@
     {
       name: 'Home',
       href: '/',
-      icon: 'home'
+      icon: '<i class="fa-solid fa-house"></i>'
     },
     {
       name: 'Feed',
       href: '/feed',
-      icon: 'information-circle'
-    },
-    {
-      name: 'Manage',
-      href: '/manage',
-      icon: 'information-circle'
+      icon: '<i class="fa-solid fa-rss"></i>'
     },
     {
       name: 'Favorites',
       href: '/favorites',
-      icon: 'information-circle'
+      icon: '<i class="fa-solid fa-star"></i>'
     },
     {
       name: 'Friends',
-      href: '/categories',
-      icon: 'information-circle'
+      href: '/friends',
+      icon: '<i class="fa-solid fa-user-group"></i>'
     },
     {
       name: 'Settings',
       href: '/settings',
-      icon: 'information-circle'
+      icon: '<i class="fa-solid fa-cog"></i>'
     }
   ];
 
@@ -45,12 +40,14 @@
 <nav class="list-nav p-4">
   <ul>
     {#each links as link}
-      <li>
+      <li aria-current={$page.url.pathname === link.href ? 'page' : null}>
         <a
           href={link.href}
+          class="font-semibold flex items-center gap-2"
           on:click={drawerClose}
-          class:variant-filled-primary={link.href === $page.url.pathname}
-          >{link.name}
+        >
+          {@html link.icon}
+          {link.name}
         </a>
       </li>
     {/each}

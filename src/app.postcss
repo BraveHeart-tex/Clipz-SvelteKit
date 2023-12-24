@@ -5,5 +5,14 @@
 
 html,
 body {
-	@apply h-full overflow-hidden;
+  @apply h-full overflow-hidden;
+}
+
+:root {
+  view-transition-name: none;
+}
+
+li[aria-current='page'] {
+  @apply variant-filled-primary rounded-[10px];
+  view-transition-name: indicator;
 }

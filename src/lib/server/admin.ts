@@ -6,7 +6,7 @@ import {
   FIREBASE_PROJECT_ID
 } from '$env/static/private';
 import pkg from 'firebase-admin';
-import { getStorage } from 'firebase/storage';
+import { getStorage } from 'firebase-admin/storage';
 
 try {
   pkg.initializeApp({
@@ -22,6 +22,8 @@ try {
       console.error('Firebase admin initialization error', error.stack);
     }
   }
+
+  console.error('Firebase admin initialization error', error);
 }
 
 export const adminDB = getFirestore();

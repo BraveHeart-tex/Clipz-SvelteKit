@@ -1,5 +1,5 @@
-import type { DocumentSnapshot } from 'firebase/firestore';
 import type { RequestEvent } from '@sveltejs/kit';
+import type { DocumentSnapshot } from 'firebase/firestore';
 import { adminAuth } from './server/admin';
 
 export const mapDocumentWithId = (doc: DocumentSnapshot) => ({
@@ -37,6 +37,7 @@ export const lazyLoad = (image: HTMLImageElement, src: string) => {
 };
 
 export async function authenticateUser(event: RequestEvent) {
+  if (!adminAuth) return null;
   const { cookies } = event;
 
   const token = cookies.get('__session');
