@@ -1,9 +1,10 @@
-import { redirect, type Actions, fail } from '@sveltejs/kit';
+import { redirect, type Actions, error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import registerSchema from '$lib/schemas/RegisterSchema';
 import { auth } from '$lib/server/lucia';
 import bcrypt from 'bcryptjs';
 import { Prisma } from '@prisma/client';
+import { superValidate } from 'sveltekit-superforms/server';
 
 export const load: PageServerLoad = async ({ locals }) => {
   const session = await locals.auth.validate();
@@ -11,7 +12,10 @@ export const load: PageServerLoad = async ({ locals }) => {
   if (session) {
     throw redirect(303, '/');
   }
-  return {};
+
+  return {
+    form: await superValidate(registerSchema)
+  };
 };
 
 export const actions: Actions = {
@@ -40,18 +44,16 @@ export const actions: Actions = {
           }
         });
       }
-    } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        if (error.code === 'P2002') {
-          console.error(error);
-
-          return fail(400, {
+    } catch (e) {
+      if (e instanceof Prisma.PrismaClientKnownRequestError) {
+        if (e.code === 'P2002') {
+          return error(400, {
             message: 'Email is already in use.'
           });
         }
       }
 
-      return fail(400, {
+      return error(500, {
         message:
           'Something went wrong while registering the user. Please try again later.'
       });

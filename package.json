@@ -55,9 +55,13 @@
     "@prisma/client": "5.7.1",
     "@types/bcryptjs": "^2.4.6",
     "bcryptjs": "^2.4.3",
+    "clsx": "^2.0.0",
     "felte": "^1.2.12",
     "firebase": "^10.7.1",
     "firebase-admin": "^12.0.0",
-    "lucia": "^2.7.6"
+    "formsnap": "^0.4.2",
+    "lucia": "^2.7.6",
+    "sveltekit-superforms": "^1.13.1",
+    "tailwind-merge": "^2.2.0"
   }
 }

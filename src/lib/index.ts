@@ -1,6 +1,11 @@
-import type { RequestEvent } from '@sveltejs/kit';
 import type { DocumentSnapshot } from 'firebase/firestore';
-import { adminAuth } from './server/admin';
+import { type ClassValue, clsx } from 'clsx';
+import { ZodEffects, ZodObject } from 'zod';
+import { twMerge } from 'tailwind-merge';
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
 
 export const mapDocumentWithId = (doc: DocumentSnapshot) => ({
   id: doc.id,
@@ -36,18 +41,61 @@ export const lazyLoad = (image: HTMLImageElement, src: string) => {
   };
 };
 
-export async function authenticateUser(event: RequestEvent) {
-  if (!adminAuth) return null;
-  const { cookies } = event;
+export function generateFormFields(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  schema: ZodObject<any> | ZodEffects<ZodObject<any>>
+) {
+  const formFields = [];
+  let schemaShape;
 
-  const token = cookies.get('__session');
-  if (!token) return null;
+  if (schema instanceof ZodEffects) {
+    schemaShape = schema._def.schema.shape;
+  } else {
+    schemaShape = schema.shape;
+  }
 
-  const sessionCookie = await adminAuth.verifySessionCookie(token);
-  if (!sessionCookie) return null;
+  for (const key of Object.keys(schemaShape)) {
+    const fieldSchema = schemaShape[key];
 
-  const { uid } = sessionCookie;
-  const user = await adminAuth.getUser(uid);
+    const description = fieldSchema._def.description;
 
-  return user || null;
+    const parsedDescription = description
+      .split(',')
+      .map((item: string) => item.trim());
+
+    const fieldType = parsedDescription
+      .find((item: string) => item.startsWith('type:'))
+      .split(':')[1]
+      .trim();
+
+    const fieldLabel = parsedDescription
+      .find((item: string) => item.startsWith('label:'))
+      .split(':')[1]
+      .trim();
+
+    const fieldObject: {
+      name: string;
+      type: string;
+      label: string;
+      options?: string[];
+    } = {
+      name: key,
+      type: fieldType,
+      label: fieldLabel
+    };
+
+    if (fieldType === 'combobox') {
+      const fieldOptions = parsedDescription
+        .find((item: string) => item.startsWith('options:'))
+        .split(':')[1]
+        .trim()
+        .split('-');
+
+      fieldObject['options'] = fieldOptions;
+    }
+
+    formFields.push(fieldObject);
+  }
+
+  return formFields;
 }
