@@ -5,14 +5,17 @@
     type ModalSettings,
     type PopupSettings
   } from '@skeletonlabs/skeleton';
-  import { signOutSSR, user } from '$lib/firebase';
+  import { signOutSSR } from '$lib/firebase';
   import { Avatar } from '@skeletonlabs/skeleton';
+  import { getUserState } from '$lib/state.svelte';
 
   const popupClick: PopupSettings = {
     event: 'click',
     target: 'userMenuPopUp',
     placement: 'bottom'
   };
+
+  const user = getUserState();
 
   const modal: ModalSettings = {
     type: 'component',
@@ -25,7 +28,14 @@
 {#if $user}
   <div class="relative">
     <button use:popup={popupClick}>
-      <Avatar src={$user.photoURL ?? ''} width="w-11" class="cursor-pointer " />
+      <Avatar
+        width="w-11"
+        class="cursor-pointer"
+        initials={$user?.name
+          .split(' ')
+          .map((n) => n[0])
+          .join('')}
+      />
     </button>
     <div
       data-popup="userMenuPopUp"
@@ -33,14 +43,16 @@
     >
       <div class="flex flex-col items-start gap-2">
         <p class="w-full">
-          <span class="font-semibold">{$user.displayName}</span>
+          <span class="font-semibold">{$user.name}</span>
           <br />
           <span class="text-sm dark:text-white">{$user.email}</span>
         </p>
-        <button
-          class="self-end btn btn-sm variant-filled-primary rounded-md"
-          on:click={signOutSSR}>Sign out</button
-        >
+        <form method="post" action="/logout">
+          <button
+            class="self-end btn btn-sm variant-filled-primary rounded-md"
+            type="submit">Sign out</button
+          >
+        </form>
       </div>
     </div>
   </div>
