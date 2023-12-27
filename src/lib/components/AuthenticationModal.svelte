@@ -1,6 +1,6 @@
 <script lang="ts">
   import LoginForm from '../../routes/LoginForm.svelte';
-  import RegisterForm from './RegisterForm.svelte';
+  import RegisterForm from '../../routes/RegisterForm.svelte';
   import { TabGroup, Tab } from '@skeletonlabs/skeleton';
 
   let selectedTab: string = 'login';
@@ -15,6 +15,10 @@
       label: 'Register'
     }
   ];
+
+  const setSelectedTab = (tab: string) => {
+    selectedTab = tab;
+  };
 </script>
 
 <div class="bg-surface-500 w-full max-w-2xl">
@@ -43,7 +47,7 @@
           </button>
         </div>
       {:else if selectedTab === 'register'}
-        <RegisterForm />
+        <RegisterForm {setSelectedTab} />
       {/if}
     </svelte:fragment>
   </TabGroup>

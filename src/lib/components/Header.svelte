@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { LightSwitch } from '@skeletonlabs/skeleton';
   import { AppBar } from '@skeletonlabs/skeleton';
   import { getDrawerStore } from '@skeletonlabs/skeleton';
   import UserMenu from './UserMenu.svelte';

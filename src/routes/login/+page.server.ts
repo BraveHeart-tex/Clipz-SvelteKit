@@ -1,10 +1,9 @@
 import { redirect, type Actions, fail } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
-import registerSchema from '$lib/schemas/RegisterSchema';
-import { auth } from '$lib/server/lucia';
 import bcrypt from 'bcryptjs';
 import { Prisma } from '@prisma/client';
 import { setError, superValidate } from 'sveltekit-superforms/server';
+import { loginSchema } from '$lib/schemas/LoginSchema';
 
 export const load: PageServerLoad = async ({ locals }) => {
   const session = await locals.auth.validate();
@@ -12,37 +11,20 @@ export const load: PageServerLoad = async ({ locals }) => {
   if (session) {
     throw redirect(303, '/');
   }
-
-  const form = await superValidate(registerSchema);
-
-  return {
-    form
-  };
 };
 
 export const actions: Actions = {
   default: async ({ request }) => {
-    const form = await superValidate(request, registerSchema);
+    const form = await superValidate(request, loginSchema);
     if (!form.valid) {
       return fail(400, { form });
     }
 
     try {
-      const { email, password, fullName } = form.data;
+      const { email, password } = form.data;
       const hashedPassword = await bcrypt.hash(password, 10);
 
-      await auth.createUser({
-        key: {
-          providerId: 'email',
-          providerUserId: email.toLowerCase(),
-          password: hashedPassword
-        },
-        attributes: {
-          email: email,
-          name: fullName,
-          hashed_password: hashedPassword
-        }
-      });
+      // TODO: Handle auth
     } catch (e) {
       if (e instanceof Prisma.PrismaClientKnownRequestError) {
         if (e.code === 'P2002') {
