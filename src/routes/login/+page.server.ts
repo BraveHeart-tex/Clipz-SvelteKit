@@ -1,20 +1,20 @@
 import { redirect, type Actions, fail } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
-import bcrypt from 'bcryptjs';
-import { Prisma } from '@prisma/client';
 import { setError, superValidate } from 'sveltekit-superforms/server';
 import { loginSchema } from '$lib/schemas/LoginSchema';
+import { auth } from '$lib/server/lucia';
+import { LuciaError } from 'lucia';
 
 export const load: PageServerLoad = async ({ locals }) => {
   const session = await locals.auth.validate();
 
   if (session) {
-    throw redirect(303, '/');
+    throw redirect(302, '/');
   }
 };
 
 export const actions: Actions = {
-  default: async ({ request }) => {
+  default: async ({ request, locals }) => {
     const form = await superValidate(request, loginSchema);
     if (!form.valid) {
       return fail(400, { form });
@@ -22,13 +22,16 @@ export const actions: Actions = {
 
     try {
       const { email, password } = form.data;
-      const hashedPassword = await bcrypt.hash(password, 10);
-
-      // TODO: Handle auth
+      const key = await auth.useKey('email', email, password);
+      const session = await auth.createSession({
+        userId: key.userId,
+        attributes: {}
+      });
+      locals.auth.setSession(session);
     } catch (e) {
-      if (e instanceof Prisma.PrismaClientKnownRequestError) {
-        if (e.code === 'P2002') {
-          return setError(form, 'email', 'Email already exists');
+      if (e instanceof LuciaError) {
+        if (e.message === 'AUTH_INVALID_PASSWORD') {
+          return setError(form, 'email', 'Invalid email or password');
         }
       }
 

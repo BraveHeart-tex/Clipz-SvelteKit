@@ -2,7 +2,6 @@ import { redirect, type Actions, fail } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import registerSchema from '$lib/schemas/RegisterSchema';
 import { auth } from '$lib/server/lucia';
-import bcrypt from 'bcryptjs';
 import { Prisma } from '@prisma/client';
 import { setError, superValidate } from 'sveltekit-superforms/server';
 
@@ -29,18 +28,16 @@ export const actions: Actions = {
 
     try {
       const { email, password, fullName } = form.data;
-      const hashedPassword = await bcrypt.hash(password, 10);
 
       await auth.createUser({
         key: {
           providerId: 'email',
           providerUserId: email.toLowerCase(),
-          password: hashedPassword
+          password
         },
         attributes: {
           email: email,
-          name: fullName,
-          hashed_password: hashedPassword
+          name: fullName
         }
       });
     } catch (e) {
