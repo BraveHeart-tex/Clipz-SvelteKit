@@ -29,6 +29,8 @@ export const actions: Actions = {
       });
       locals.auth.setSession(session);
     } catch (e) {
+      console.log(e);
+
       if (e instanceof LuciaError) {
         if (e.message === 'AUTH_INVALID_PASSWORD') {
           return setError(form, 'email', 'Invalid email or password');
