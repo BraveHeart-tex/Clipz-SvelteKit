@@ -31,6 +31,12 @@
       visible: User ? true : false
     },
     {
+      name: 'My Uploads',
+      href: '/myUploads',
+      icon: '<i class="fa-solid fa-play"></i>',
+      visible: User ? true : false
+    },
+    {
       name: 'Favorites',
       href: '/favorites',
       icon: '<i class="fa-solid fa-star"></i>',
@@ -40,6 +46,12 @@
       name: 'Friends',
       href: '/friends',
       icon: '<i class="fa-solid fa-user-group"></i>',
+      visible: User ? true : false
+    },
+    {
+      name: 'Inbox',
+      href: '/inbox',
+      icon: '<i class="fa-solid fa-inbox"></i>',
       visible: User ? true : false
     },
     {

@@ -2,10 +2,6 @@
   import type { PageData } from './$types';
 
   export let data: PageData;
-
-  // Color theme
-  // Notifications
-  // Sidebar Type => Compact, Full, Hidden
 </script>
 
-<h1>Settings</h1>
+<h1 class="h2">My Uploads Page</h1>
