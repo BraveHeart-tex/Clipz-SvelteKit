@@ -11,39 +11,75 @@
   } from '@skeletonlabs/skeleton';
   import { superForm } from 'sveltekit-superforms/client';
   import { acceptedFileTypes } from '$lib';
+  import { ffmpegService } from '$lib/ffempegService';
+  import { v4 as uuidv4 } from 'uuid';
+  import { ref, uploadBytes, uploadBytesResumable } from 'firebase/storage';
+  import { storage } from '$lib/firebase';
+  import { onMount } from 'svelte';
 
   export let data: PageData;
   let videoSrc: string | null = null;
   let title: string = '';
+  let selectedScreenshot: string = '';
+  let loading: boolean = false;
+  let uploadedVideo: File;
+  let screenShots: string[] = [];
+  let uploadTask: any;
+  let screenshotTask: any;
 
   const toastStore = getToastStore();
   const modalStore = getModalStore();
 
   const superFrm = superForm(data.form, {});
 
-  function onChangeHandler(e: Event): void {
+  onMount(async () => {
+    await ffmpegService.init();
+  });
+
+  async function handleFormSubmit() {
+    if (ffmpegService.isRunning) return;
+
+    // generate a file name for the clip
+    const clipFileName = uuidv4();
+    const clipPath = `clips/${clipFileName}.mp4`;
+
+    const screenShotBlob = await ffmpegService.blobFromURL(selectedScreenshot);
+    const screenShotPath = `screenshots/${clipFileName}.png`;
+
+    const fileRef = ref(storage, clipPath);
+    const screenShotRef = ref(storage, screenShotPath);
+
+    uploadTask = uploadBytesResumable(fileRef, uploadedVideo);
+
+    screenshotTask = uploadBytes(screenShotRef, screenShotBlob, {
+      contentType: 'image/png',
+      customMetadata: {
+        clipId: clipFileName,
+        clipPath
+      }
+    });
+
+    combineLatest([
+      uploadTask.percentageChanges(),
+      screenshotTask.percentageChanges()
+    ]).subscribe((progress) => {
+      const [clipProgress, screenshotProgress] = progress;
+      console.log(clipProgress, screenshotProgress);
+    });
+  }
+
+  async function onChangeHandler(e: Event) {
     const target = e.target as HTMLInputElement;
     if (target.files) {
       const file = target?.files[0];
-      if (!file) return;
-      if (acceptedFileTypes.includes(file.type)) {
-        // Process file
-        // Show preview
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const result = e.target?.result;
-          if (typeof result === 'string') {
-            videoSrc = result;
-            superFrm.fields.title.value = '123TEST';
-          }
-        };
-        reader.readAsDataURL(file);
+      if (!file || file.type !== 'video/map4') return;
 
-        // Show progress bar
-        // Show success toast
-        // show user a preview of the video
-        // show user a form to fill out the rest of the details
-        // After confirm insert the record into db and upload file to firebase storage
+      if (acceptedFileTypes.includes(file.type)) {
+        screenShots = await ffmpegService.getScreenShots(file);
+        selectedScreenshot = screenShots[0];
+        title = file.name.replace(/\.[^/.]+$/, '');
+        uploadedVideo = file;
+        videoSrc = URL.createObjectURL(file);
       } else {
         const errorToast: ToastSettings = {
           message:
@@ -114,9 +150,14 @@
             class="btn variant-outline-tertiary rounded-md"
             on:click={handleCancelClick}>Cancel</button
           >
-          <button type="submit" class="btn variant-filled-primary rounded-md"
-            >Upload</button
+          <button
+            type="button"
+            on:click={handleFormSubmit}
+            class="btn variant-filled-primary rounded-md"
+            disabled={loading}
           >
+            Upload <i class="fa-solid fa-spinner animate-spin ml-2"></i>
+          </button>
         </div>
       </Form.Root>
       <video src={videoSrc} controls class="w-full h-auto rounded-lg shadow-lg">
