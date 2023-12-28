@@ -23,7 +23,7 @@
   import type { LayoutData } from './$types';
   import AuthenticationForm from '$lib/components/AuthenticationModal.svelte';
   import { storePopup } from '@skeletonlabs/skeleton';
-  import { setUserState } from '$lib/state.svelte';
+  import { user } from '$lib/state.svelte';
 
   export let data: LayoutData;
 
@@ -45,7 +45,12 @@
     });
   });
 
-  const user = setUserState(data?.user);
+  $: User = data?.user;
+
+  $: {
+    const newUser = data?.user;
+    user.set(newUser);
+  }
 </script>
 
 <Modal components={modalRegistry} />

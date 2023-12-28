@@ -1,6 +1,9 @@
 <script lang="ts">
   import { page } from '$app/stores';
   import { getDrawerStore } from '@skeletonlabs/skeleton';
+  import { user } from '$lib/state.svelte';
+
+  $: User = $user;
 
   let links = [
     {
