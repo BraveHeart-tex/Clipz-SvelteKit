@@ -32,7 +32,10 @@ export const actions: Actions = {
       console.log(e);
 
       if (e instanceof LuciaError) {
-        if (e.message === 'AUTH_INVALID_PASSWORD') {
+        if (
+          e.message === 'AUTH_INVALID_PASSWORD' ||
+          e.message === 'AUTH_INVALID_KEY_ID'
+        ) {
           return setError(form, 'email', 'Invalid email or password');
         }
       }
