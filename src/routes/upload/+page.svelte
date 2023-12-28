@@ -1,4 +1,6 @@
 <script lang="ts">
+  // Forest
+  import '@videojs/themes/dist/forest/index.css';
   import uploadVideoSchema from '$lib/schemas/UploadVideoSchema';
   import type { PageData } from './$types';
   import { Form } from 'formsnap';
@@ -11,75 +13,35 @@
   } from '@skeletonlabs/skeleton';
   import { superForm } from 'sveltekit-superforms/client';
   import { acceptedFileTypes } from '$lib';
-  import { ffmpegService } from '$lib/ffempegService';
-  import { v4 as uuidv4 } from 'uuid';
-  import { ref, uploadBytes, uploadBytesResumable } from 'firebase/storage';
-  import { storage } from '$lib/firebase';
-  import { onMount } from 'svelte';
 
   export let data: PageData;
   let videoSrc: string | null = null;
   let title: string = '';
-  let selectedScreenshot: string = '';
   let loading: boolean = false;
-  let uploadedVideo: File;
-  let screenShots: string[] = [];
-  let uploadTask: any;
-  let screenshotTask: any;
+  let videoRef: HTMLVideoElement | null = null;
 
   const toastStore = getToastStore();
   const modalStore = getModalStore();
 
   const superFrm = superForm(data.form, {});
 
-  onMount(async () => {
-    await ffmpegService.init();
-  });
-
-  async function handleFormSubmit() {
-    if (ffmpegService.isRunning) return;
-
-    // generate a file name for the clip
-    const clipFileName = uuidv4();
-    const clipPath = `clips/${clipFileName}.mp4`;
-
-    const screenShotBlob = await ffmpegService.blobFromURL(selectedScreenshot);
-    const screenShotPath = `screenshots/${clipFileName}.png`;
-
-    const fileRef = ref(storage, clipPath);
-    const screenShotRef = ref(storage, screenShotPath);
-
-    uploadTask = uploadBytesResumable(fileRef, uploadedVideo);
-
-    screenshotTask = uploadBytes(screenShotRef, screenShotBlob, {
-      contentType: 'image/png',
-      customMetadata: {
-        clipId: clipFileName,
-        clipPath
-      }
-    });
-
-    combineLatest([
-      uploadTask.percentageChanges(),
-      screenshotTask.percentageChanges()
-    ]).subscribe((progress) => {
-      const [clipProgress, screenshotProgress] = progress;
-      console.log(clipProgress, screenshotProgress);
-    });
-  }
-
   async function onChangeHandler(e: Event) {
     const target = e.target as HTMLInputElement;
     if (target.files) {
       const file = target?.files[0];
-      if (!file || file.type !== 'video/map4') return;
+      if (!file || file.type !== 'video/mp4') return;
 
       if (acceptedFileTypes.includes(file.type)) {
-        screenShots = await ffmpegService.getScreenShots(file);
-        selectedScreenshot = screenShots[0];
-        title = file.name.replace(/\.[^/.]+$/, '');
-        uploadedVideo = file;
-        videoSrc = URL.createObjectURL(file);
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => {
+          videoSrc = reader.result as string;
+          const videoTitle = file.name.split('.').slice(0, -1).join('.');
+          superFrm.fields.title.value.set(videoTitle);
+        };
+        reader.onerror = (error) => {
+          console.log(error);
+        };
       } else {
         const errorToast: ToastSettings = {
           message:
@@ -151,18 +113,34 @@
             on:click={handleCancelClick}>Cancel</button
           >
           <button
-            type="button"
-            on:click={handleFormSubmit}
+            type="submit"
             class="btn variant-filled-primary rounded-md"
             disabled={loading}
           >
-            Upload <i class="fa-solid fa-spinner animate-spin ml-2"></i>
+            Upload
           </button>
         </div>
       </Form.Root>
-      <video src={videoSrc} controls class="w-full h-auto rounded-lg shadow-lg">
-        <track kind="captions" />
-      </video>
+      <div data-vjs-player>
+        <video
+          id="upload-preview-video"
+          src={videoSrc}
+          bind:this={videoRef}
+          controls
+          width="100%"
+          height="auto"
+          class="video-js vjs-theme-forest w-full h-auto rounded-lg shadow-lg"
+        >
+          <track kind="captions" />
+          <p class="vjs-no-js">
+            To view this video please enable JavaScript, and consider upgrading
+            to a web browser that
+            <a href="https://videojs.com/html5-video-support/" target="_blank"
+              >supports HTML5 video</a
+            >
+          </p>
+        </video>
+      </div>
     </div>
   {:else}
     <div class="flex flex-col gap-1 mb-4">
