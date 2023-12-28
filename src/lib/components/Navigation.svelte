@@ -84,6 +84,7 @@
         component: 'authenticationForm'
       };
 
+      $page.url.searchParams.set('redirectTo', link.href);
       modalStore.trigger(modal);
     }
   }

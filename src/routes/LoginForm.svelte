@@ -33,8 +33,14 @@
     if (event.result.type === 'success') {
       toastStore.trigger(toast);
       modalStore.clear();
+      const redirectTo = $page.url.searchParams.get('redirectTo');
       setTimeout(() => {
-        goto('/');
+        if (redirectTo) {
+          goto(redirectTo);
+          $page.url.searchParams.delete('redirectTo');
+        } else {
+          goto('/');
+        }
       }, 0);
     }
   };

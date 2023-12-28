@@ -1,31 +1,25 @@
 <script lang="ts">
   import uploadVideoSchema from '$lib/schemas/UploadVideoSchema';
-  import { page } from '$app/stores';
   import type { PageData } from './$types';
-  import { Form, type SuperValidated } from 'formsnap';
+  import { Form } from 'formsnap';
   import {
     FileDropzone,
+    getModalStore,
     getToastStore,
+    type ModalSettings,
     type ToastSettings
   } from '@skeletonlabs/skeleton';
   import { superForm } from 'sveltekit-superforms/client';
+  import { acceptedFileTypes } from '$lib';
 
   export let data: PageData;
   let videoSrc: string | null = null;
+  let title: string = '';
 
   const toastStore = getToastStore();
+  const modalStore = getModalStore();
 
-  let acceptedFileTypes = [
-    'video/mp4',
-    'video/x-m4v',
-    'video/*',
-    'video/quicktime',
-    'video/x-msvideo',
-    'video/x-flv',
-    'video/webm',
-    'video/x-matroska',
-    'video/mpeg'
-  ];
+  const superFrm = superForm(data.form, {});
 
   function onChangeHandler(e: Event): void {
     const target = e.target as HTMLInputElement;
@@ -40,6 +34,7 @@
           const result = e.target?.result;
           if (typeof result === 'string') {
             videoSrc = result;
+            superFrm.fields.title.value = '123TEST';
           }
         };
         reader.readAsDataURL(file);
@@ -63,13 +58,23 @@
     }
   }
 
-  const superFrm = superForm(data.form, {
-    onSubmit(input) {
-      console.log(input);
-    }
-  });
+  const handleCancelClick = () => {
+    const modal: ModalSettings = {
+      type: 'confirm',
+      title: 'Cancel Upload',
+      body: 'Are you sure you want to cancel this upload? Any progress will be lost.',
+      buttonTextCancel: 'No, continue upload',
+      buttonTextConfirm: 'Yes, cancel upload',
+      response(r) {
+        if (r) {
+          videoSrc = null;
+          title = '';
+        }
+      }
+    };
 
-  console.log(videoSrc);
+    modalStore.trigger(modal);
+  };
 </script>
 
 <div class="mt-2">
@@ -78,44 +83,67 @@
       <h1 class="h2">Preview Your Clip</h1>
       <p>Please confirm that the video below is the clip you want to upload.</p>
     </div>
-    <Form.Root
-      controlled
-      form={superFrm}
-      {uploadVideoSchema}
-      let:config
-      debug={true}
-      method="POST"
-      action="/upload"
-    >
-      <Form.Field {config} name={formField.name}>
-        <div class="flex flex-col">
-          <Form.Label>{formField.label}</Form.Label>
-          <Form.Input type={formField.type} class="input rounded-md" />
-          <Form.Validation class="text-red-500 font-semibold" />
+    <div class="grid grid-cols-1 gap-4 lg:grid-cols-2 mt-4">
+      <Form.Root
+        controlled
+        form={superFrm}
+        schema={uploadVideoSchema}
+        let:config
+        method="POST"
+        action="/upload"
+      >
+        <div class="grid grid-cols-1 gap-2">
+          <Form.Field {config} name="title">
+            <div class="flex flex-col">
+              <Form.Label>Video Title</Form.Label>
+              <Form.Input type="text" class="input rounded-md" />
+              <Form.Validation class="text-red-500 font-semibold" />
+            </div>
+          </Form.Field>
+          <Form.Field {config} name="description">
+            <div class="flex flex-col">
+              <Form.Label>Description</Form.Label>
+              <Form.Input type="text" class="input rounded-md" />
+              <Form.Validation class="text-red-500 font-semibold" />
+            </div>
+          </Form.Field>
         </div>
-      </Form.Field>
-      <slot name="submitButton" />
-    </Form.Root>
-    <video src={videoSrc} controls class="w-full h-auto rounded-lg shadow-lg">
-      <track kind="captions" />
-    </video>
+        <div class="flex items-center gap-2 w-full mt-4">
+          <button
+            type="button"
+            class="btn variant-outline-tertiary rounded-md"
+            on:click={handleCancelClick}>Cancel</button
+          >
+          <button type="submit" class="btn variant-filled-primary rounded-md"
+            >Upload</button
+          >
+        </div>
+      </Form.Root>
+      <video src={videoSrc} controls class="w-full h-auto rounded-lg shadow-lg">
+        <track kind="captions" />
+      </video>
+    </div>
   {:else}
-    <div class="flex items-center justify-between">
-      <div class="flex flex-col gap-1">
+    <div class="flex flex-col gap-1 mb-4">
+      <div class="flex justify-between items-center">
         <h1 class="h2">Upload Your Clip Here</h1>
-        <p>
-          Use the input field below to upload your video clip. Drap and drop or
-          click on the field to select your file.
-        </p>
+        <a
+          href="/myUploads"
+          class="btn btn-sm variant-filled-tertiary rounded-md"
+        >
+          Previous Uploads
+        </a>
       </div>
-      <a href="/myUploads" class="btn variant-filled-tertiary rounded-md">
-        Previous Uploads
-      </a>
+      <p>
+        Use the input field below to upload your video clip. Drap and drop or
+        click on the field to select your file.
+      </p>
     </div>
     <FileDropzone
       name="video"
       on:change={onChangeHandler}
       accept="video/mp4,video/x-m4v,video/*"
+      value={videoSrc}
     >
       <svelte:fragment slot="lead">
         <i class="fa-solid fa-file-video text-4xl"></i>

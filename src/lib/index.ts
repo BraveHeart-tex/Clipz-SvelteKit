@@ -99,3 +99,15 @@ export function generateFormFields(
 
   return formFields;
 }
+
+export const acceptedFileTypes = [
+  'video/mp4',
+  'video/x-m4v',
+  'video/*',
+  'video/quicktime',
+  'video/x-msvideo',
+  'video/x-flv',
+  'video/webm',
+  'video/x-matroska',
+  'video/mpeg'
+];
