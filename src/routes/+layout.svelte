@@ -66,7 +66,7 @@
   <svelte:fragment slot="sidebarLeft">
     <Navigation />
   </svelte:fragment>
-  <div class="p-10 mx-auto">
+  <div class="p-4 lg:p-10 mx-auto">
     <Transition url={data.url}>
       <slot />
     </Transition>
