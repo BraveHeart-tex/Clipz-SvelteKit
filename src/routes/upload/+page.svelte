@@ -13,17 +13,41 @@
   } from '@skeletonlabs/skeleton';
   import { superForm } from 'sveltekit-superforms/client';
   import { acceptedFileTypes } from '$lib';
+  import VideoPlayer from 'svelte-video-player';
 
   export let data: PageData;
   let videoSrc: string | null = null;
   let title: string = '';
   let loading: boolean = false;
-  let videoRef: HTMLVideoElement | null = null;
+  let poster: string = '';
 
   const toastStore = getToastStore();
   const modalStore = getModalStore();
 
   const superFrm = superForm(data.form, {});
+
+  const generateVideoThumbnail = (file: File) => {
+    return new Promise((resolve) => {
+      const canvas = document.createElement('canvas');
+      const video = document.createElement('video');
+
+      // this is important
+      video.autoplay = true;
+      video.muted = true;
+      video.src = URL.createObjectURL(file);
+
+      video.onloadeddata = () => {
+        let ctx = canvas.getContext('2d');
+
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+
+        ctx?.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
+        video.pause();
+        return resolve(canvas.toDataURL('image/png'));
+      };
+    });
+  };
 
   async function onChangeHandler(e: Event) {
     const target = e.target as HTMLInputElement;
@@ -32,8 +56,11 @@
       if (!file || file.type !== 'video/mp4') return;
 
       if (acceptedFileTypes.includes(file.type)) {
+        const thumbnail = await generateVideoThumbnail(file);
+        poster = thumbnail as string;
         const reader = new FileReader();
         reader.readAsDataURL(file);
+
         reader.onload = () => {
           videoSrc = reader.result as string;
           const videoTitle = file.name.split('.').slice(0, -1).join('.');
@@ -121,25 +148,8 @@
           </button>
         </div>
       </Form.Root>
-      <div data-vjs-player>
-        <video
-          id="upload-preview-video"
-          src={videoSrc}
-          bind:this={videoRef}
-          controls
-          width="100%"
-          height="auto"
-          class="video-js vjs-theme-forest w-full h-auto rounded-lg shadow-lg"
-        >
-          <track kind="captions" />
-          <p class="vjs-no-js">
-            To view this video please enable JavaScript, and consider upgrading
-            to a web browser that
-            <a href="https://videojs.com/html5-video-support/" target="_blank"
-              >supports HTML5 video</a
-            >
-          </p>
-        </video>
+      <div class="cursor-pointer">
+        <VideoPlayer {poster} source={videoSrc} />
       </div>
     </div>
   {:else}

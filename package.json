@@ -66,6 +66,7 @@
     "formsnap": "^0.4.2",
     "lucia": "^2.7.6",
     "rxjs": "^7.8.1",
+    "svelte-video-player": "^1.2.5",
     "sveltekit-superforms": "^1.13.1",
     "tailwind-merge": "^2.2.0",
     "uuid": "^9.0.1",
