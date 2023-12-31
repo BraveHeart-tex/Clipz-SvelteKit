@@ -1,28 +1,38 @@
 <script lang="ts">
   import uploadVideoSchema from '$lib/schemas/UploadVideoSchema';
   import type { PageData } from './$types';
-  import { Form } from 'formsnap';
+  import { Form, type FormOptions } from 'formsnap';
+  import { user } from '$lib/state.svelte';
+
   import {
     FileDropzone,
     getModalStore,
     getToastStore,
+    ProgressBar,
     type ModalSettings,
     type ToastSettings
   } from '@skeletonlabs/skeleton';
   import { superForm } from 'sveltekit-superforms/client';
   import { acceptedFileTypes, generateVideoThumbnail } from '$lib';
+  import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
+  import { storage } from '$lib/firebase';
 
   export let data: PageData;
+  $: User = $user;
   let videoSrc: string | null = null;
-  let title: string = '';
   let loading: boolean = false;
   let poster: string = '';
   let uploadedFile: File | null = null;
+  let progress: number = 0;
+  let isSubmitting: boolean = false;
+  let submitCompleted: boolean = false;
 
   const toastStore = getToastStore();
   const modalStore = getModalStore();
 
-  const superFrm = superForm(data.form, {});
+  const superFrm = superForm(data.form, {
+    validators: uploadVideoSchema
+  });
 
   async function onChangeHandler(e: Event) {
     const target = e.target as HTMLInputElement;
@@ -61,6 +71,14 @@
     }
   }
 
+  const resetForm = () => {
+    superFrm.reset();
+    videoSrc = null;
+    uploadedFile = null;
+    isSubmitting = false;
+    submitCompleted = false;
+  };
+
   const handleCancelClick = () => {
     const modal: ModalSettings = {
       type: 'confirm',
@@ -70,34 +88,141 @@
       buttonTextConfirm: 'Yes, cancel upload',
       response(r) {
         if (r) {
-          videoSrc = null;
-          title = '';
+          resetForm();
         }
       }
     };
 
     modalStore.trigger(modal);
   };
+
+  const handleSubmit = async (e: Event) => {
+    e.preventDefault();
+    isSubmitting = true;
+
+    const validationResult = await superFrm.validate();
+    if (!validationResult.valid) {
+      isSubmitting = false;
+      return;
+    }
+
+    try {
+      const { title, description } = validationResult.data;
+
+      // upload to firebase storage
+      const storageRef = ref(
+        storage,
+        `videos/${title.replace(/\s/g, '_')}.mp4`
+      );
+
+      const uploadTask = uploadBytesResumable(
+        storageRef,
+        uploadedFile as File,
+        {
+          contentType: 'video/mp4'
+        }
+      );
+
+      uploadTask.on(
+        'state_changed',
+        (snapshot) => {
+          progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        },
+        (error) => {
+          isSubmitting = false;
+          const errorToast: ToastSettings = {
+            message:
+              'An error occurred while uploading your video. Please try again later.',
+            background: 'variant-filled-error',
+            timeout: 5000
+          };
+          toastStore.trigger(errorToast);
+        },
+        () => {
+          isSubmitting = false;
+          submitCompleted = true;
+          // get the https download url
+          getDownloadURL(uploadTask.snapshot.ref).then((url) => {
+            if (url) {
+              console.log(url);
+
+              const formData = new FormData();
+              formData.set('title', title);
+              formData.set('description', description);
+              formData.set('videoUrl', url);
+
+              // send the form data to the server
+              fetch('/upload', {
+                method: 'POST',
+                body: formData
+              });
+            }
+          });
+        }
+      );
+    } catch (error) {
+      isSubmitting = false;
+      const errorToast: ToastSettings = {
+        message:
+          'An error occurred while uploading your video. Please try again later.',
+        background: 'variant-filled-error',
+        timeout: 5000
+      };
+      toastStore.trigger(errorToast);
+    }
+  };
+
+  $: {
+    if (submitCompleted) {
+      const successToast: ToastSettings = {
+        message: 'Your video has been uploaded successfully.',
+        background: 'variant-filled-success',
+        timeout: 5000
+      };
+      toastStore.trigger(successToast);
+
+      resetForm();
+    }
+  }
 </script>
 
 <div class="mt-2">
-  <Form.Root
-    controlled
-    form={superFrm}
-    schema={uploadVideoSchema}
-    let:config
-    method="POST"
-    action="/upload"
-    debug
-  >
-    {#if videoSrc}
-      <div class="flex flex-col gap-1">
-        <h1 class="h2">Preview Your Clip</h1>
-        <p>
-          Please confirm that the video below is the clip you want to upload.
-        </p>
+  {#if videoSrc}
+    <div class="flex flex-col gap-1">
+      <h1 class="h2">Preview Your Clip</h1>
+      <p>Please confirm that the video below is the clip you want to upload.</p>
+    </div>
+    {#if isSubmitting && !submitCompleted}
+      <!--  -->
+      <div
+        class={'fixed top-0 left-0 w-full h-full flex items-center justify-center bg-surface-700 bg-opacity-75 z-50'}
+      >
+        <div class="flex flex-col gap-2">
+          <h3 class="h3">
+            Your video is being uploaded (%{progress.toFixed(0)})
+          </h3>
+          <p>
+            Please do not close this window or navigate away from this page
+            until the upload is complete.
+          </p>
+          <ProgressBar
+            label="Progress Bar"
+            value={progress}
+            max={100}
+            transition="transition-all animate-pulse"
+          />
+        </div>
       </div>
-      <div class="grid grid-cols-1 gap-4 lg:grid-cols-2 mt-4">
+    {/if}
+    <div class="grid grid-cols-1 gap-4 lg:grid-cols-2 mt-4">
+      <Form.Root
+        form={superFrm}
+        schema={uploadVideoSchema}
+        controlled
+        let:config
+        debug
+        on:submit={handleSubmit}
+      >
         <div class="grid grid-cols-1 gap-2">
           <Form.Field {config} name="title">
             <div class="flex flex-col">
@@ -118,53 +243,56 @@
           <button
             type="button"
             class="btn variant-outline-tertiary rounded-md"
+            disabled={isSubmitting}
             on:click={handleCancelClick}>Cancel</button
           >
           <button
             type="submit"
+            disabled={isSubmitting}
             class="btn variant-filled-primary rounded-md"
-            disabled={loading}
           >
             Upload
           </button>
         </div>
-        <div class="cursor-pointer">
-          <video controls src={videoSrc} class="rounded-md shadow-md">
-            <track kind="captions" />
-          </video>
-        </div>
+      </Form.Root>
+
+      <div class="cursor-pointer">
+        <video controls src={videoSrc} class="rounded-md shadow-md">
+          <track kind="captions" />
+        </video>
       </div>
-    {:else}
-      <div class="flex flex-col gap-1 mb-4">
-        <div class="flex justify-between items-center">
-          <h1 class="h2">Upload Your Clip Here</h1>
-          <a
-            href="/myUploads"
-            class="btn btn-sm variant-filled-tertiary rounded-md"
-          >
-            Previous Uploads
-          </a>
-        </div>
-        <p>
-          Use the input field below to upload your video clip. Drap and drop or
-          click on the field to select your file.
-        </p>
+    </div>
+  {:else}
+    <div class="flex flex-col gap-1 mb-4">
+      <div class="flex justify-between items-center">
+        <h1 class="h2">Upload Your Clip Here</h1>
+        <a
+          href="/myUploads"
+          class="btn btn-sm variant-filled-tertiary rounded-md"
+        >
+          Previous Uploads
+        </a>
       </div>
-      <FileDropzone
-        name="file"
-        on:change={onChangeHandler}
-        accept="video/mp4,video/x-m4v,video/*"
-      >
-        <svelte:fragment slot="lead">
-          <i class="fa-solid fa-file-video text-4xl"></i>
-        </svelte:fragment>
-        <svelte:fragment slot="message">
-          Drag and drop your video file here or click to select a file.
-        </svelte:fragment>
-        <svelte:fragment slot="meta">
-          Accepted file types: mp4, m4v, mov, avi, wmv, flv, webm, mkv, mpeg
-        </svelte:fragment>
-      </FileDropzone>
-    {/if}
-  </Form.Root>
+      <p>
+        Use the input field below to upload your video clip. Drap and drop or
+        click on the field to select your file.
+      </p>
+    </div>
+
+    <FileDropzone
+      name="file"
+      on:change={onChangeHandler}
+      accept="video/mp4,video/x-m4v,video/*"
+    >
+      <svelte:fragment slot="lead">
+        <i class="fa-solid fa-file-video text-4xl"></i>
+      </svelte:fragment>
+      <svelte:fragment slot="message">
+        Drag and drop your video file here or click to select a file.
+      </svelte:fragment>
+      <svelte:fragment slot="meta">
+        Accepted file types: mp4, m4v, mov, avi, wmv, flv, webm, mkv, mpeg
+      </svelte:fragment>
+    </FileDropzone>
+  {/if}
 </div>

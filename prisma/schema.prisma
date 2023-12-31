@@ -17,6 +17,8 @@ model User {
   updated_at   DateTime  @updatedAt
   Video        Video[]
   isAdmin      Boolean   @default(false)
+
+  @@map("tbl_users")
 }
 
 model Video {
@@ -29,6 +31,8 @@ model Video {
   isApproved  Boolean  @default(false)
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
+
+  @@map("tbl_videos")
 }
 
 model Session {
@@ -39,6 +43,7 @@ model Session {
   user           User   @relation(references: [id], fields: [user_id], onDelete: Cascade)
 
   @@index([user_id])
+  @@map("tbl_sessions")
 }
 
 model Key {
@@ -48,4 +53,5 @@ model Key {
   user            User    @relation(references: [id], fields: [user_id], onDelete: Cascade)
 
   @@index([user_id])
+  @@map("tbl_keys")
 }
