@@ -17,6 +17,7 @@ model User {
   updated_at   DateTime  @updatedAt
   Video        Video[]
   isAdmin      Boolean   @default(false)
+  views        Int       @default(0)
 
   @@map("tbl_users")
 }
