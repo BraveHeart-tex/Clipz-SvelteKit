@@ -21,12 +21,12 @@
   };
 </script>
 
-<div class="bg-surface-500 w-full max-w-2xl">
+<div class="dark:bg-surface-500 bg-surface-200 w-full max-w-2xl">
   <TabGroup
     rounded="rounded-md"
     hover="hover:variant-soft-primary"
     flex="flex-1"
-    active="bg-primary-500"
+    active="bg-primary-300 rounded-none dark:bg-primary-500"
     regionPanel="p-4"
   >
     {#each tabs as tab}
