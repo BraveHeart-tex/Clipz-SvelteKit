@@ -11,7 +11,7 @@
 
   $: User = $user;
 
-  $: links = [
+  $: navigationlinks = [
     {
       name: 'Home',
       href: '/',
@@ -55,6 +55,13 @@
       visible: User ? true : false
     },
     {
+      name: 'Admin',
+      href: '/admin',
+      icon: '<i class="fa-solid fa-user-tie"></i>',
+      adminOnly: true,
+      visible: User?.isAdmin ? true : false
+    },
+    {
       name: 'Settings',
       href: '/settings',
       icon: '<i class="fa-solid fa-cog"></i>',
@@ -92,7 +99,11 @@
 
 <nav class="list-nav p-4">
   <ul>
-    {#each links as link}
+    {#each navigationlinks.filter((item) => {
+      if (!User) return !item.adminOnly;
+      if (User && User.isAdmin) return item;
+      return item.visible && !item.adminOnly;
+    }) as link}
       <li aria-current={$page.url.pathname === link.href ? 'page' : null}>
         <a
           href={link.visible ? link.href : '#'}

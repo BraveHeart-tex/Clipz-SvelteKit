@@ -1,13 +1,24 @@
 <!doctype html>
 <html lang="en" class="dark">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" href="%sveltekit.assets%/favicon.png" />
-		<meta name="viewport" content="width=device-width" />
-		<link href="./../node_modules/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet" />
-		%sveltekit.head%
-	</head>
-	<body data-sveltekit-preload-data="hover" data-theme="crimson">
-		<div style="display: contents" class="h-full overflow-hidden">%sveltekit.body%</div>
-	</body>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="%sveltekit.assets%/favicon.png" />
+    <meta name="viewport" content="width=device-width" />
+    <link
+      href="./../node_modules/@fortawesome/fontawesome-free/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link href="https://vjs.zencdn.net/8.6.1/video-js.css" rel="stylesheet" />
+    <link
+      href="https://unpkg.com/@videojs/themes@1/dist/city/index.css"
+      rel="stylesheet"
+    />
+    %sveltekit.head%
+  </head>
+  <body data-sveltekit-preload-data="hover" data-theme="crimson">
+    <div style="display: contents" class="h-full overflow-hidden">
+      %sveltekit.body%
+    </div>
+    <script src="https://vjs.zencdn.net/8.6.1/video.min.js"></script>
+  </body>
 </html>

@@ -1,6 +1,4 @@
 <script lang="ts">
-  // Forest
-  import '@videojs/themes/dist/forest/index.css';
   import uploadVideoSchema from '$lib/schemas/UploadVideoSchema';
   import type { PageData } from './$types';
   import { Form } from 'formsnap';
@@ -12,42 +10,19 @@
     type ToastSettings
   } from '@skeletonlabs/skeleton';
   import { superForm } from 'sveltekit-superforms/client';
-  import { acceptedFileTypes } from '$lib';
-  import VideoPlayer from 'svelte-video-player';
+  import { acceptedFileTypes, generateVideoThumbnail } from '$lib';
 
   export let data: PageData;
   let videoSrc: string | null = null;
   let title: string = '';
   let loading: boolean = false;
   let poster: string = '';
+  let uploadedFile: File | null = null;
 
   const toastStore = getToastStore();
   const modalStore = getModalStore();
 
   const superFrm = superForm(data.form, {});
-
-  const generateVideoThumbnail = (file: File) => {
-    return new Promise((resolve) => {
-      const canvas = document.createElement('canvas');
-      const video = document.createElement('video');
-
-      // this is important
-      video.autoplay = true;
-      video.muted = true;
-      video.src = URL.createObjectURL(file);
-
-      video.onloadeddata = () => {
-        let ctx = canvas.getContext('2d');
-
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-
-        ctx?.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
-        video.pause();
-        return resolve(canvas.toDataURL('image/png'));
-      };
-    });
-  };
 
   async function onChangeHandler(e: Event) {
     const target = e.target as HTMLInputElement;
@@ -56,13 +31,16 @@
       if (!file || file.type !== 'video/mp4') return;
 
       if (acceptedFileTypes.includes(file.type)) {
+        uploadedFile = file;
         const thumbnail = await generateVideoThumbnail(file);
         poster = thumbnail as string;
+
         const reader = new FileReader();
         reader.readAsDataURL(file);
 
         reader.onload = () => {
           videoSrc = reader.result as string;
+
           const videoTitle = file.name.split('.').slice(0, -1).join('.');
           superFrm.fields.title.value.set(videoTitle);
         };
@@ -103,20 +81,23 @@
 </script>
 
 <div class="mt-2">
-  {#if videoSrc}
-    <div class="flex flex-col gap-1">
-      <h1 class="h2">Preview Your Clip</h1>
-      <p>Please confirm that the video below is the clip you want to upload.</p>
-    </div>
-    <div class="grid grid-cols-1 gap-4 lg:grid-cols-2 mt-4">
-      <Form.Root
-        controlled
-        form={superFrm}
-        schema={uploadVideoSchema}
-        let:config
-        method="POST"
-        action="/upload"
-      >
+  <Form.Root
+    controlled
+    form={superFrm}
+    schema={uploadVideoSchema}
+    let:config
+    method="POST"
+    action="/upload"
+    debug
+  >
+    {#if videoSrc}
+      <div class="flex flex-col gap-1">
+        <h1 class="h2">Preview Your Clip</h1>
+        <p>
+          Please confirm that the video below is the clip you want to upload.
+        </p>
+      </div>
+      <div class="grid grid-cols-1 gap-4 lg:grid-cols-2 mt-4">
         <div class="grid grid-cols-1 gap-2">
           <Form.Field {config} name="title">
             <div class="flex flex-col">
@@ -147,42 +128,43 @@
             Upload
           </button>
         </div>
-      </Form.Root>
-      <div class="cursor-pointer">
-        <VideoPlayer {poster} source={videoSrc} />
+        <div class="cursor-pointer">
+          <video controls src={videoSrc} class="rounded-md shadow-md">
+            <track kind="captions" />
+          </video>
+        </div>
       </div>
-    </div>
-  {:else}
-    <div class="flex flex-col gap-1 mb-4">
-      <div class="flex justify-between items-center">
-        <h1 class="h2">Upload Your Clip Here</h1>
-        <a
-          href="/myUploads"
-          class="btn btn-sm variant-filled-tertiary rounded-md"
-        >
-          Previous Uploads
-        </a>
+    {:else}
+      <div class="flex flex-col gap-1 mb-4">
+        <div class="flex justify-between items-center">
+          <h1 class="h2">Upload Your Clip Here</h1>
+          <a
+            href="/myUploads"
+            class="btn btn-sm variant-filled-tertiary rounded-md"
+          >
+            Previous Uploads
+          </a>
+        </div>
+        <p>
+          Use the input field below to upload your video clip. Drap and drop or
+          click on the field to select your file.
+        </p>
       </div>
-      <p>
-        Use the input field below to upload your video clip. Drap and drop or
-        click on the field to select your file.
-      </p>
-    </div>
-    <FileDropzone
-      name="video"
-      on:change={onChangeHandler}
-      accept="video/mp4,video/x-m4v,video/*"
-      value={videoSrc}
-    >
-      <svelte:fragment slot="lead">
-        <i class="fa-solid fa-file-video text-4xl"></i>
-      </svelte:fragment>
-      <svelte:fragment slot="message">
-        Drag and drop your video file here or click to select a file.
-      </svelte:fragment>
-      <svelte:fragment slot="meta">
-        Accepted file types: mp4, m4v, mov, avi, wmv, flv, webm, mkv, mpeg
-      </svelte:fragment>
-    </FileDropzone>
-  {/if}
+      <FileDropzone
+        name="file"
+        on:change={onChangeHandler}
+        accept="video/mp4,video/x-m4v,video/*"
+      >
+        <svelte:fragment slot="lead">
+          <i class="fa-solid fa-file-video text-4xl"></i>
+        </svelte:fragment>
+        <svelte:fragment slot="message">
+          Drag and drop your video file here or click to select a file.
+        </svelte:fragment>
+        <svelte:fragment slot="meta">
+          Accepted file types: mp4, m4v, mov, avi, wmv, flv, webm, mkv, mpeg
+        </svelte:fragment>
+      </FileDropzone>
+    {/if}
+  </Form.Root>
 </div>

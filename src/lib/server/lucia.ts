@@ -1,4 +1,4 @@
-import { lucia } from 'lucia';
+import { lucia, type GlobalDatabaseUserAttributes } from 'lucia';
 import { prisma as prismaAdapter } from '@lucia-auth/adapter-prisma';
 import { dev } from '$app/environment';
 import prisma from '$lib/server/prisma';
@@ -12,11 +12,12 @@ export const auth = lucia({
     session: 'session'
   }),
   middleware: sveltekit(),
-  getUserAttributes: (user) => {
+  getUserAttributes: (user: GlobalDatabaseUserAttributes) => {
     return {
       userId: user.id,
       name: user.name,
-      email: user.email
+      email: user.email,
+      isAdmin: user.isAdmin
     };
   }
 });

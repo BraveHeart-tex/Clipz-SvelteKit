@@ -15,6 +15,20 @@ model User {
   key          Key[]
   created_at   DateTime  @default(now())
   updated_at   DateTime  @updatedAt
+  Video        Video[]
+  isAdmin      Boolean   @default(false)
+}
+
+model Video {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  url         String
+  user_id     String
+  user        User     @relation(references: [id], fields: [user_id], onDelete: Cascade)
+  isApproved  Boolean  @default(false)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
 }
 
 model Session {

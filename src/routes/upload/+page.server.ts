@@ -2,6 +2,8 @@ import { redirect, type Actions, fail } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import { superValidate } from 'sveltekit-superforms/server';
 import uploadVideoSchema from '$lib/schemas/UploadVideoSchema';
+import { storage } from '$lib/firebase';
+import { ref, uploadBytes } from 'firebase/storage';
 
 export const load: PageServerLoad = async ({ locals }) => {
   const session = await locals.auth.validate();
@@ -26,13 +28,30 @@ export const actions: Actions = {
     }
 
     const form = await superValidate(request, uploadVideoSchema);
+
     if (!form.valid) {
       return fail(400, { form });
     }
 
     try {
-      const { title, description } = form.data;
+      console.log(form.data);
+
+      const { title, description, file } = form.data;
       const userId = session.user.userId;
+
+      // upload the video to the cloud
+      const storageRef = ref(
+        storage,
+        `videos/${title.replace(/\s/g, '_')}.mp4`
+      );
+
+      const result = await uploadBytes(storageRef, file, {
+        contentType: 'video/mp4'
+      });
+
+      console.log(result.ref.fullPath);
+
+      // after that, save the video to the database with the url and userId
     } catch (error) {
       console.error(error);
       return fail(500, {
