@@ -5,7 +5,8 @@ const uploadVideoSchema = z.object({
   description: z
     .string()
     .min(3, "Description can't be less than 3 characters.")
-    .max(1000)
+    .max(1000),
+  thumbnail: z.any()
 });
 
 export type UploadVideoSchema = z.infer<typeof uploadVideoSchema>;

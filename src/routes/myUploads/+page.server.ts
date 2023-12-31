@@ -11,6 +11,8 @@ export const load: PageServerLoad = async ({ locals, url, depends }) => {
   depends('app:myVideos');
 
   const searchParams = url.searchParams;
+  console.log(searchParams.get('q'));
+
   const searchQuery = searchParams.get('q') || '';
   const page = searchParams.get('page') || 1;
   const pageSize = 12;
@@ -32,11 +34,16 @@ export const load: PageServerLoad = async ({ locals, url, depends }) => {
             contains: searchQuery
           }
         }
-      ]
+      ],
+      created_at: {}
     }
   });
 
   return {
-    userUploads
+    userUploads,
+    hasNextPage: userUploads?.length === pageSize,
+    hasPreviousPage: Number(page) > 1,
+    currentPage: Number(page),
+    totalPageCount: userUploads ? Math.ceil(userUploads.length / pageSize) : 0
   };
 };

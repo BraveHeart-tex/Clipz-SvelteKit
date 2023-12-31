@@ -26,7 +26,8 @@ model Video {
   id          String   @id @default(cuid())
   title       String
   description String?
-  url         String
+  url         String   @db.LongText
+  poster_url  String?  @db.LongText
   user_id     String
   user        User     @relation(references: [id], fields: [user_id], onDelete: Cascade)
   isApproved  Boolean  @default(false)
@@ -55,4 +56,11 @@ model Key {
 
   @@index([user_id])
   @@map("tbl_keys")
+}
+
+enum VideoStatus {
+  PENDING_REVIEW
+  IN_REVIEW
+  PUBLISHED
+  REJECTED
 }

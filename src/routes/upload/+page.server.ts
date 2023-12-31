@@ -2,8 +2,6 @@ import { redirect, type Actions, fail } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import { superValidate } from 'sveltekit-superforms/server';
 import uploadVideoSchema from '$lib/schemas/UploadVideoSchema';
-import { storage } from '$lib/firebase';
-import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 
 export const load: PageServerLoad = async ({ locals }) => {
   const session = await locals.auth.validate();

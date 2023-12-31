@@ -18,14 +18,13 @@
   import { storage } from '$lib/firebase';
 
   export let data: PageData;
-  $: User = $user;
   let videoSrc: string | null = null;
-  let loading: boolean = false;
   let poster: string = '';
   let uploadedFile: File | null = null;
   let progress: number = 0;
   let isSubmitting: boolean = false;
   let submitCompleted: boolean = false;
+  let thumbnail: File | null = null;
 
   const toastStore = getToastStore();
   const modalStore = getModalStore();
@@ -77,6 +76,8 @@
     uploadedFile = null;
     isSubmitting = false;
     submitCompleted = false;
+    poster = '';
+    thumbnail = null;
   };
 
   const handleCancelClick = () => {
@@ -115,13 +116,9 @@
         `videos/${title.replace(/\s/g, '_')}.mp4`
       );
 
-      const uploadTask = uploadBytesResumable(
-        storageRef,
-        uploadedFile as File,
-        {
-          contentType: 'video/mp4'
-        }
-      );
+      let uploadTask = uploadBytesResumable(storageRef, uploadedFile as File, {
+        contentType: 'video/mp4'
+      });
 
       uploadTask.on(
         'state_changed',
@@ -172,6 +169,36 @@
     }
   };
 
+  const handleThumbnailChange = (event: Event) => {
+    const target = event.target as HTMLInputElement;
+    if (target.files) {
+      const file = target?.files[0];
+      if (!file) return;
+
+      if (file.type.startsWith('image/')) {
+        thumbnail = file;
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+
+        reader.onload = () => {
+          poster = reader.result as string;
+        };
+        reader.onerror = (error) => {
+          console.log(error);
+        };
+      } else {
+        const errorToast: ToastSettings = {
+          message: 'Invalid file type. Please upload an image file.',
+          background: 'variant-filled-error',
+          timeout: 5000
+        };
+        toastStore.trigger(errorToast);
+      }
+    } else {
+      console.log('no file');
+    }
+  };
+
   $: {
     if (submitCompleted) {
       const successToast: ToastSettings = {
@@ -214,13 +241,12 @@
         </div>
       </div>
     {/if}
-    <div class="grid grid-cols-1 gap-4 lg:grid-cols-2 mt-4">
+    <div class="grid grid-cols-1 gap-4 xl:grid-cols-2 mt-4">
       <Form.Root
         form={superFrm}
         schema={uploadVideoSchema}
         controlled
         let:config
-        debug
         on:submit={handleSubmit}
       >
         <div class="grid grid-cols-1 gap-2">
@@ -230,6 +256,27 @@
               <Form.Input type="text" class="input rounded-md" />
               <Form.Validation class="text-red-500 font-semibold" />
             </div>
+          </Form.Field>
+          <Form.Field {config} name="thumbnail">
+            <Form.Control id="thumbnail" let:attrs>
+              <div class="flex flex-col">
+                <label for="thumbnail">Thumbnail</label>
+                <input
+                  {...attrs}
+                  id="thumbnail"
+                  name="thumbnail"
+                  type="file"
+                  class="input rounded-md"
+                  accept="image/*"
+                  on:change={handleThumbnailChange}
+                />
+                <Form.Validation class="text-red-500 font-semibold" />
+                <Form.Description>
+                  Upload a custom thumbnail for your video. If you do not upload
+                  a thumbnail, a thumbnail will be generated from your video.
+                </Form.Description>
+              </div>
+            </Form.Control>
           </Form.Field>
           <Form.Field {config} name="description">
             <div class="flex flex-col">
@@ -255,11 +302,29 @@
           </button>
         </div>
       </Form.Root>
-
-      <div class="cursor-pointer">
-        <video controls src={videoSrc} class="rounded-md shadow-md">
+    </div>
+    <div class="cursor-pointer grid grid-cols-1 gap-2 lg:grid-cols-2 mt-4">
+      <div class="flex flex-col gap-2">
+        <h3 class="h3">Video Preview:</h3>
+        <video
+          controls
+          src={videoSrc}
+          class="rounded-md shadow-md"
+          width="800"
+          height="600"
+        >
           <track kind="captions" />
         </video>
+      </div>
+      <div class="flex flex-col gap-2">
+        <h3 class="h3">Thumbnail Preview:</h3>
+        <img
+          src={poster}
+          alt="video thumbnail"
+          class="rounded-md shadow-md"
+          width="800"
+          height="600"
+        />
       </div>
     </div>
   {:else}

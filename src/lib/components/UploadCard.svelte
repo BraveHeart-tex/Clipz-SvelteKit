@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { invalidate, invalidateAll } from '$app/navigation';
+  import { invalidate } from '$app/navigation';
   import type { Video } from '@prisma/client';
   import {
     getModalStore,
@@ -50,13 +50,17 @@
   };
 </script>
 
-<div class="card justify-between flex flex-col">
+<div class="card justify-between flex flex-col rounded-md">
   <header class="card-header">
-    <h3 class="h4">{video.title}</h3>
-    <p class="text-sm text-gray-500">{video.description} {video.description}</p>
+    <h3 class="h4 max-w-lg truncate">
+      {video.title}
+    </h3>
+    <p class="text-sm text-gray-500 max-h-[50px] truncate">
+      {video.description}
+    </p>
   </header>
   <section class="p-4">
-    <video poster="" src={video.url}> <track kind="captions" /></video>
+    <img src={video?.poster_url} alt={video.title} />
   </section>
   <footer class="card-footer self-end flex items-center gap-2">
     <a

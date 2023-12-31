@@ -2,10 +2,31 @@ import type { DocumentSnapshot } from 'firebase/firestore';
 import { type ClassValue, clsx } from 'clsx';
 import { ZodEffects, ZodObject } from 'zod';
 import { twMerge } from 'tailwind-merge';
+import { replaceState } from '$app/navigation';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
+
+export const debounce = (callback: () => void, delay = 500) => {
+  let timer: NodeJS.Timeout | null = null;
+  clearTimeout(timer!);
+  timer = setTimeout(() => {
+    callback();
+  }, delay);
+};
+
+export const replaceStateWithQuery = (values: Record<string, string>) => {
+  const url = new URL(window.location.toString());
+  // eslint-disable-next-line prefer-const
+  for (let [k, v] of Object.entries(values)) {
+    if (v) {
+      url.searchParams.set(encodeURIComponent(k), encodeURIComponent(v));
+    } else {
+      url.searchParams.delete(k);
+    }
+  }
+};
 
 export const mapDocumentWithId = (doc: DocumentSnapshot) => ({
   id: doc.id,
