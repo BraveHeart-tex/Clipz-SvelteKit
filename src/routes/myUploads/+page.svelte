@@ -8,8 +8,6 @@
   $: hasSearchParams = $page.url.searchParams.size > 0;
 
   $: uploads = data?.userUploads;
-
-  console.log(data.totalPageCount >= 1);
 </script>
 
 <h1 class="h2">My Uploads</h1>

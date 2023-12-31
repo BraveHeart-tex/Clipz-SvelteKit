@@ -1,9 +1,7 @@
 <script lang="ts">
   import uploadVideoSchema from '$lib/schemas/UploadVideoSchema';
   import type { PageData } from './$types';
-  import { Form, type FormOptions } from 'formsnap';
-  import { user } from '$lib/state.svelte';
-
+  import { Form } from 'formsnap';
   import {
     FileDropzone,
     getModalStore,
@@ -14,8 +12,14 @@
   } from '@skeletonlabs/skeleton';
   import { superForm } from 'sveltekit-superforms/client';
   import { acceptedFileTypes, generateVideoThumbnail } from '$lib';
-  import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
+  import {
+    getDownloadURL,
+    ref,
+    uploadBytesResumable,
+    uploadString
+  } from 'firebase/storage';
   import { storage } from '$lib/firebase';
+  import { v4 as uuidv4 } from 'uuid';
 
   export let data: PageData;
   let videoSrc: string | null = null;
@@ -104,60 +108,124 @@
     const validationResult = await superFrm.validate();
     if (!validationResult.valid) {
       isSubmitting = false;
+      superFrm.errors.set(validationResult.errors);
       return;
     }
 
     try {
       const { title, description } = validationResult.data;
 
-      // upload to firebase storage
-      const storageRef = ref(
-        storage,
-        `videos/${title.replace(/\s/g, '_')}.mp4`
-      );
+      const formData = new FormData();
 
-      let uploadTask = uploadBytesResumable(storageRef, uploadedFile as File, {
-        contentType: 'video/mp4'
-      });
-
-      uploadTask.on(
-        'state_changed',
-        (snapshot) => {
-          progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+      const fileInputs = [
+        {
+          name: 'video',
+          file: uploadedFile as File,
+          title: `${title.replace(/\s/g, '_')}.mp4`,
+          contentType: 'video/mp4',
+          storageRef: ref(
+            storage,
+            `videos/${uuidv4() + title.replace(/\s/g, '_')}.mp4`
+          )
         },
-        (error) => {
-          isSubmitting = false;
-          const errorToast: ToastSettings = {
-            message:
-              'An error occurred while uploading your video. Please try again later.',
-            background: 'variant-filled-error',
-            timeout: 5000
-          };
-          toastStore.trigger(errorToast);
-        },
-        () => {
-          isSubmitting = false;
-          submitCompleted = true;
-          // get the https download url
-          getDownloadURL(uploadTask.snapshot.ref).then((url) => {
-            if (url) {
-              console.log(url);
+        {
+          name: 'thumbnail',
+          file: thumbnail as File,
+          title: thumbnail?.name.replace(/\s/g, '_') as string,
+          contentType: 'image/jpeg',
+          storageRef: ref(
+            storage,
+            `thumbnails/${uuidv4() + thumbnail?.name.replace(/\s/g, '_') ?? ''}`
+          )
+        }
+      ];
 
-              const formData = new FormData();
-              formData.set('title', title);
-              formData.set('description', description);
-              formData.set('videoUrl', url);
+      // handle the case when the user does not upload a thumbnail
+      if (!thumbnail) {
+        fileInputs.pop();
 
-              // send the form data to the server
-              fetch('/upload', {
-                method: 'POST',
-                body: formData
+        const storageRef = ref(storage, `thumbnails/${uuidv4()}.jpg`);
+        uploadString(storageRef, poster, 'data_url', {
+          contentType: 'image/jpeg'
+        }).then((snapshot) => {
+          getDownloadURL(snapshot.ref).then((url) => {
+            console.log(url);
+
+            formData.set('thumbnailUrl', url);
+          });
+        });
+      }
+
+      console.log(fileInputs.length);
+
+      const uploadPromises = fileInputs.map((fileInput) => {
+        return new Promise((resolve, reject) => {
+          const uploadTask = uploadBytesResumable(
+            fileInput.storageRef,
+            fileInput.file,
+            {
+              contentType: fileInput.contentType
+            }
+          );
+
+          uploadTask.on(
+            'state_changed',
+            (snapshot) => {
+              const { bytesTransferred, totalBytes } = snapshot;
+              progress = (bytesTransferred / totalBytes) * 100;
+            },
+            (error) => {
+              isSubmitting = false;
+              const errorToast: ToastSettings = {
+                message:
+                  'An error occurred while uploading your video. Please try again later.',
+                background: 'variant-filled-error',
+                timeout: 5000
+              };
+              toastStore.trigger(errorToast);
+              reject(error);
+            },
+            () => {
+              getDownloadURL(uploadTask.snapshot.ref).then((url) => {
+                if (url) {
+                  resolve({
+                    name: fileInput.name,
+                    url
+                  });
+                } else {
+                  reject('Failed to get download URL');
+                }
               });
             }
-          });
-        }
-      );
+          );
+        });
+      });
+
+      const urls = await Promise.all(uploadPromises);
+      if (urls.length) {
+        const [videoUrl, thumbnailUrl] = urls as {
+          name: string;
+          url: string;
+        }[];
+
+        formData.set('title', title);
+        formData.set('description', description);
+        formData.set('videoUrl', videoUrl?.url);
+        if (thumbnailUrl) formData.set('thumbnailUrl', thumbnailUrl?.url);
+
+        console.log(formData.get('title'));
+
+        // send the form data to the server
+        fetch('/upload', {
+          method: 'POST',
+          body: formData
+        }).then(() => {
+          isSubmitting = false;
+          submitCompleted = true;
+        });
+      }
     } catch (error) {
+      console.log(error);
       isSubmitting = false;
       const errorToast: ToastSettings = {
         message:

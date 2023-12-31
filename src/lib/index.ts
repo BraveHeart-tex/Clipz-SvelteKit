@@ -2,7 +2,6 @@ import type { DocumentSnapshot } from 'firebase/firestore';
 import { type ClassValue, clsx } from 'clsx';
 import { ZodEffects, ZodObject } from 'zod';
 import { twMerge } from 'tailwind-merge';
-import { replaceState } from '$app/navigation';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -54,35 +53,6 @@ export const generateVideoThumbnail = (file: File) => {
       return resolve(canvas.toDataURL('image/png'));
     };
   });
-};
-
-const lazyLoadOptions = {
-  root: null,
-  rootMargin: '0px',
-  threshold: 0
-};
-
-export const lazyLoad = (image: HTMLImageElement, src: string) => {
-  const loaded = () => {
-    image.style.opacity = '1';
-  };
-  const observer = new IntersectionObserver((entries) => {
-    if (entries[0].isIntersecting) {
-      image.src = src;
-      if (image.complete) {
-        loaded();
-      } else {
-        image.addEventListener('load', loaded);
-      }
-    }
-  }, lazyLoadOptions);
-  observer.observe(image); // intersection observer
-
-  return {
-    destroy() {
-      image.removeEventListener('load', loaded); // clean up the event listener
-    }
-  };
 };
 
 export function generateFormFields(

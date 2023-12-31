@@ -38,14 +38,15 @@ export const actions: Actions = {
       const userId = session.user.userId;
 
       const url = formData.get('videoUrl') as string;
-      console.log(url);
+      const poster_url = formData.get('thumbnailUrl') as string;
 
       await prisma?.video.create({
         data: {
           title,
           description,
           user_id: userId,
-          url
+          url,
+          poster_url
         }
       });
     } catch (error) {

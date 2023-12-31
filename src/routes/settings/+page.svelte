@@ -8,4 +8,10 @@
   // Sidebar Type => Compact, Full, Hidden
 </script>
 
-<h1>Settings</h1>
+<div class="flex flex-col gap-1">
+  <h1 class="h2">Settings</h1>
+  <p>
+    Set your preferences for the app here. Color theme, notifications, sidebar
+    type, etc.
+  </p>
+</div>

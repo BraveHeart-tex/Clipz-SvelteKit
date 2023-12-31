@@ -50,7 +50,9 @@
   };
 </script>
 
-<div class="card justify-between flex flex-col rounded-md">
+<div
+  class="card justify-between flex flex-col rounded-md cursor-pointer hover:shadow-xl transition-all"
+>
   <header class="card-header">
     <h3 class="h4 max-w-lg truncate">
       {video.title}
