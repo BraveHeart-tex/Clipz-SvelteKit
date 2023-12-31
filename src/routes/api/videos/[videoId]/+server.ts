@@ -1,4 +1,6 @@
+import { storage } from '$lib/firebase';
 import { json, redirect, type RequestHandler } from '@sveltejs/kit';
+import { ref, deleteObject } from 'firebase/storage';
 
 export const DELETE: RequestHandler = async ({ locals, params }) => {
   const session = await locals.auth.validate();
@@ -33,6 +35,15 @@ export const DELETE: RequestHandler = async ({ locals, params }) => {
       { status: 404 }
     );
   }
+
+  // delete from storage
+  const videoStorageRef = ref(storage, result.url);
+  const thumbnailStorageRef = ref(storage, result.poster_url);
+
+  await Promise.all([
+    deleteObject(videoStorageRef),
+    deleteObject(thumbnailStorageRef)
+  ]);
 
   return json({ message: `Video deleted successfully.` }, { status: 200 });
 };
