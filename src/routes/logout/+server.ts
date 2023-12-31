@@ -9,7 +9,7 @@ export const POST: RequestHandler = async ({ locals }) => {
     await auth.invalidateSession(session.sessionId);
     locals.auth.setSession(null);
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return new Response(null, { status: 500 });
   }
 

@@ -11,7 +11,6 @@ export const load: PageServerLoad = async ({ locals, url, depends }) => {
   depends('app:myVideos');
 
   const searchParams = url.searchParams;
-  console.log(searchParams.get('q'));
 
   const searchQuery = searchParams.get('q') || '';
   const page = searchParams.get('page') || 1;

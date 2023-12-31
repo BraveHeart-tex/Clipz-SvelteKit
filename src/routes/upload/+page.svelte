@@ -58,7 +58,7 @@
           superFrm.fields.title.value.set(videoTitle);
         };
         reader.onerror = (error) => {
-          console.log(error);
+          console.error(error);
         };
       } else {
         const errorToast: ToastSettings = {
@@ -70,7 +70,6 @@
         toastStore.trigger(errorToast);
       }
     } else {
-      console.log('no file');
     }
   }
 
@@ -149,14 +148,10 @@
           contentType: 'image/jpeg'
         }).then((snapshot) => {
           getDownloadURL(snapshot.ref).then((url) => {
-            console.log(url);
-
             formData.set('thumbnailUrl', url);
           });
         });
       }
-
-      console.log(fileInputs.length);
 
       const uploadPromises = fileInputs.map((fileInput) => {
         return new Promise((resolve, reject) => {
@@ -213,8 +208,6 @@
         formData.set('videoUrl', videoUrl?.url);
         if (thumbnailUrl) formData.set('thumbnailUrl', thumbnailUrl?.url);
 
-        console.log(formData.get('title'));
-
         // send the form data to the server
         fetch('/upload', {
           method: 'POST',
@@ -225,7 +218,7 @@
         });
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
       isSubmitting = false;
       const errorToast: ToastSettings = {
         message:
@@ -252,7 +245,7 @@
           poster = reader.result as string;
         };
         reader.onerror = (error) => {
-          console.log(error);
+          console.error(error);
         };
       } else {
         const errorToast: ToastSettings = {
@@ -263,7 +256,6 @@
         toastStore.trigger(errorToast);
       }
     } else {
-      console.log('no file');
     }
   };
 
