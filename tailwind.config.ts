@@ -1,3 +1,9 @@
+import {
+  frutigerAero,
+  galacticVibes,
+  livelySpectrum,
+  midnightVibes
+} from './src/lib/themes';
 import { join } from 'path';
 import type { Config } from 'tailwindcss';
 import typography from '@tailwindcss/typography';
@@ -26,7 +32,8 @@ export default {
             name: 'crimson',
             enhancements: true
           }
-        ]
+        ],
+        custom: [midnightVibes, galacticVibes, livelySpectrum, frutigerAero]
       }
     })
   ]

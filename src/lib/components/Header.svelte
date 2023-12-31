@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { AppBar } from '@skeletonlabs/skeleton';
+  import { AppBar, LightSwitch } from '@skeletonlabs/skeleton';
   import { getDrawerStore } from '@skeletonlabs/skeleton';
   import UserMenu from './UserMenu.svelte';
 
@@ -27,6 +27,9 @@
   </slot:fragment>
   <!-- User Menu -->
   <slot:fragment slot="trail">
-    <UserMenu />
+    <div class="flex items-center gap-2">
+      <LightSwitch />
+      <UserMenu />
+    </div>
   </slot:fragment>
 </AppBar>
