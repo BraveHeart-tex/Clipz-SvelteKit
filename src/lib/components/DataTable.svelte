@@ -8,11 +8,10 @@
     type SortingState,
     createSvelteTable
   } from '@tanstack/svelte-table';
-  import type { Video } from '@prisma/client';
   import { writable } from 'svelte/store';
   import { onMount } from 'svelte';
 
-  export let data: Video[] = [];
+  export let data: unknown[] = [];
   export let title = '';
   export let columns: ColumnDef<unknown>[];
   export let apiPath: string = '';

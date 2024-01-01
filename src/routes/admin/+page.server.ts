@@ -2,11 +2,13 @@ import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import { VideoStatus } from '@prisma/client';
 
-export const load = (async ({ locals }) => {
+export const load = (async ({ locals, depends }) => {
   const session = await locals.auth.validate();
   if (!session) {
     throw redirect(302, '/');
   }
+
+  depends('app:admin');
 
   if (!session.user.isAdmin) {
     throw redirect(302, '/');
