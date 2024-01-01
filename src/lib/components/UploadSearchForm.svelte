@@ -1,9 +1,39 @@
 <script lang="ts">
+  import { generateReadbleEnumLabels } from '$lib';
+  import { myUploads } from '$lib/stores/myUploads';
+  import type { SearchUploadsResponse } from '$lib/types';
+  import { VideoStatus } from '@prisma/client';
+  import { getToastStore, type ToastSettings } from '@skeletonlabs/skeleton';
+
   let searchQuery = '';
-  let status = 1;
+  const toastStore = getToastStore();
+
+  const statusSelectOptions = generateReadbleEnumLabels({
+    enumObj: VideoStatus
+  });
+
+  const handleSearchSubmit = async (e: Event) => {
+    e.preventDefault();
+    try {
+      const response = await fetch(`/api/myUploads?q=${searchQuery}`);
+      const data = (await response.json()) as SearchUploadsResponse;
+
+      myUploads.set(data.userUploads);
+    } catch (error) {
+      const errorToast: ToastSettings = {
+        message: 'There was an error searching for your uploads',
+        background: 'variant-filled-error',
+        timeout: 5000
+      };
+      toastStore.trigger(errorToast);
+    }
+  };
 </script>
 
-<form class="grid grid-cols-1 md:grid-cols-2 gap-2 my-5">
+<form
+  on:submit={handleSearchSubmit}
+  class="grid grid-cols-1 md:grid-cols-2 gap-2 my-5"
+>
   <div>
     <label for="q">Search By Title or Description</label>
     <input
@@ -18,11 +48,10 @@
   <div>
     <label for="status">Status</label>
     <select id="status" name="status" class="select rounded-md">
-      <option value="0">All</option>
-      <option value="1">Pending Review</option>
-      <option value="2">In review</option>
-      <option value="3">Published</option>
-      <option value="4">Rejected</option>
+      <option value="">All</option>
+      {#each statusSelectOptions as statusOption}
+        <option value={statusOption.value}>{statusOption.label}</option>
+      {/each}
     </select>
   </div>
   <button type="submit" class="w-max btn rounded-md variant-filled-primary"

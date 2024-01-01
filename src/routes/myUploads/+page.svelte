@@ -3,17 +3,23 @@
   import type { PageData } from './$types';
   import { page } from '$app/stores';
   import UploadSearchForm from '$lib/components/UploadSearchForm.svelte';
+  import { myUploads } from '$lib/stores/myUploads';
+
   export let data: PageData;
 
-  $: hasSearchParams = $page.url.searchParams.size > 0;
+  $: hasSearchParams = false;
 
-  $: uploads = data?.userUploads;
+  $: {
+    myUploads.set(data?.userUploads || []);
+  }
 </script>
 
 <h1 class="h2">My Uploads</h1>
 <p>Manage your uploads here. Search, delete, and edit your uploads.</p>
 
-{#if !uploads || uploads?.length === 0}
+<UploadSearchForm />
+
+{#if !$myUploads || $myUploads?.length === 0}
   {#if hasSearchParams}
     <div class="flex flex-col gap-1 mt-4">
       <p>No uploads were found that matched your search</p>
@@ -30,11 +36,10 @@
     </div>
   {/if}
 {:else}
-  <UploadSearchForm />
   <div
     class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 max-h-[calc(100vh - 100px)]"
   >
-    {#each uploads as upload}
+    {#each $myUploads as upload}
       <UploadCard video={upload} />
     {/each}
   </div>

@@ -2,6 +2,7 @@ import type { DocumentSnapshot } from 'firebase/firestore';
 import { type ClassValue, clsx } from 'clsx';
 import { ZodEffects, ZodObject } from 'zod';
 import { twMerge } from 'tailwind-merge';
+import { VideoStatus } from '@prisma/client';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -13,6 +14,37 @@ export const debounce = (callback: () => void, delay = 500) => {
   timer = setTimeout(() => {
     callback();
   }, delay);
+};
+
+export const generateReadbleEnumLabels = ({
+  enumObj,
+  separator = '_'
+}: {
+  enumObj: Record<string, string>;
+  separator?: string;
+}) => {
+  const keys = Object.keys(enumObj);
+
+  const readableLabels = keys.map((key) => {
+    let label = key.replace(separator, ' ');
+
+    if (label.split(' ').length > 1) {
+      const words = label.split(' ');
+      const capitalizedWords = words.map((word) => {
+        return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+      });
+      label = capitalizedWords.join(' ');
+    } else {
+      label = label.charAt(0).toUpperCase() + label.slice(1).toLowerCase();
+    }
+
+    return {
+      label,
+      value: key
+    };
+  });
+
+  return readableLabels;
 };
 
 export const replaceStateWithQuery = (values: Record<string, string>) => {
