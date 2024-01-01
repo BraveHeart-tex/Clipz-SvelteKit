@@ -1,16 +1,20 @@
 <script lang="ts">
   import UploadCard from '$lib/components/UploadCard.svelte';
   import type { PageData } from './$types';
-  import { page } from '$app/stores';
   import UploadSearchForm from '$lib/components/UploadSearchForm.svelte';
-  import { myUploads } from '$lib/stores/myUploads';
+  import { myUploadsStore } from '$lib/stores/myUploads';
 
   export let data: PageData;
 
-  $: hasSearchParams = false;
+  $: hasSearchParams =
+    (data?.userUploads?.length ?? 0) > 0 && $myUploadsStore?.data?.length === 0;
 
   $: {
-    myUploads.set(data?.userUploads || []);
+    myUploadsStore.set({
+      ...$myUploadsStore,
+      ...data,
+      data: data.userUploads
+    });
   }
 </script>
 
@@ -19,13 +23,24 @@
 
 <UploadSearchForm />
 
-{#if !$myUploads || $myUploads?.length === 0}
+{#if !$myUploadsStore || $myUploadsStore?.data?.length === 0}
   {#if hasSearchParams}
     <div class="flex flex-col gap-1 mt-4">
       <p>No uploads were found that matched your search</p>
-      <a class="w-max btn variant-filled-primary rounded-md" href="/myUploads">
+      <button
+        class="w-max btn variant-filled-primary rounded-md"
+        on:click={() => {
+          myUploadsStore.set({
+            ...$myUploadsStore,
+            searchQuery: '',
+            statusQuery: '',
+            currentPage: 1,
+            data: data.userUploads
+          });
+        }}
+      >
         Clear all filters
-      </a>
+      </button>
     </div>
   {:else}
     <div class="flex flex-col gap-1 mt-4">
@@ -39,7 +54,7 @@
   <div
     class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 max-h-[calc(100vh - 100px)]"
   >
-    {#each $myUploads as upload}
+    {#each $myUploadsStore?.data || [] as upload}
       <UploadCard video={upload} />
     {/each}
   </div>

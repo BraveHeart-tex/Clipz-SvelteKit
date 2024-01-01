@@ -1,3 +1,4 @@
+import type { Prisma, VideoStatus } from '@prisma/client';
 import { json, type RequestHandler } from '@sveltejs/kit';
 
 export const GET: RequestHandler = async ({ url, locals }) => {
@@ -8,28 +9,37 @@ export const GET: RequestHandler = async ({ url, locals }) => {
 
   const searchParams = url.searchParams;
   const searchQuery = searchParams.get('q') || '';
+  const statusQuery = searchParams.get('status') || '';
+  console.log(statusQuery);
+
   const page = searchParams.get('page') || 1;
   const pageSize = 12;
   const skipAmount = (Number(page) - 1) * pageSize;
 
+  const whereCondition: Prisma.VideoWhereInput = {
+    user_id: session.user.userId,
+    OR: [
+      {
+        title: {
+          contains: searchQuery
+        }
+      },
+      {
+        description: {
+          contains: searchQuery
+        }
+      }
+    ]
+  };
+
+  if (statusQuery) {
+    whereCondition.status = statusQuery as VideoStatus;
+  }
+
   const userUploads = await prisma?.video.findMany({
     skip: skipAmount,
     take: pageSize,
-    where: {
-      user_id: session.user.userId,
-      OR: [
-        {
-          title: {
-            contains: searchQuery
-          }
-        },
-        {
-          description: {
-            contains: searchQuery
-          }
-        }
-      ]
-    }
+    where: whereCondition
   });
 
   return json(

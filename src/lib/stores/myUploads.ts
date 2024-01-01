@@ -4,7 +4,15 @@ import { writable } from 'svelte/store';
 export const createMyUploadsStore = (
   initialData: Video[] | null | undefined
 ) => {
-  const { subscribe, set } = writable(initialData);
+  const { subscribe, set } = writable({
+    data: initialData,
+    hasNextPage: false,
+    hasPreviousPage: false,
+    currentPage: 1,
+    totalPageCount: 1,
+    searchQuery: '',
+    statusQuery: ''
+  });
 
   return {
     subscribe,
@@ -12,4 +20,4 @@ export const createMyUploadsStore = (
   };
 };
 
-export const myUploads = createMyUploadsStore([]);
+export const myUploadsStore = createMyUploadsStore([]);

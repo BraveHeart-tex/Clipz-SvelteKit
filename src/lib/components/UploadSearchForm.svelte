@@ -1,11 +1,10 @@
 <script lang="ts">
   import { generateReadbleEnumLabels } from '$lib';
-  import { myUploads } from '$lib/stores/myUploads';
+  import { myUploadsStore } from '$lib/stores/myUploads';
   import type { SearchUploadsResponse } from '$lib/types';
   import { VideoStatus } from '@prisma/client';
   import { getToastStore, type ToastSettings } from '@skeletonlabs/skeleton';
 
-  let searchQuery = '';
   const toastStore = getToastStore();
 
   const statusSelectOptions = generateReadbleEnumLabels({
@@ -15,10 +14,17 @@
   const handleSearchSubmit = async (e: Event) => {
     e.preventDefault();
     try {
-      const response = await fetch(`/api/myUploads?q=${searchQuery}`);
+      const response = await fetch(
+        `/api/myUploads?q=${$myUploadsStore.searchQuery}&status=${$myUploadsStore.statusQuery}`
+      );
       const data = (await response.json()) as SearchUploadsResponse;
+      console.log(data);
 
-      myUploads.set(data.userUploads);
+      myUploadsStore.set({
+        ...$myUploadsStore,
+        ...data,
+        data: data.userUploads
+      });
     } catch (error) {
       const errorToast: ToastSettings = {
         message: 'There was an error searching for your uploads',
@@ -42,12 +48,17 @@
       class="input rounded-md"
       type="text"
       placeholder="Enter a search term"
-      bind:value={searchQuery}
+      bind:value={$myUploadsStore.searchQuery}
     />
   </div>
   <div>
     <label for="status">Status</label>
-    <select id="status" name="status" class="select rounded-md">
+    <select
+      id="status"
+      name="status"
+      class="select rounded-md"
+      bind:value={$myUploadsStore.statusQuery}
+    >
       <option value="">All</option>
       {#each statusSelectOptions as statusOption}
         <option value={statusOption.value}>{statusOption.label}</option>
