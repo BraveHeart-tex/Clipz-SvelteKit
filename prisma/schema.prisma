@@ -17,24 +17,42 @@ model User {
   updated_at   DateTime  @updatedAt
   Video        Video[]
   isAdmin      Boolean   @default(false)
-  views        Int       @default(0)
+  Ticket       Ticket[]
 
   @@map("tbl_users")
 }
 
 model Video {
-  id          String      @id @default(cuid())
+  id          String       @id @default(cuid())
   title       String
   description String?
-  url         String      @db.LongText
-  poster_url  String      @db.LongText
+  url         String       @db.LongText
+  poster_url  String       @db.LongText
   user_id     String
-  user        User        @relation(references: [id], fields: [user_id], onDelete: Cascade)
-  status      VideoStatus @default(PENDING_REVIEW)
-  created_at  DateTime    @default(now())
-  updated_at  DateTime    @updatedAt
+  user        User         @relation(references: [id], fields: [user_id], onDelete: Cascade)
+  status      VideoStatus  @default(PENDING_REVIEW)
+  topic       TicketTopics @default(OTHER)
+  created_at  DateTime     @default(now())
+  updated_at  DateTime     @updatedAt
+  views       Int          @default(0)
+  Ticket      Ticket[]
 
   @@map("tbl_videos")
+}
+
+model Ticket {
+  id          String       @id @default(cuid())
+  title       String
+  description String?
+  status      TicketStatus @default(PENDING)
+  user_id     String
+  video_id    String?
+  video       Video?       @relation(references: [id], fields: [video_id], onDelete: Cascade)
+  user        User         @relation(references: [id], fields: [user_id], onDelete: Cascade)
+  created_at  DateTime     @default(now())
+  updated_at  DateTime     @updatedAt
+
+  @@map("tbl_tickets")
 }
 
 model Session {
@@ -63,4 +81,16 @@ enum VideoStatus {
   IN_REVIEW
   PUBLISHED
   REJECTED
+}
+
+enum TicketStatus {
+  PENDING
+  IN_PROGRESS
+  RESOLVED
+}
+
+enum TicketTopics {
+  ACCOUNT
+  VIDEO
+  OTHER
 }
