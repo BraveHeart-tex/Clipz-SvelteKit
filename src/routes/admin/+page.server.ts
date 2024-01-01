@@ -1,6 +1,6 @@
 import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
-import { TicketStatus, VideoStatus } from '@prisma/client';
+import { VideoStatus } from '@prisma/client';
 
 export const load = (async ({ locals }) => {
   const session = await locals.auth.validate();

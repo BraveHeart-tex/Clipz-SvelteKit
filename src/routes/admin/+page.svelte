@@ -1,6 +1,7 @@
 <script lang="ts">
+  import DataTable from '$lib/components/DataTable.svelte';
   import type { PageData } from './$types';
-  import { TabGroup, Tab, TabAnchor } from '@skeletonlabs/skeleton';
+  import { TabGroup, Tab } from '@skeletonlabs/skeleton';
 
   let selectedTab: number = 0;
 
@@ -37,9 +38,59 @@
     <svelte:fragment slot="panel">
       {#if selectedTab === 0}
         <!-- Pending Requests -->
-        {#each pendingRequests as pendingRequest}
-          {pendingRequest?.title}
-        {/each}
+        <DataTable
+          columns={[
+            {
+              accessorKey: 'title',
+              header: 'Title',
+              meta: {
+                sort: true
+              }
+            },
+            {
+              accessorKey: 'description',
+              header: 'Description',
+              meta: {
+                sort: true
+              }
+            },
+            {
+              accessorKey: 'url',
+              header: 'URL',
+              meta: {
+                sort: true
+              }
+            }
+          ]}
+          data={pendingRequests}
+          title="Pending Video Requests"
+          apiPath="/api/admin/tickets"
+          actionsColumnLabel="Actions"
+        >
+          <div class="flex items-center gap-2" slot="actions" let:row>
+            <button
+              class="flex items-center gap-2 btn variant-filled-secondary rounded-md btn-sm p-2"
+            >
+              <i class="fa-solid fa-video"></i>
+              Watch
+            </button>
+            <button
+              class="flex items-center gap-2 btn variant-filled-error rounded-md btn-sm p-2"
+            >
+              <i class="fa-solid fa-xmark"></i>
+              Reject
+            </button>
+            <button
+              class="flex items-center gap-2 btn variant-filled-primary rounded-md btn-sm p-2"
+              on:click={() => {
+                console.log(row.original);
+              }}
+            >
+              <i class="fa-solid fa-check"></i>
+              Approve
+            </button>
+          </div>
+        </DataTable>
       {:else if selectedTab === 1}
         <!-- Open Tickets -->
         {#if openTickets.length === 0}

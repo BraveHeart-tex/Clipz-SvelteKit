@@ -20,6 +20,9 @@ dependencies:
   '@prisma/client':
     specifier: 5.7.1
     version: 5.7.1(prisma@5.7.1)
+  '@tanstack/svelte-table':
+    specifier: ^8.11.2
+    version: 8.11.2(svelte@4.2.8)
   '@types/bcryptjs':
     specifier: ^2.4.6
     version: 2.4.6
@@ -1378,6 +1381,21 @@ packages:
       postcss-selector-parser: 6.0.10
       tailwindcss: 3.4.0
     dev: true
+
+  /@tanstack/svelte-table@8.11.2(svelte@4.2.8):
+    resolution: {integrity: sha512-VCuoEsoMDIHv2cKkHpcDNT706hlBJWuU1zYUezzPr+1izU16CbzgywfbG6gYV3JXtCkOdaVzVlW+tH3orjD1nw==}
+    engines: {node: '>=12'}
+    peerDependencies:
+      svelte: ^4.0.0 || ^3.49.0
+    dependencies:
+      '@tanstack/table-core': 8.11.2
+      svelte: 4.2.8
+    dev: false
+
+  /@tanstack/table-core@8.11.2:
+    resolution: {integrity: sha512-rR0VEQOtr0ARLvaNLaSQnt2BVwOp0OavOUA0LcZ3N45tLYXc4sXruNv8kJ7R7+5W1CrzGha217tzjBG83CpoMQ==}
+    engines: {node: '>=12'}
+    dev: false
 
   /@tootallnate/once@2.0.0:
     resolution: {integrity: sha512-XCuKFP5PS55gnMVu3dty8KPatLqUoy/ZYzDzAGCQ8JNFCkLXzmI7vNHCR+XpbZaMWQK/vQubr7PkYq8g470J/A==}

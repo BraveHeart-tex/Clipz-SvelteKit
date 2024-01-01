@@ -2,7 +2,6 @@ import type { DocumentSnapshot } from 'firebase/firestore';
 import { type ClassValue, clsx } from 'clsx';
 import { ZodEffects, ZodObject } from 'zod';
 import { twMerge } from 'tailwind-merge';
-import { VideoStatus } from '@prisma/client';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));

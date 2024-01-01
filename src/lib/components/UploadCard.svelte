@@ -62,7 +62,7 @@
     </p>
   </header>
   <section class="p-4">
-    <img src={video?.poster_url} alt={video.title} />
+    <img width="800" height="600" src={video?.poster_url} alt={video.title} />
   </section>
   <footer
     class="card-footer self-end flex items-center justify-between gap-2 w-full"
