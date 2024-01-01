@@ -18,13 +18,11 @@
         `/api/myUploads?q=${$myUploadsStore.searchQuery}&status=${$myUploadsStore.statusQuery}`
       );
       const data = (await response.json()) as SearchUploadsResponse;
-      console.log(data);
-
-      myUploadsStore.set({
-        ...$myUploadsStore,
+      myUploadsStore.update((store) => ({
+        ...store,
         ...data,
         data: data.userUploads
-      });
+      }));
     } catch (error) {
       const errorToast: ToastSettings = {
         message: 'There was an error searching for your uploads',

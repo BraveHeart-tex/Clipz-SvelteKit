@@ -28,3 +28,13 @@ export interface SearchUploadsResponse {
   currentPage: number;
   totalPageCount: number;
 }
+
+export interface MyUploadsStore {
+  data: Video[];
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+  currentPage: number;
+  totalPageCount: number;
+  searchQuery: string;
+  statusQuery: string;
+}

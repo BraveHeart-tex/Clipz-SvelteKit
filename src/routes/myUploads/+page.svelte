@@ -10,11 +10,14 @@
     (data?.userUploads?.length ?? 0) > 0 && $myUploadsStore?.data?.length === 0;
 
   $: {
-    myUploadsStore.set({
-      ...$myUploadsStore,
-      ...data,
-      data: data.userUploads
-    });
+    myUploadsStore.update((store) => ({
+      ...store,
+      data: data?.userUploads || [],
+      currentPage: data?.currentPage || 1,
+      totalPageCount: data?.totalPageCount || 1,
+      hasNextPage: data?.hasNextPage || false,
+      hasPreviousPage: data?.hasPreviousPage || false
+    }));
   }
 </script>
 
@@ -30,13 +33,7 @@
       <button
         class="w-max btn variant-filled-primary rounded-md"
         on:click={() => {
-          myUploadsStore.set({
-            ...$myUploadsStore,
-            searchQuery: '',
-            statusQuery: '',
-            currentPage: 1,
-            data: data.userUploads
-          });
+          myUploadsStore.reset(data?.userUploads ?? []);
         }}
       >
         Clear all filters
