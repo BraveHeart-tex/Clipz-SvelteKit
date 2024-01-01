@@ -64,27 +64,31 @@
   <section class="p-4">
     <img src={video?.poster_url} alt={video.title} />
   </section>
-  <footer class="card-footer self-end flex items-center gap-2">
+  <footer
+    class="card-footer self-end flex items-center justify-between gap-2 w-full"
+  >
     <a
-      class="btn variant-filled-primary rounded-md flex items-center gap-1"
+      class="btn variant-filled-tertiary self-start rounded-md flex items-center gap-1"
       href="/watch/{video.id}"
     >
       <i class="fa-solid fa-play"></i>
       Watch
     </a>
-    <button
-      class="btn variant-filled-secondary rounded-md flex items-center gap-1"
-    >
-      <i class="fa-solid fa-edit"></i>
-      Edit
-    </button>
-    <button
-      type="submit"
-      on:click={handleDeleteClick}
-      class="btn variant-filled-primary rounded-md flex items-center gap-1"
-    >
-      <i class="fa-solid fa-trash"></i>
-      Delete
-    </button>
+    <div class="flex items-center gap-2">
+      <button
+        class="btn variant-filled-secondary rounded-md flex items-center gap-1"
+      >
+        <i class="fa-solid fa-edit"></i>
+        Edit
+      </button>
+      <button
+        type="submit"
+        on:click={handleDeleteClick}
+        class="btn variant-filled-primary rounded-md flex items-center gap-1"
+      >
+        <i class="fa-solid fa-trash"></i>
+        Delete
+      </button>
+    </div>
   </footer>
 </div>
