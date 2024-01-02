@@ -8,8 +8,7 @@
     type ModalSettings,
     getModalStore,
     type ToastSettings,
-    getToastStore,
-    type ModalComponent
+    getToastStore
   } from '@skeletonlabs/skeleton';
   import { invalidate } from '$app/navigation';
 
@@ -67,6 +66,8 @@
     modalStore.trigger(confirmationModal);
   };
 
+  const handleWatch = (row: Video) => {};
+
   $: pendingRequests = data?.pendingRequests || [];
   $: openTickets = data?.openTickets || [];
 </script>
@@ -101,13 +102,6 @@
               meta: {
                 sort: true
               }
-            },
-            {
-              accessorKey: 'url',
-              header: 'URL',
-              meta: {
-                sort: true
-              }
             }
           ]}
           data={pendingRequests}
@@ -118,6 +112,7 @@
           <div class="flex items-center gap-2" slot="actions" let:row>
             <button
               class="flex items-center gap-2 btn variant-filled-secondary rounded-md btn-sm p-2"
+              on:click={() => handleWatch(row.original)}
             >
               <i class="fa-solid fa-video"></i>
               Watch

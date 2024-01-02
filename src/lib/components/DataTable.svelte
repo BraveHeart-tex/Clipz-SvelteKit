@@ -87,7 +87,7 @@
       page = 1;
       search = newSearch;
       requestData();
-    }, 250);
+    }, 500);
   };
 
   $: {
@@ -118,7 +118,7 @@
   });
 </script>
 
-<div class="px-4">
+<div>
   <h3 class="h3 mb-2">
     {title}
   </h3>
@@ -139,7 +139,7 @@
             <tr>
               {#each headerGroup.headers as header}
                 <th colSpan={header.colSpan}>
-                  <div class="flex flex-col items-start">
+                  <div class="flex flex-col items-start font-semibold">
                     {#if !header.isPlaceholder}
                       <button
                         class="whitespace-nowrap"
@@ -152,7 +152,7 @@
                             header.column.columnDef.header,
                             header.getContext()
                           )}
-                          class="white-space-nowrap"
+                          class="whitespace-nowrap"
                         />
                       </button>
                       {#if header.column.columnDef.meta?.sort}
@@ -173,12 +173,21 @@
                 </th>
               {/each}
               {#if actionsColumnLabel}
-                <th class="w-24 whitespace-nowrap">{actionsColumnLabel}</th>
+                <th class="w-24 whitespace-nowrap font-semibold"
+                  >{actionsColumnLabel}</th
+                >
               {/if}
             </tr>
           {/each}
         </thead>
         <tbody>
+          {#if $table.getRowModel().rows.length === 0}
+            <tr>
+              <td colspan={columns.length + 1} class="text-center">
+                No data to display.
+              </td>
+            </tr>
+          {/if}
           {#each $table.getRowModel().rows as row}
             <tr
               class="dark:odd:bg-surface-600 odd:bg-surface-100 hover:bg-surface-200 dark:hover:bg-surface-500"

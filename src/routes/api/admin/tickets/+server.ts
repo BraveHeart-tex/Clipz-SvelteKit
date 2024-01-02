@@ -1,4 +1,4 @@
-import type { Prisma } from '@prisma/client';
+import { VideoStatus, type Prisma } from '@prisma/client';
 import { json, type RequestHandler } from '@sveltejs/kit';
 
 export const GET: RequestHandler = async ({ url, locals }) => {
@@ -14,7 +14,9 @@ export const GET: RequestHandler = async ({ url, locals }) => {
   const pageSize = parseInt(url.searchParams.get('pageSize') || '10');
   const filters = JSON.parse(url.searchParams.get('colFilters') || '{}');
 
-  const whereCondition: Prisma.VideoWhereInput = {};
+  const whereCondition: Prisma.VideoWhereInput = {
+    status: VideoStatus.PENDING_REVIEW
+  };
 
   // global search
   if (searchQuery) {
