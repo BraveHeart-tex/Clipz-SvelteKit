@@ -6,7 +6,7 @@
 
   export let data: PageData;
 
-  $: theme = data.theme;
+  $: theme = data.theme || 'Crimson';
 
   const themes = [
     {

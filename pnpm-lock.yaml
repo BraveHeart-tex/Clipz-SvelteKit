@@ -14,6 +14,9 @@ dependencies:
   '@lucia-auth/adapter-prisma':
     specifier: ^3.0.2
     version: 3.0.2(@prisma/client@5.7.1)(lucia@2.7.6)
+  '@mux/mux-player':
+    specifier: ^2.3.1
+    version: 2.3.1
   '@popperjs/core':
     specifier: ^2.11.8
     version: 2.11.8
@@ -1031,6 +1034,30 @@ packages:
       lucia: 2.7.6
     dev: false
 
+  /@mux/mux-player@2.3.1:
+    resolution: {integrity: sha512-yRR7Ec5LVJdmd431dQM7Lf6r9FdFQOXBBVADiv6HWdj+b+6duAinHA8w+Gfvibokc26l4YO7cQ27hWu29cGGUg==}
+    dependencies:
+      '@mux/mux-video': 0.17.2
+      '@mux/playback-core': 0.22.1
+      media-chrome: 2.0.1
+    dev: false
+
+  /@mux/mux-video@0.17.2:
+    resolution: {integrity: sha512-IIGZhUYPClUIOQ/VZZ7kjYcxTcSSSvm+yiv/+c4hHlreO1XLly8Oe1Dzq2xx12t1b+UUupIzx2Cnc8bzVEQTKA==}
+    dependencies:
+      '@mux/playback-core': 0.22.1
+      castable-video: 1.0.6
+      custom-media-element: 1.2.2
+      media-tracks: 0.3.0
+    dev: false
+
+  /@mux/playback-core@0.22.1:
+    resolution: {integrity: sha512-tsPMpcu/xYHQtO6USZwg80CDaXyc7UbyJGoqMU9P1o0e15X/KDcz179nhr6k0CXafg/yiwAlxPNGXnpwToWJ4w==}
+    dependencies:
+      hls.js: 1.4.14
+      mux-embed: 4.30.0
+    dev: false
+
   /@nodelib/fs.scandir@2.1.5:
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
     engines: {node: '>= 8'}
@@ -1979,6 +2006,12 @@ packages:
     resolution: {integrity: sha512-tYq/6MoXhdezDLFZuCO/TKboTzuQ/xR5cFdgXPfDtM7/kchBO3b4VWghE/OAi/DV7tTdhmLjZiZBZi1fA/GheQ==}
     dev: true
 
+  /castable-video@1.0.6:
+    resolution: {integrity: sha512-Ykw2uL4ZQnqX0j9KF9ksbDpyc8I53mFMswCKW9yV5TrwpWkdNqRHLlcU85W30BIw61fgDjgm0Xh5G0rbcmv23g==}
+    dependencies:
+      custom-media-element: 1.2.2
+    dev: false
+
   /chai@4.3.10:
     resolution: {integrity: sha512-0UXG04VuVbruMUYbJ6JctvH0YnC/4q3/AkT18q4NaITo91CUm0liMS9VqzT9vZhVQ/1eqPanMWjBM+Juhfb/9g==}
     engines: {node: '>=4'}
@@ -2129,6 +2162,10 @@ packages:
     engines: {node: '>=4'}
     hasBin: true
     dev: true
+
+  /custom-media-element@1.2.2:
+    resolution: {integrity: sha512-tI+NjVRS485QlSxHeM3JIjdEZSJMLOZVp41/vvWukDmIkZSoYG9gLYl9GFZGBpY42UbRVo1eMlF7XkI/IiDHzQ==}
+    dev: false
 
   /debug@4.3.4:
     resolution: {integrity: sha512-PRWFHuSU3eDtQJPvnNY7Jcket1j0t5OuOsFzPPzsekD52Zl8qUfFIPEiswXqIvHWGVHOgX+7G/vCNNhehwxfkQ==}
@@ -2886,6 +2923,10 @@ packages:
       function-bind: 1.1.2
     dev: true
 
+  /hls.js@1.4.14:
+    resolution: {integrity: sha512-UppQjyvPVclg+6t2KY/Rv03h0+bA5u6zwqVoz4LAC/L0fgYmIaCD7ZCrwe8WI1Gv01be1XL0QFsRbSdIHV/Wbw==}
+    dev: false
+
   /http-parser-js@0.5.8:
     resolution: {integrity: sha512-SGeBX54F94Wgu5RH3X5jsDtf4eHyRogWX1XGT3b4HuW3tQPM4AaBzoUji/4AAJNXCEOWZ5O0DgZmJw1947gD5Q==}
     dev: false
@@ -3313,6 +3354,14 @@ packages:
   /mdn-data@2.0.30:
     resolution: {integrity: sha512-GaqWWShW4kv/G9IEucWScBx9G1/vsFZZJUO+tD26M8J8z3Kw5RDQjaoZe03YAClgeS/SWPOcb4nkFBTEi5DUEA==}
 
+  /media-chrome@2.0.1:
+    resolution: {integrity: sha512-6hoC5OY993t4o/YKYXn7YoWUAKG1UFAhnDXNN6kRRa5mnuL+Cwct/2Md16S4jjmTSmN5XjhEWwfCVM5NLHavOA==}
+    dev: false
+
+  /media-tracks@0.3.0:
+    resolution: {integrity: sha512-kicD8eOFwe6nD7jn7iM/0yuLzWuo6abWHURYwY7NhxL1dBif+lt0on4rLTs6VhKwAEE/BjT3wr+0vn1w8SBpag==}
+    dev: false
+
   /merge-stream@2.0.0:
     resolution: {integrity: sha512-abv/qOcuPfk3URPfDzmZU1LKmuw8kT+0nIHvKrKgFrwifol/doWcdA4ZqsWQ8ENrFKkd67Mfpo/LovbIUsbt3w==}
     dev: true
@@ -3436,6 +3485,10 @@ packages:
 
   /ms@2.1.3:
     resolution: {integrity: sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==}
+    dev: false
+
+  /mux-embed@4.30.0:
+    resolution: {integrity: sha512-XAgAp4CEvsiZL26GbruzeG1g33OWyrzuskDMavXUxDufTxS0/AxAhwoTTRqEzEJS9vnZa/X9R2GV3xRX1XMp2w==}
     dev: false
 
   /mz@2.7.0:

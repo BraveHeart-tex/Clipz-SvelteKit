@@ -2,6 +2,7 @@
   import uploadVideoSchema from '$lib/schemas/UploadVideoSchema';
   import type { PageData } from './$types';
   import { Form } from 'formsnap';
+  import '@mux/mux-player';
   import {
     FileDropzone,
     getModalStore,
@@ -11,7 +12,7 @@
     type ToastSettings
   } from '@skeletonlabs/skeleton';
   import { superForm } from 'sveltekit-superforms/client';
-  import { acceptedFileTypes, generateVideoThumbnail } from '$lib';
+  import { acceptedFileTypes } from '$lib';
   import {
     getDownloadURL,
     ref,
@@ -45,8 +46,6 @@
 
       if (acceptedFileTypes.includes(file.type)) {
         uploadedFile = file;
-        const thumbnail = await generateVideoThumbnail(file);
-        poster = thumbnail as string;
 
         const reader = new FileReader();
         reader.readAsDataURL(file);
@@ -271,6 +270,10 @@
       resetForm();
     }
   }
+
+  $: {
+    console.log(superFrm.fields.title.value);
+  }
 </script>
 
 <div class="mt-2">
@@ -367,26 +370,27 @@
     <div class="cursor-pointer grid grid-cols-1 gap-2 lg:grid-cols-2 mt-4">
       <div class="flex flex-col gap-2">
         <h3 class="h3">Video Preview:</h3>
-        <video
-          controls
+        <mux-player
+          stream-type="on-demand"
+          width="800"
+          heigth="600"
+          style="border-radius: 0.5rem; box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.5);"
           src={videoSrc}
-          class="rounded-md shadow-md"
-          width="800"
-          height="600"
-        >
-          <track kind="captions" />
-        </video>
-      </div>
-      <div class="flex flex-col gap-2">
-        <h3 class="h3">Thumbnail Preview:</h3>
-        <img
-          src={poster}
-          alt="video thumbnail"
-          class="rounded-md shadow-md"
-          width="800"
-          height="600"
         />
       </div>
+
+      {#if poster}
+        <div class="flex flex-col gap-2">
+          <h3 class="h3">Thumbnail Preview:</h3>
+          <img
+            src={poster}
+            alt="video thumbnail"
+            class="rounded-md shadow-md"
+            width="800"
+            height="600"
+          />
+        </div>
+      {/if}
     </div>
   {:else}
     <div class="flex flex-col gap-1 mb-4">

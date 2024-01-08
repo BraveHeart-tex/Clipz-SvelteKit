@@ -26,7 +26,7 @@
     rounded="rounded-md"
     hover="hover:variant-soft-primary"
     flex="flex-1"
-    active="bg-primary-300 rounded-none dark:bg-primary-500"
+    active="rounded-none variant-filled-primary font-semibold"
     regionPanel="p-4"
   >
     {#each tabs as tab}
