@@ -142,14 +142,14 @@
       if (!thumbnail) {
         fileInputs.pop();
 
-        const storageRef = ref(storage, `thumbnails/${uuidv4()}.jpg`);
-        uploadString(storageRef, poster, 'data_url', {
-          contentType: 'image/jpeg'
-        }).then((snapshot) => {
-          getDownloadURL(snapshot.ref).then((url) => {
-            formData.set('thumbnailUrl', url);
-          });
-        });
+        // const storageRef = ref(storage, `thumbnails/${uuidv4()}.jpg`);
+        // uploadString(storageRef, poster, 'data_url', {
+        //   contentType: 'image/jpeg'
+        // }).then((snapshot) => {
+        //   getDownloadURL(snapshot.ref).then((url) => {
+        //     formData.set('thumbnailUrl', url);
+        //   });
+        // });
       }
 
       const uploadPromises = fileInputs.map((fileInput) => {
