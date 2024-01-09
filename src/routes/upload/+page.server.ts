@@ -40,6 +40,16 @@ export const actions: Actions = {
       const url = formData.get('videoUrl') as string;
       const poster_url = formData.get('thumbnailUrl') as string;
 
+      // const { Video } = new Mux(MUX_TOKEN_ID, MUX_TOKEN_SECRET);
+
+      // const asset = await Video.Assets.create({
+      //   input: url
+      // });
+
+      // const playback = await Video.Assets.createPlaybackId(asset.id, {
+      //   policy: 'public'
+      // });
+
       await prisma?.video.create({
         data: {
           title,

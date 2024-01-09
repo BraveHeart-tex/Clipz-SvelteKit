@@ -27,7 +27,7 @@ model Video {
   title       String
   description String?
   url         String       @db.LongText
-  poster_url  String       @db.LongText
+  poster_url  String?      @db.LongText
   user_id     String
   user        User         @relation(references: [id], fields: [user_id], onDelete: Cascade)
   status      VideoStatus  @default(PENDING_REVIEW)
@@ -78,7 +78,6 @@ model Key {
 
 enum VideoStatus {
   PENDING_REVIEW
-  IN_REVIEW
   PUBLISHED
   REJECTED
 }

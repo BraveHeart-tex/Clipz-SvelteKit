@@ -1,8 +1,8 @@
 <script lang="ts">
-  import UploadCard from '$lib/components/UploadCard.svelte';
   import type { PageData } from './$types';
   import UploadSearchForm from '$lib/components/UploadSearchForm.svelte';
   import { myUploadsStore } from '$lib/stores/myUploads';
+  import MyUploadsListRow from '$lib/components/MyUploadsListRow.svelte';
 
   export let data: PageData;
 
@@ -48,12 +48,12 @@
     </div>
   {/if}
 {:else}
-  <div
-    class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 max-h-[calc(100vh - 100px)]"
-  >
-    {#each $myUploadsStore?.data || [] as upload}
-      <UploadCard video={upload} />
-    {/each}
+  <div class="max-h-[calc(100vh - 100px)] w-full">
+    <dl class="flex flex-col">
+      {#each $myUploadsStore.data as upload}
+        <MyUploadsListRow {upload} />
+      {/each}
+    </dl>
   </div>
   <div class="flex justify-center mt-4 bg-red-500">
     <nav class="flex gap-2">

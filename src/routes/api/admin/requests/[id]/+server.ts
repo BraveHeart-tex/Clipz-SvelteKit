@@ -12,8 +12,6 @@ export const DELETE: RequestHandler = async ({ params, locals }) => {
 
   const videoRequestId = params.id;
 
-  console.log(videoRequestId);
-
   const result = await prisma?.video.update({
     where: {
       id: videoRequestId

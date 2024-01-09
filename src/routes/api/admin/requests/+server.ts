@@ -10,7 +10,6 @@ export const GET: RequestHandler = async ({ url, locals }) => {
   const searchParams = url.searchParams;
   const searchQuery = searchParams.get('q') || '';
   const statusQuery = searchParams.get('status') || '';
-  console.log(statusQuery);
 
   const page = searchParams.get('page') || 1;
   const pageSize = 12;

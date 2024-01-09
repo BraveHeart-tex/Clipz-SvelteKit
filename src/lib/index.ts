@@ -2,6 +2,14 @@ import type { DocumentSnapshot } from 'firebase/firestore';
 import { type ClassValue, clsx } from 'clsx';
 import { ZodEffects, ZodObject } from 'zod';
 import { twMerge } from 'tailwind-merge';
+import type {
+  ModalSettings,
+  ModalStore,
+  ToastSettings,
+  ToastStore
+} from '@skeletonlabs/skeleton';
+import type { Video } from '@prisma/client';
+import { invalidate } from '$app/navigation';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -15,6 +23,28 @@ export const debounce = (callback: () => void, delay = 500) => {
   }, delay);
 };
 
+export const generateReadbleEnum = ({
+  key,
+  separator = '_'
+}: {
+  key: string;
+  separator?: string;
+}) => {
+  let label = key.replace(separator, ' ');
+
+  if (label.split(' ').length > 1) {
+    const words = label.split(' ');
+    const capitalizedWords = words.map((word) => {
+      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+    });
+    label = capitalizedWords.join(' ');
+  } else {
+    label = label.charAt(0).toUpperCase() + label.slice(1).toLowerCase();
+  }
+
+  return label;
+};
+
 export const generateReadbleEnumLabels = ({
   enumObj,
   separator = '_'
@@ -25,18 +55,7 @@ export const generateReadbleEnumLabels = ({
   const keys = Object.keys(enumObj);
 
   const readableLabels = keys.map((key) => {
-    let label = key.replace(separator, ' ');
-
-    if (label.split(' ').length > 1) {
-      const words = label.split(' ');
-      const capitalizedWords = words.map((word) => {
-        return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
-      });
-      label = capitalizedWords.join(' ');
-    } else {
-      label = label.charAt(0).toUpperCase() + label.slice(1).toLowerCase();
-    }
-
+    const label = generateReadbleEnum({ key, separator });
     return {
       label,
       value: key
@@ -44,18 +63,6 @@ export const generateReadbleEnumLabels = ({
   });
 
   return readableLabels;
-};
-
-export const replaceStateWithQuery = (values: Record<string, string>) => {
-  const url = new URL(window.location.toString());
-  // eslint-disable-next-line prefer-const
-  for (let [k, v] of Object.entries(values)) {
-    if (v) {
-      url.searchParams.set(encodeURIComponent(k), encodeURIComponent(v));
-    } else {
-      url.searchParams.delete(k);
-    }
-  }
 };
 
 export const mapDocumentWithId = (doc: DocumentSnapshot) => ({
@@ -156,3 +163,48 @@ export const acceptedFileTypes = [
   'video/x-matroska',
   'video/mpeg'
 ];
+
+export const handleDeleteVideoClick = ({
+  modalStore,
+  toastStore,
+  upload
+}: {
+  modalStore: ModalStore;
+  toastStore: ToastStore;
+  upload: Video;
+}) => {
+  const modal: ModalSettings = {
+    type: 'confirm',
+    title: 'Delete video?',
+    body: 'Are you sure you want to delete this video? This action cannot be undone.',
+    buttonTextCancel: 'Cancel',
+    buttonTextConfirm: 'Yes, delete this video',
+    async response(r) {
+      if (r) {
+        try {
+          await fetch(`/api/videos/${upload.id}`, {
+            method: 'DELETE'
+          });
+          invalidate('app:myVideos');
+          const successToast: ToastSettings = {
+            message: 'Your video was deleted successfully.',
+            background: 'variant-filled-success',
+            timeout: 5000
+          };
+
+          toastStore.trigger(successToast);
+        } catch (error) {
+          const errorToast: ToastSettings = {
+            message:
+              'There was an error deleting your video. Please try again later.',
+            background: 'variant-filled-error',
+            timeout: 5000
+          };
+          toastStore.trigger(errorToast);
+        }
+      }
+    }
+  };
+
+  modalStore.trigger(modal);
+};

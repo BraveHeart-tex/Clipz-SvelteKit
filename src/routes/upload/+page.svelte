@@ -2,7 +2,6 @@
   import uploadVideoSchema from '$lib/schemas/UploadVideoSchema';
   import type { PageData } from './$types';
   import { Form } from 'formsnap';
-  import '@mux/mux-player';
   import {
     FileDropzone,
     getModalStore,
@@ -13,12 +12,7 @@
   } from '@skeletonlabs/skeleton';
   import { superForm } from 'sveltekit-superforms/client';
   import { acceptedFileTypes } from '$lib';
-  import {
-    getDownloadURL,
-    ref,
-    uploadBytesResumable,
-    uploadString
-  } from 'firebase/storage';
+  import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
   import { storage } from '$lib/firebase';
   import { v4 as uuidv4 } from 'uuid';
 
@@ -270,10 +264,6 @@
       resetForm();
     }
   }
-
-  $: {
-    console.log(superFrm.fields.title.value);
-  }
 </script>
 
 <div class="mt-2">
@@ -370,13 +360,16 @@
     <div class="cursor-pointer grid grid-cols-1 gap-2 lg:grid-cols-2 mt-4">
       <div class="flex flex-col gap-2">
         <h3 class="h3">Video Preview:</h3>
-        <mux-player
-          stream-type="on-demand"
-          width="800"
-          heigth="600"
-          style="border-radius: 0.5rem; box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.5);"
-          src={videoSrc}
-        />
+        <video
+          id="player"
+          playsinline
+          class="shadow-md rounded-md"
+          controls
+          data-poster={poster ?? ''}
+        >
+          <track kind="captions" />
+          <source src={videoSrc} type="video/mp4" />
+        </video>
       </div>
 
       {#if poster}

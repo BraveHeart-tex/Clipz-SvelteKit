@@ -38,3 +38,14 @@ export interface MyUploadsStore {
   searchQuery: string;
   statusQuery: string;
 }
+
+export interface PopupAction {
+  label: string;
+  onClick: (
+    event: MouseEvent & {
+      currentTarget: EventTarget & HTMLButtonElement;
+    },
+    upload: Video
+  ) => void;
+  icon: string;
+}

@@ -7,8 +7,11 @@
     type ModalSettings,
     type ToastSettings
   } from '@skeletonlabs/skeleton';
+  import Plyr from 'plyr';
+  import { onMount } from 'svelte';
 
   export let video: Video;
+
   const modalStore = getModalStore();
   const toastStore = getToastStore();
 
@@ -48,6 +51,20 @@
 
     modalStore.trigger(modal);
   };
+
+  onMount(async () => {
+    const player = new Plyr('#player', {
+      controls: [
+        'play-large',
+        'play',
+        'progress',
+        'current-time',
+        'mute',
+        'volume',
+        'fullscreen'
+      ]
+    });
+  });
 </script>
 
 <div
@@ -62,7 +79,15 @@
     </p>
   </header>
   <section class="p-4">
-    <img width="800" height="600" src={video?.poster_url} alt={video.title} />
+    <video
+      id="player"
+      playsinline
+      controls
+      data-poster={video?.poster_url || ''}
+    >
+      <track kind="captions" />
+      <source src={video.url} type="video/mp4" />
+    </video>
   </section>
   <footer
     class="card-footer self-end flex items-center justify-between gap-2 w-full"

@@ -29,7 +29,7 @@ export const actions: Actions = {
       });
       locals.auth.setSession(session);
     } catch (e) {
-      console.log(e);
+      console.error(e);
 
       if (e instanceof LuciaError) {
         if (
