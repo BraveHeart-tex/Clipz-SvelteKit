@@ -6,6 +6,7 @@
 
   let status = 'preview';
   let rejectionReason: string = '';
+  let confirmationTitle: string = '';
 
   const modalStore = getModalStore();
   const toastStore = getToastStore();
@@ -33,6 +34,15 @@
       />
     </div>
     <div class="flex items-center gap-2 mt-4 justify-end">
+      <button
+        type="button"
+        class="mr-auto btn variant-filled-tertiary rounded-md flex items-center gap-1"
+        on:click={() => {
+          modalStore.close();
+        }}
+      >
+        Close Modal
+      </button>
       <button
         type="button"
         class="btn variant-filled-error rounded-md flex items-center gap-1"
@@ -113,6 +123,59 @@
       </div>
     </div>
   {:else if status === 'approved'}
-    Approve
+    <div class="flex flex-col gap-2 w-full lg:min-w-[700px]">
+      <h2 class="text-2xl font-semibold">Approve Video Request</h2>
+      <div>
+        <p>Are you sure you want to approve this video request?</p>
+        <p>
+          If you are sure, please type <span class="font-semibold"
+            >{video.title}</span
+          > below.
+        </p>
+      </div>
+
+      <div class="flex flex-col mt-2">
+        <label for="videoTitle" class="label">Video Title</label>
+        <input
+          id="videoTitle"
+          type="text"
+          class="input rounded-md"
+          placeholder={`Type: ${video.title}`}
+          bind:value={confirmationTitle}
+        />
+      </div>
+
+      <div class="flex items-center gap-2 mt-4 justify-end">
+        <button
+          type="button"
+          class="btn variant-filled-error rounded-md flex items-center gap-1"
+          on:click={() => {
+            status = 'preview';
+          }}
+        >
+          <i class="fa-solid fa-times x"></i>
+          Cancel
+        </button>
+        <button
+          type="button"
+          disabled={confirmationTitle !== video.title}
+          class="btn variant-filled-success rounded-md flex items-center gap-1"
+          on:click={async () => {
+            await updateVideoStatus({
+              row: video,
+              errorMessage: 'There was an error approving the video request.',
+              toastStore,
+              status: VideoStatus.PUBLISHED,
+              successMessage: 'Video request approved.'
+            });
+
+            modalStore.close();
+          }}
+        >
+          <i class="fa-solid fa-check"></i>
+          Confirm
+        </button>
+      </div>
+    </div>
   {/if}
 </div>
