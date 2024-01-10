@@ -37,8 +37,15 @@
   {#each formFields as formField}
     <Form.Field {config} name={formField.name}>
       <div class="flex flex-col">
-        <Form.Label>{formField.label}</Form.Label>
-        <Form.Input type={formField.type} class="input rounded-md" />
+        {#if formField.type === 'checkbox'}
+          <div class="flex items-center gap-2">
+            <Form.Input type={formField.type} class="checkbox" />
+            <p>{formField.label}</p>
+          </div>
+        {:else}
+          <Form.Label>{formField.label}</Form.Label>
+          <Form.Input type={formField.type} class="input rounded-md" />
+        {/if}
         <Form.Validation class="text-red-500 font-semibold" />
       </div>
     </Form.Field>

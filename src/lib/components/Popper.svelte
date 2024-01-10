@@ -14,7 +14,7 @@
   };
 </script>
 
-<button use:popup={settings}>
+<button use:popup={settings} type="button">
   <slot name="trigger" />
 </button>
 

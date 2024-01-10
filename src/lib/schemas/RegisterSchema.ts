@@ -17,11 +17,28 @@ const registerSchema = z
       .describe(`type:password, label: Password`),
     confirmPassword: z
       .string()
-      .describe(`type:password, label: Confirm Password`)
+      .describe(`type:password, label: Confirm Password`),
+    termsAndConditions: z.boolean().describe(`
+    type:checkbox,
+    label: I agree to the Terms and Conditions
+    `)
   })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: 'Passwords do not match',
-    path: ['confirmPassword']
+  .superRefine((data, ctx) => {
+    if (data.password !== data.confirmPassword) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Passwords do not match',
+        path: ['confirmPassword']
+      });
+    }
+
+    if (!data.termsAndConditions) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'You must agree to the terms and conditions',
+        path: ['termsAndConditions']
+      });
+    }
   });
 
 export type RegisterSchema = z.infer<typeof registerSchema>;
