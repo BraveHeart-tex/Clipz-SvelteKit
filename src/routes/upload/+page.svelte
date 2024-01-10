@@ -271,7 +271,7 @@
     {#if isSubmitting && !submitCompleted}
       <UploadProgress {progress} />
     {/if}
-    <div class="grid grid-cols-1 gap-4 xl:grid-cols-2 mt-4">
+    <div class="grid grid-cols-1 gap-4 mt-4 lg:max-w-[75%]">
       <Form.Root
         form={superFrm}
         schema={uploadVideoSchema}

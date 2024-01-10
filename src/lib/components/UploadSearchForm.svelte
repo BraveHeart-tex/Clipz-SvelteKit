@@ -4,6 +4,7 @@
   import type { SearchUploadsResponse } from '$lib/types';
   import { VideoStatus } from '@prisma/client';
   import { getToastStore, type ToastSettings } from '@skeletonlabs/skeleton';
+  import { page } from '$app/stores';
 
   const toastStore = getToastStore();
 
@@ -32,6 +33,8 @@
       toastStore.trigger(errorToast);
     }
   };
+
+  console.log();
 </script>
 
 <form
@@ -63,7 +66,16 @@
       {/each}
     </select>
   </div>
-  <button type="submit" class="w-max btn rounded-md variant-filled-primary"
-    >Search</button
-  >
+  <div class="flex items-center gap-2">
+    <button
+      type="button"
+      class="w-max btn rounded-md variant-filled-secondary"
+      on:click={() => {
+        myUploadsStore.reset($page?.data?.userUploads);
+      }}>Reset</button
+    >
+    <button type="submit" class="w-max btn rounded-md variant-filled-primary"
+      >Search</button
+    >
+  </div>
 </form>
