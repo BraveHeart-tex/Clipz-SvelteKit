@@ -14,7 +14,8 @@ export const handleAdminReviewAction = async ({
   successMessage,
   errorMessage,
   toastStore,
-  modalStore
+  modalStore,
+  extraData
 }: {
   row: Video;
   action: string;
@@ -23,6 +24,7 @@ export const handleAdminReviewAction = async ({
   errorMessage: string;
   toastStore: ToastStore;
   modalStore: ModalStore;
+  extraData?: Record<string, unknown>;
 }) => {
   const confirmationModal: ModalSettings = {
     type: 'confirm',
@@ -35,17 +37,13 @@ export const handleAdminReviewAction = async ({
     async response(r) {
       if (r) {
         try {
-          await fetch(`/api/admin/requests/${row.id}`, {
-            method: 'PUT',
-            body: JSON.stringify({
-              status: status
-            })
-          });
-          invalidate('app:admin');
-          toastStore.trigger({
-            message: successMessage,
-            background: 'variant-filled-success',
-            timeout: 4000
+          await updateVideoStatus({
+            row,
+            status,
+            successMessage,
+            errorMessage,
+            toastStore,
+            extraData
           });
         } catch (error) {
           console.error(error);
@@ -62,3 +60,50 @@ export const handleAdminReviewAction = async ({
 
   modalStore.trigger(confirmationModal);
 };
+
+export async function updateVideoStatus({
+  row,
+  status,
+  successMessage,
+  errorMessage,
+  toastStore,
+  extraData
+}: {
+  row: Video;
+  status: VideoStatus;
+  successMessage: string;
+  errorMessage: string;
+  toastStore: ToastStore;
+  extraData?: Record<string, unknown>;
+}) {
+  try {
+    let requestBody = {
+      status
+    };
+
+    if (extraData) {
+      requestBody = {
+        ...requestBody,
+        ...extraData
+      };
+    }
+
+    await fetch(`/api/admin/requests/${row.id}`, {
+      method: 'PUT',
+      body: JSON.stringify(requestBody)
+    });
+    invalidate('app:admin');
+    toastStore.trigger({
+      message: successMessage,
+      background: 'variant-filled-success',
+      timeout: 4000
+    });
+  } catch (error) {
+    console.error(error);
+    toastStore.trigger({
+      message: errorMessage,
+      background: 'variant-filled-error',
+      timeout: 4000
+    });
+  }
+}

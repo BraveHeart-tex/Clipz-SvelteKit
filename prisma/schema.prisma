@@ -23,19 +23,20 @@ model User {
 }
 
 model Video {
-  id          String       @id @default(cuid())
-  title       String
-  description String?
-  url         String       @db.LongText
-  poster_url  String?      @db.LongText
-  user_id     String
-  user        User         @relation(references: [id], fields: [user_id], onDelete: Cascade)
-  status      VideoStatus  @default(PENDING_REVIEW)
-  topic       TicketTopics @default(OTHER)
-  created_at  DateTime     @default(now())
-  updated_at  DateTime     @updatedAt
-  views       Int          @default(0)
-  Ticket      Ticket[]
+  id              String       @id @default(cuid())
+  title           String
+  description     String?
+  url             String       @db.LongText
+  poster_url      String?      @db.LongText
+  user_id         String
+  user            User         @relation(references: [id], fields: [user_id], onDelete: Cascade)
+  rejectionReason String?      @db.LongText
+  status          VideoStatus  @default(PENDING_REVIEW)
+  topic           TicketTopics @default(OTHER)
+  created_at      DateTime     @default(now())
+  updated_at      DateTime     @updatedAt
+  views           Int          @default(0)
+  Ticket          Ticket[]
 
   @@map("tbl_videos")
 }

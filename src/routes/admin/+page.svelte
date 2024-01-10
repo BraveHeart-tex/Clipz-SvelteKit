@@ -5,10 +5,12 @@
   import {
     TabGroup,
     getModalStore,
-    getToastStore
+    getToastStore,
+    type ModalSettings
   } from '@skeletonlabs/skeleton';
   import Popper from '$lib/components/Popper.svelte';
   import { handleAdminReviewAction } from '$lib/admin';
+  import AdminWatchVideo from '$lib/components/AdminWatchVideo.svelte';
 
   export let data: PageData;
 
@@ -77,7 +79,14 @@
     });
   };
 
-  const handleWatch = (row: Video) => {};
+  const handleWatch = (row: Video) => {
+    const watchModal: ModalSettings = {
+      type: 'component',
+      component: { ref: AdminWatchVideo, props: { video: row } }
+    };
+
+    modalStore.trigger(watchModal);
+  };
 
   $: pendingRequests = data?.pendingRequests || [];
   $: openTickets = data?.openTickets || [];

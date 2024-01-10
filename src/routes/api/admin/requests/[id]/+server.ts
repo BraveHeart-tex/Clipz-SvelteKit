@@ -31,13 +31,29 @@ export const PUT: RequestHandler = async ({ params, locals, request }) => {
     );
   }
 
+  if (status === VideoStatus.REJECTED && !body.rejectionReason) {
+    return json(
+      { error: 'You must provide a rejection reason.' },
+      { status: 400 }
+    );
+  }
+
+  const queryData: {
+    status: VideoStatus;
+    rejectionReason?: string;
+  } = {
+    status
+  };
+
+  if (status === VideoStatus.REJECTED) {
+    queryData.rejectionReason = body.rejectionReason;
+  }
+
   const result = await prisma.video.update({
     where: {
       id: videoRequestId
     },
-    data: {
-      status
-    }
+    data: queryData
   });
 
   if (result) {
