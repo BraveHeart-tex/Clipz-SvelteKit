@@ -6,15 +6,21 @@
     FileDropzone,
     getModalStore,
     getToastStore,
-    ProgressBar,
     type ModalSettings,
     type ToastSettings
   } from '@skeletonlabs/skeleton';
   import { superForm } from 'sveltekit-superforms/client';
   import { acceptedFileTypes } from '$lib';
-  import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
+  import {
+    getDownloadURL,
+    ref,
+    uploadBytesResumable,
+    uploadString
+  } from 'firebase/storage';
   import { storage } from '$lib/firebase';
   import { v4 as uuidv4 } from 'uuid';
+  import UploadProgress from '$lib/components/UploadProgress.svelte';
+  import UploadVideoPreview from '$lib/components/UploadVideoPreview.svelte';
 
   export let data: PageData;
   let videoSrc: string | null = null;
@@ -132,18 +138,8 @@
         }
       ];
 
-      // handle the case when the user does not upload a thumbnail
       if (!thumbnail) {
         fileInputs.pop();
-
-        // const storageRef = ref(storage, `thumbnails/${uuidv4()}.jpg`);
-        // uploadString(storageRef, poster, 'data_url', {
-        //   contentType: 'image/jpeg'
-        // }).then((snapshot) => {
-        //   getDownloadURL(snapshot.ref).then((url) => {
-        //     formData.set('thumbnailUrl', url);
-        //   });
-        // });
       }
 
       const uploadPromises = fileInputs.map((fileInput) => {
@@ -273,27 +269,7 @@
       <p>Please confirm that the video below is the clip you want to upload.</p>
     </div>
     {#if isSubmitting && !submitCompleted}
-      <div
-        class={'fixed top-0 left-0 w-full h-full flex items-center justify-center bg-surface-900 bg-opacity-75 z-50'}
-      >
-        <div
-          class="flex flex-col gap-2 bg-surface-50 rounded-md p-10 dark:bg-surface-600"
-        >
-          <h3 class="h3">
-            Your video is being uploaded (%{progress.toFixed(0)})
-          </h3>
-          <p>
-            Please do not close this window or navigate away from this page
-            until the upload is complete.
-          </p>
-          <ProgressBar
-            label="Progress Bar"
-            value={progress}
-            max={100}
-            transition="transition-all animate-pulse"
-          />
-        </div>
-      </div>
+      <UploadProgress {progress} />
     {/if}
     <div class="grid grid-cols-1 gap-4 xl:grid-cols-2 mt-4">
       <Form.Root
@@ -357,34 +333,7 @@
         </div>
       </Form.Root>
     </div>
-    <div class="cursor-pointer grid grid-cols-1 gap-2 lg:grid-cols-2 mt-4">
-      <div class="flex flex-col gap-2">
-        <h3 class="h3">Video Preview:</h3>
-        <video
-          id="player"
-          playsinline
-          class="shadow-md rounded-md"
-          controls
-          data-poster={poster ?? ''}
-        >
-          <track kind="captions" />
-          <source src={videoSrc} type="video/mp4" />
-        </video>
-      </div>
-
-      {#if poster}
-        <div class="flex flex-col gap-2">
-          <h3 class="h3">Thumbnail Preview:</h3>
-          <img
-            src={poster}
-            alt="video thumbnail"
-            class="rounded-md shadow-md"
-            width="800"
-            height="600"
-          />
-        </div>
-      {/if}
-    </div>
+    <UploadVideoPreview {videoSrc} {poster} />
   {:else}
     <div class="flex flex-col gap-1 mb-4">
       <div class="flex justify-between items-center">
