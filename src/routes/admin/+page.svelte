@@ -10,6 +10,7 @@
     getToastStore
   } from '@skeletonlabs/skeleton';
   import { invalidate } from '$app/navigation';
+  import Popper from '$lib/components/Popper.svelte';
 
   export let data: PageData;
 
@@ -27,6 +28,30 @@
       label: 'Tickets',
       icon: '<i class="fa-solid fa-ticket"></i>',
       value: 1
+    }
+  ];
+
+  const actions = [
+    {
+      icon: '<i class="fa-solid fa-play"></i>',
+      label: 'Watch',
+      onClick: (row: Video) => {
+        handleWatch(row);
+      }
+    },
+    {
+      icon: '<i class="fa-solid fa-xmark"></i>',
+      label: 'Reject',
+      onClick: (row: Video) => {
+        handleReject(row);
+      }
+    },
+    {
+      icon: '<i class="fa-solid fa-check"></i>',
+      label: 'Approve',
+      onClick: (row: Video) => {
+        // handleApprove(row);
+      }
     }
   ];
 
@@ -125,36 +150,29 @@
           apiPath="/api/admin/tickets"
           actionsColumnLabel="Actions"
         >
-          <div class="flex items-center gap-2" slot="actions" let:row>
-            <button
-              class="flex items-center gap-2 btn variant-filled-secondary rounded-md btn-sm p-2"
-              on:click={() => {
-                // @ts-ignore
-                handleWatch(row.original);
-              }}
-            >
-              <i class="fa-solid fa-video"></i>
-              Watch
-            </button>
-            <button
-              class="flex items-center gap-2 btn variant-filled-error rounded-md btn-sm p-2"
-              on:click={() => {
-                // @ts-ignore
-                handleReject(row.original);
-              }}
-            >
-              <i class="fa-solid fa-xmark"></i>
-              Reject
-            </button>
-            <button
-              class="flex items-center gap-2 btn variant-filled-primary rounded-md btn-sm p-2"
-              on:click={() => {
-                console.log(row.original);
-              }}
-            >
-              <i class="fa-solid fa-check"></i>
-              Approve
-            </button>
+          <div slot="actions" let:row>
+            <Popper>
+              <div
+                slot="trigger"
+                class="p-2 hover:bg-surface-100 dark:hover:bg-surface-500 rounded-lg inline-flex items-center z-[500]"
+              >
+                <i class="fa-solid fa-ellipsis-vertical"></i>
+              </div>
+              <div slot="content" class="card p-4 w-72 shadow-xl">
+                {#each actions as action}
+                  <button
+                    class="w-full btn flex items-center gap-1 justify-start hover:bg-surface-200 dark:hover:bg-surface-600 rounded-md"
+                    on:click={(event) => {
+                      // @ts-ignore
+                      action.onClick(row.original);
+                    }}
+                  >
+                    {@html action.icon}
+                    <span>{action.label}</span>
+                  </button>
+                {/each}
+              </div>
+            </Popper>
           </div>
         </DataTable>
       {:else if selectedTab === 1}
