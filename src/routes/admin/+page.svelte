@@ -1,16 +1,14 @@
 <script lang="ts">
   import DataTable from '$lib/components/DataTable.svelte';
-  import type { Video } from '@prisma/client';
+  import { VideoStatus, type Video } from '@prisma/client';
   import type { PageData } from './$types';
   import {
     TabGroup,
-    type ModalSettings,
     getModalStore,
-    type ToastSettings,
     getToastStore
   } from '@skeletonlabs/skeleton';
-  import { invalidate } from '$app/navigation';
   import Popper from '$lib/components/Popper.svelte';
+  import { handleAdminReviewAction } from '$lib/admin';
 
   export let data: PageData;
 
@@ -50,44 +48,33 @@
       icon: '<i class="fa-solid fa-check"></i>',
       label: 'Approve',
       onClick: (row: Video) => {
-        // handleApprove(row);
+        handleApprove(row);
       }
     }
   ];
 
-  const handleReject = (row: Video) => {
-    const confirmationModal: ModalSettings = {
-      type: 'confirm',
-      title: 'Reject Video Request',
-      body: `Are you sure you want to reject the video request titled "${row.title}"?`,
-      buttonTextCancel: 'No',
-      buttonTextConfirm: 'Yes',
-      async response(r) {
-        if (r) {
-          try {
-            await fetch(`/api/admin/requests/${row.id}`, {
-              method: 'DELETE'
-            });
-            invalidate('app:admin');
-            toastStore.trigger({
-              message: 'Video request rejected.',
-              background: 'variant-filled-success',
-              timeout: 4000
-            });
-          } catch (error) {
-            console.error(error);
-            const toast: ToastSettings = {
-              message: 'There was an error rejecting the video request.',
-              background: 'variant-filled-error',
-              timeout: 4000
-            };
-            toastStore.trigger(toast);
-          }
-        }
-      }
-    };
+  const handleApprove = (row: Video) => {
+    handleAdminReviewAction({
+      row,
+      action: 'Approve',
+      errorMessage: 'There was an error approving the video request.',
+      modalStore,
+      toastStore,
+      status: VideoStatus.PUBLISHED,
+      successMessage: 'Video request approved.'
+    });
+  };
 
-    modalStore.trigger(confirmationModal);
+  const handleReject = (row: Video) => {
+    handleAdminReviewAction({
+      row,
+      action: 'Reject',
+      errorMessage: 'There was an error rejecting the video request.',
+      modalStore,
+      toastStore,
+      status: VideoStatus.REJECTED,
+      successMessage: 'Video request rejected.'
+    });
   };
 
   const handleWatch = (row: Video) => {};

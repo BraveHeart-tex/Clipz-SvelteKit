@@ -1,7 +1,8 @@
 import { VideoStatus } from '@prisma/client';
 import { json, type RequestHandler } from '@sveltejs/kit';
+import prisma from '$lib/server/prisma';
 
-export const DELETE: RequestHandler = async ({ params, locals }) => {
+export const PUT: RequestHandler = async ({ params, locals, request }) => {
   const session = await locals.auth.validate();
   if (!session) {
     return json({ error: 'Unauthorized' }, { status: 401 });
@@ -9,15 +10,33 @@ export const DELETE: RequestHandler = async ({ params, locals }) => {
   if (!session.user.isAdmin) {
     return json({ error: 'Unauthorized' }, { status: 401 });
   }
-
   const videoRequestId = params.id;
 
-  const result = await prisma?.video.update({
+  if (!videoRequestId) {
+    return json(
+      { error: 'You must provide a valida video id.' },
+      { status: 400 }
+    );
+  }
+  const body = await request.json();
+  const { status } = body;
+
+  if (!(status in VideoStatus)) {
+    const labels = Object.keys(VideoStatus).join(', ');
+    return json(
+      { error: `Invalid video status. Valida options are : ${labels}` },
+      {
+        status: 400
+      }
+    );
+  }
+
+  const result = await prisma.video.update({
     where: {
       id: videoRequestId
     },
     data: {
-      status: VideoStatus.REJECTED
+      status
     }
   });
 
@@ -30,13 +49,3 @@ export const DELETE: RequestHandler = async ({ params, locals }) => {
     return json({ error: 'Something went wrong.' }, { status: 500 });
   }
 };
-
-// export const PUT: RequestHandler = async ({ url, locals }) => {
-//   const session = await locals.auth.validate();
-//   if (!session) {
-//     return json({ error: 'Unauthorized' }, { status: 401 });
-//   }
-//   if (!session.user.isAdmin) {
-//     return json({ error: 'Unauthorized' }, { status: 401 });
-//   }
-// };
