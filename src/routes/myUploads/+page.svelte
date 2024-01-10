@@ -28,8 +28,11 @@
 
 {#if !$myUploadsStore || $myUploadsStore?.data?.length === 0}
   {#if hasSearchParams}
-    <div class="flex flex-col gap-1 mt-4">
-      <p>No uploads were found that matched your search</p>
+    <div class="flex flex-col justify-start items-center mt-4 w-full gap-4">
+      <div class="flex items-center w-full justify-center flex-col gap-4">
+        <i class="fa-solid fa-question text-[32px]"></i>
+        <p>No uploads were found that matched your search.</p>
+      </div>
       <button
         class="w-max btn variant-filled-primary rounded-md"
         on:click={() => {
