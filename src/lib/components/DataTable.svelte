@@ -132,8 +132,8 @@
         placeholder="Search all rows..."
       />
     </div>
-    <div class="overflow-auto">
-      <table class="table rounded-md overflow-auto">
+    <div class="table-container rounded-md">
+      <table class="table rounded-md table-hover">
         <thead>
           {#each $table.getHeaderGroups() as headerGroup}
             <tr>
@@ -156,17 +156,21 @@
                         />
                       </button>
                       {#if header.column.columnDef.meta?.sort}
-                        <input
-                          class="input rounded-md h-7 w-max"
-                          type="search"
-                          bind:value={filters[header.column.id]}
-                          on:input={() =>
-                            setFilter(
-                              header.column.id,
-                              filters[header.column.id]
-                            )}
-                          placeholder={`Filter by ${header.column.columnDef.header}...`}
-                        />
+                        <tr>
+                          <td>
+                            <input
+                              class="input rounded-md h-7 w-max"
+                              type="search"
+                              bind:value={filters[header.column.id]}
+                              on:input={() =>
+                                setFilter(
+                                  header.column.id,
+                                  filters[header.column.id]
+                                )}
+                              placeholder={`Filter by ${header.column.columnDef.header}...`}
+                            />
+                          </td>
+                        </tr>
                       {/if}
                     {/if}
                   </div>
@@ -189,9 +193,7 @@
             </tr>
           {/if}
           {#each $table.getRowModel().rows as row}
-            <tr
-              class="dark:odd:bg-surface-600 odd:bg-surface-100 hover:bg-surface-200 dark:hover:bg-surface-500"
-            >
+            <tr>
               {#each row.getVisibleCells() as cell}
                 <td>
                   <svelte:component

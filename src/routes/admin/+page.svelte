@@ -4,7 +4,6 @@
   import type { PageData } from './$types';
   import {
     TabGroup,
-    Tab,
     type ModalSettings,
     getModalStore,
     type ToastSettings,
@@ -14,10 +13,10 @@
 
   export let data: PageData;
 
-  let showReasonModal: boolean = false;
   const modalStore = getModalStore();
   const toastStore = getToastStore();
   let selectedTab: number = 0;
+
   const tabs = [
     {
       label: 'Pending Requests',
@@ -78,11 +77,28 @@
 <div class="mt-4">
   <TabGroup>
     {#each tabs as tab}
-      <Tab bind:group={selectedTab} name={tab.label} value={tab.value}>
-        <span class="flex items-center gap-2">
-          {@html tab.icon} {tab.label}</span
-        >
-      </Tab>
+      <button
+        type="button"
+        class="px-4 py-2 btn relative hover:bg-surface-400/25 dark:hover:bg-surface-800 rounded-md"
+        name={tab.label}
+        on:click={() => {
+          document.startViewTransition(() => {
+            selectedTab = tab.value;
+          });
+        }}
+        aria-label={`Switch selected tab to ${tab.label}`}
+      >
+        <span class="flex items-center gap-2 relative">
+          {@html tab.icon}
+          {tab.label}
+        </span>
+        {#if selectedTab === tab.value}
+          <div
+            aria-current="step"
+            class="absolute bg-primary-500 bottom-0 h-[2px] z-10 w-full"
+          />
+        {/if}
+      </button>
     {/each}
     <svelte:fragment slot="panel">
       {#if selectedTab === 0}
@@ -112,7 +128,10 @@
           <div class="flex items-center gap-2" slot="actions" let:row>
             <button
               class="flex items-center gap-2 btn variant-filled-secondary rounded-md btn-sm p-2"
-              on:click={() => handleWatch(row.original)}
+              on:click={() => {
+                // @ts-ignore
+                handleWatch(row.original);
+              }}
             >
               <i class="fa-solid fa-video"></i>
               Watch
@@ -120,6 +139,7 @@
             <button
               class="flex items-center gap-2 btn variant-filled-error rounded-md btn-sm p-2"
               on:click={() => {
+                // @ts-ignore
                 handleReject(row.original);
               }}
             >

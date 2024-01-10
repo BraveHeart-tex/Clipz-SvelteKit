@@ -45,8 +45,6 @@
     });
   });
 
-  $: User = data?.user;
-
   $: {
     const newUser = data?.user;
     user.set(newUser);
