@@ -3,7 +3,12 @@
   import UploadStatusBadge from './UploadStatusBadge.svelte';
   import UploadActions from './UploadActions.svelte';
   import type { PopupAction } from '$lib/types';
-  import { getModalStore, getToastStore } from '@skeletonlabs/skeleton';
+  import {
+    Modal,
+    getModalStore,
+    getToastStore,
+    type ModalSettings
+  } from '@skeletonlabs/skeleton';
   import { handleDeleteVideoClick } from '$lib';
 
   export let upload: Video;
@@ -50,7 +55,22 @@
         ...commonActions,
         {
           label: 'Rejection Reason',
-          onClick: () => console.log('Rejection Reason'),
+          onClick: () => {
+            const rejectionReasonModal: ModalSettings = {
+              type: 'confirm',
+              title: 'Rejection Reason',
+              body: `<div class='flex flex-col gap-2'><p>Your video request was rejected because: </p> <span>${upload?.rejectionReason}</span>
+              <p>Would you like to delete it?</p>
+                </div>`,
+              buttonTextConfirm: 'Delete',
+              response(r) {
+                if (r) {
+                  handleDeleteVideoClick({ modalStore, toastStore, upload });
+                }
+              }
+            };
+            modalStore.trigger(rejectionReasonModal);
+          },
           icon: 'fa-solid fa-eye'
         }
       ];
