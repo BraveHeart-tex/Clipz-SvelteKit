@@ -10,6 +10,8 @@ import type {
 } from '@skeletonlabs/skeleton';
 import type { Video } from '@prisma/client';
 import { invalidate } from '$app/navigation';
+import { deleteObject, ref } from 'firebase/storage';
+import { storage } from './firebase';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -208,3 +210,64 @@ export const handleDeleteVideoClick = ({
 
   modalStore.trigger(modal);
 };
+
+export async function deleteVideoFromFirebaseStorage({
+  video,
+  deleteThumbnail = true
+}: {
+  video: Video;
+  deleteThumbnail?: boolean;
+}) {
+  console.log(video);
+
+  try {
+    const videoStorageRef = ref(
+      storage,
+      '/videos/' + getFirebaseStoragePath(video.url)
+    );
+
+    const thumbnailStorageRef = ref(
+      storage,
+      '/thumbnails/' + getFirebaseStoragePath(video.poster_url!)
+    );
+
+    await deleteObject(videoStorageRef);
+
+    if (deleteThumbnail) {
+      await deleteObject(thumbnailStorageRef);
+    }
+  } catch (error) {
+    console.error(error);
+    return {
+      error
+    };
+  }
+}
+
+export const isValidUrl = (urlString: string) => {
+  const urlPattern = new RegExp(
+    '^(https?:\\/\\/)?' + // validate protocol
+      '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' + // validate domain name
+      '((\\d{1,3}\\.){3}\\d{1,3}))' + // validate OR ip (v4) address
+      '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + // validate port and path
+      '(\\?[;&a-z\\d%_.~+=-]*)?' + // validate query string
+      '(\\#[-a-z\\d_]*)?$',
+    'i'
+  ); // validate fragment locator
+  return !!urlPattern.test(urlString);
+};
+
+function getFirebaseStoragePath(url: string) {
+  try {
+    if (!url) return;
+    const regex = RegExp(/%2F(.*?)\?alt/);
+    const match = regex.exec(url);
+    if (match) {
+      const path = match[1];
+      return path;
+    }
+  } catch (error) {
+    console.error(error);
+    return;
+  }
+}

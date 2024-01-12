@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { cn } from '$lib';
   import Plyr from 'plyr';
   import { onMount } from 'svelte';
 
@@ -24,9 +25,12 @@
   });
 </script>
 
-<div class="cursor-pointer grid grid-cols-1 gap-2 lg:grid-cols-2 mt-4">
+<div class={cn('grid grid-cols-1 gap-2  mt-4', poster && 'lg:grid-cols-2')}>
   <div class="flex flex-col gap-2">
-    <h3 class="h3">Video Preview:</h3>
+    <div class="flex items-center gap-1">
+      <i class="fa-solid fa-video text-2xl"></i>
+      <h3 class="h3">Video Preview:</h3>
+    </div>
     <video id="player" playsinline controls data-poster={poster ?? ''}>
       <track kind="captions" />
       <source src={videoSrc} type="video/mp4" />
@@ -35,7 +39,10 @@
 
   {#if poster}
     <div class="flex flex-col gap-2">
-      <h3 class="h3">Thumbnail Preview:</h3>
+      <div class="flex items-center gap-1">
+        <i class="fa-solid fa-photo-film text-2xl"></i>
+        <h3 class="h3">Thumbnail Preview:</h3>
+      </div>
       <img
         src={poster}
         alt="video thumbnail"

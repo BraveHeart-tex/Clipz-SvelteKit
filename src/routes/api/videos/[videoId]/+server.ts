@@ -1,6 +1,5 @@
-import { storage } from '$lib/firebase';
+import { deleteVideoFromFirebaseStorage } from '$lib';
 import { json, redirect, type RequestHandler } from '@sveltejs/kit';
-import { ref, deleteObject } from 'firebase/storage';
 
 export const DELETE: RequestHandler = async ({ locals, params }) => {
   const session = await locals.auth.validate();
@@ -21,13 +20,13 @@ export const DELETE: RequestHandler = async ({ locals, params }) => {
 
   const videoId = params.videoId;
 
-  const result = await prisma?.video.delete({
+  const video = await prisma?.video.delete({
     where: {
       id: videoId
     }
   });
 
-  if (!result) {
+  if (!video) {
     return json(
       {
         message: `Video with id ${videoId} not found.`
@@ -36,14 +35,7 @@ export const DELETE: RequestHandler = async ({ locals, params }) => {
     );
   }
 
-  // delete from storage
-  const videoStorageRef = ref(storage, result.url);
-  const thumbnailStorageRef = ref(storage, result.poster_url);
-
-  await Promise.all([
-    deleteObject(videoStorageRef),
-    deleteObject(thumbnailStorageRef)
-  ]);
+  await deleteVideoFromFirebaseStorage({ video });
 
   return json({ message: `Video deleted successfully.` }, { status: 200 });
 };

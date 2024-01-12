@@ -3,11 +3,38 @@ import type { PageServerLoad } from './$types';
 import { superValidate } from 'sveltekit-superforms/server';
 import uploadVideoSchema from '$lib/schemas/UploadVideoSchema';
 
-export const load: PageServerLoad = async ({ locals }) => {
+export const load: PageServerLoad = async ({ locals, url }) => {
   const session = await locals.auth.validate();
 
   if (!session) {
     throw redirect(302, '/');
+  }
+
+  const videoId = url.searchParams.get('videoId');
+  if (videoId) {
+    const video = await prisma?.video.findUnique({
+      where: {
+        id: videoId,
+        user_id: session.user.userId
+      }
+    });
+
+    if (!video) {
+      throw redirect(302, '/');
+    }
+
+    const form = await superValidate(
+      {
+        title: video.title,
+        description: video.description || ''
+      },
+      uploadVideoSchema
+    );
+
+    return {
+      form,
+      currentVideo: video
+    };
   }
 
   const form = await superValidate(uploadVideoSchema);
@@ -18,7 +45,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 };
 
 export const actions: Actions = {
-  default: async ({ request, locals }) => {
+  uploadVideo: async ({ request, locals }) => {
     const session = await locals.auth.validate();
 
     if (!session) {
@@ -40,16 +67,6 @@ export const actions: Actions = {
       const url = formData.get('videoUrl') as string;
       const poster_url = formData.get('thumbnailUrl') as string;
 
-      // const { Video } = new Mux(MUX_TOKEN_ID, MUX_TOKEN_SECRET);
-
-      // const asset = await Video.Assets.create({
-      //   input: url
-      // });
-
-      // const playback = await Video.Assets.createPlaybackId(asset.id, {
-      //   policy: 'public'
-      // });
-
       await prisma?.video.create({
         data: {
           title,
@@ -68,5 +85,47 @@ export const actions: Actions = {
     }
 
     return { form };
+  },
+  updateVideo: async ({ request, locals }) => {
+    const session = await locals.auth.validate();
+
+    if (!session) {
+      throw redirect(302, '/');
+    }
+
+    const formData = await request.formData();
+
+    const form = await superValidate(formData, uploadVideoSchema);
+
+    if (!form.valid) {
+      return fail(400, { form });
+    }
+
+    try {
+      const { title, description } = form.data;
+      const userId = session.user.userId;
+
+      const url = formData.get('videoUrl') as string;
+      const poster_url = formData.get('thumbnailUrl') as string;
+
+      await prisma?.video.update({
+        where: {
+          id: formData.get('videoId') as string,
+          user_id: userId
+        },
+        data: {
+          title,
+          description,
+          url,
+          poster_url
+        }
+      });
+    } catch (error) {
+      console.error(error);
+      return fail(500, {
+        message:
+          'Something went wrong while updating the video. Please try again later.'
+      });
+    }
   }
 };

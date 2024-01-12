@@ -47,7 +47,7 @@
   action="/register"
 >
   <Form.Field {config} name={'fullName'}>
-    <Form.Label>Fullname</Form.Label>
+    <Form.Label>Name</Form.Label>
     <Form.Input type="text" class="input rounded-md" />
     <Form.Validation class="text-red-500 font-semibold" />
   </Form.Field>

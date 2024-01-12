@@ -10,6 +10,7 @@
     type ModalSettings
   } from '@skeletonlabs/skeleton';
   import { handleDeleteVideoClick } from '$lib';
+  import { goto } from '$app/navigation';
 
   export let upload: Video;
 
@@ -34,7 +35,9 @@
         ...commonActions,
         {
           label: 'Edit',
-          onClick: () => console.log('Edit'),
+          onClick: (event, uplaod) => {
+            goto(`/upload?videoId=${upload.id}`);
+          },
           icon: 'fa-solid fa-edit'
         },
         {

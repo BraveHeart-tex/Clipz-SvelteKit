@@ -3,33 +3,32 @@
   import type { PageData } from './$types';
   import { Form } from 'formsnap';
   import {
-    FileDropzone,
     getModalStore,
     getToastStore,
     type ModalSettings,
     type ToastSettings
   } from '@skeletonlabs/skeleton';
   import { superForm } from 'sveltekit-superforms/client';
-  import { acceptedFileTypes } from '$lib';
-  import {
-    getDownloadURL,
-    ref,
-    uploadBytesResumable,
-    uploadString
-  } from 'firebase/storage';
+  import { acceptedFileTypes, deleteVideoFromFirebaseStorage } from '$lib';
+  import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
   import { storage } from '$lib/firebase';
   import { v4 as uuidv4 } from 'uuid';
   import UploadProgress from '$lib/components/UploadProgress.svelte';
   import UploadVideoPreview from '$lib/components/UploadVideoPreview.svelte';
+  import { goto } from '$app/navigation';
+  import UploadVideoStepOne from '$lib/components/UploadVideoStepOne.svelte';
+  import VideoUploadArea from '$lib/components/VideoUploadArea.svelte';
 
   export let data: PageData;
-  let videoSrc: string | null = null;
+  $: videoSrc = '';
   let poster: string = '';
   let uploadedFile: File | null = null;
   let progress: number = 0;
   let isSubmitting: boolean = false;
   let submitCompleted: boolean = false;
   let thumbnail: File | null = null;
+
+  $: isEditMode = data?.currentVideo?.url ? true : false;
 
   const toastStore = getToastStore();
   const modalStore = getModalStore();
@@ -74,12 +73,16 @@
 
   const resetForm = () => {
     superFrm.reset();
-    videoSrc = null;
+    videoSrc = '';
     uploadedFile = null;
     isSubmitting = false;
     submitCompleted = false;
     poster = '';
     thumbnail = null;
+
+    if (isEditMode) {
+      goto('/upload');
+    }
   };
 
   const handleCancelClick = () => {
@@ -115,7 +118,7 @@
 
       const formData = new FormData();
 
-      const fileInputs = [
+      let fileInputs = [
         {
           name: 'video',
           file: uploadedFile as File,
@@ -138,67 +141,103 @@
         }
       ];
 
-      if (!thumbnail) {
+      if (isEditMode && videoSrc) {
+        await deleteVideoFromFirebaseStorage({
+          video: data.currentVideo!,
+          deleteThumbnail: poster ? true : false
+        });
+      }
+
+      // user did not upload a new video
+      if (isEditMode && !videoSrc) {
+        fileInputs.shift();
+      }
+
+      if (!thumbnail && !isEditMode) {
         fileInputs.pop();
       }
 
-      const uploadPromises = fileInputs.map((fileInput) => {
-        return new Promise((resolve, reject) => {
-          const uploadTask = uploadBytesResumable(
-            fileInput.storageRef,
-            fileInput.file,
-            {
-              contentType: fileInput.contentType
-            }
-          );
+      let uploadPromises: unknown[] = [];
 
-          uploadTask.on(
-            'state_changed',
-            (snapshot) => {
-              const { bytesTransferred, totalBytes } = snapshot;
-              progress = (bytesTransferred / totalBytes) * 100;
-            },
-            (error) => {
-              isSubmitting = false;
-              const errorToast: ToastSettings = {
-                message:
-                  'An error occurred while uploading your video. Please try again later.',
-                background: 'variant-filled-error',
-                timeout: 5000
-              };
-              toastStore.trigger(errorToast);
-              reject(error);
-            },
-            () => {
-              getDownloadURL(uploadTask.snapshot.ref).then((url) => {
-                if (url) {
-                  resolve({
-                    name: fileInput.name,
-                    url
-                  });
-                } else {
-                  reject('Failed to get download URL');
-                }
-              });
-            }
-          );
+      // no thumbnail or video uploaded
+      if (fileInputs.length === 0) {
+        uploadPromises = [
+          {
+            name: 'videoUrl',
+            url: data.currentVideo?.url
+          },
+          {
+            name: 'thumbnailUrl',
+            url: data.currentVideo?.poster_url
+          }
+        ];
+      } else if (fileInputs.length >= 1) {
+        uploadPromises = fileInputs.map((fileInput) => {
+          return new Promise((resolve, reject) => {
+            const uploadTask = uploadBytesResumable(
+              fileInput.storageRef,
+              fileInput.file,
+              {
+                contentType: fileInput.contentType
+              }
+            );
+
+            uploadTask.on(
+              'state_changed',
+              (snapshot) => {
+                const { bytesTransferred, totalBytes } = snapshot;
+                progress = (bytesTransferred / totalBytes) * 100;
+              },
+              (error) => {
+                isSubmitting = false;
+                const errorToast: ToastSettings = {
+                  message:
+                    'An error occurred while uploading your video. Please try again later.',
+                  background: 'variant-filled-error',
+                  timeout: 5000
+                };
+                toastStore.trigger(errorToast);
+                reject(error);
+              },
+              () => {
+                getDownloadURL(uploadTask.snapshot.ref).then((url) => {
+                  if (url) {
+                    resolve({
+                      name: fileInput.name,
+                      url
+                    });
+                  } else {
+                    reject('Failed to get download URL');
+                  }
+                });
+              }
+            );
+          });
         });
-      });
+      }
 
       const urls = await Promise.all(uploadPromises);
-      if (urls.length) {
-        const [videoUrl, thumbnailUrl] = urls as {
-          name: string;
+      if (urls.length > 0) {
+        const urlResults = urls as {
+          name: 'video' | 'thumbnail';
           url: string;
         }[];
 
+        const videoUrl = urlResults.find((url) => url.name === 'video');
+        const thumbnailUrl = urlResults.find((url) => url.name === 'thumbnail');
+
         formData.set('title', title);
         formData.set('description', description);
-        formData.set('videoUrl', videoUrl?.url);
-        if (thumbnailUrl) formData.set('thumbnailUrl', thumbnailUrl?.url);
+        formData.set('videoUrl', videoUrl?.url ?? data?.currentVideo?.url!);
+        if (thumbnailUrl)
+          formData.set(
+            'thumbnailUrl',
+            thumbnailUrl?.url ?? data.currentVideo?.poster_url!
+          );
+        if (isEditMode) formData.set('videoId', data?.currentVideo?.id!);
 
         // send the form data to the server
-        fetch('/upload', {
+        fetch(isEditMode ? '/upload?/updateVideo' : '/upload?/uploadVideo', {
           method: 'POST',
           body: formData
         }).then(() => {
@@ -263,10 +302,14 @@
 </script>
 
 <div class="mt-2">
-  {#if videoSrc}
+  {#if videoSrc || data.currentVideo?.url}
     <div class="flex flex-col gap-1">
-      <h1 class="h2">Preview Your Clip</h1>
-      <p>Please confirm that the video below is the clip you want to upload.</p>
+      <h1 class="h2">
+        {isEditMode ? 'Update Your Clip' : 'Upload Your Clip'}
+      </h1>
+      <p>
+        {isEditMode ? 'Update' : 'Upload'} your video by filling out the form below
+      </p>
     </div>
     {#if isSubmitting && !submitCompleted}
       <UploadProgress {progress} />
@@ -325,46 +368,35 @@
           >
           <button
             type="submit"
-            disabled={isSubmitting}
+            disabled={isSubmitting || (!videoSrc && !data.currentVideo?.url)}
             class="btn variant-filled-primary rounded-md"
           >
             Upload
           </button>
         </div>
       </Form.Root>
-    </div>
-    <UploadVideoPreview {videoSrc} {poster} />
-  {:else}
-    <div class="flex flex-col gap-1 mb-4">
-      <div class="flex justify-between items-center">
-        <h1 class="h2">Upload Your Clip Here</h1>
-        <a
-          href="/myUploads"
-          class="btn btn-sm variant-filled-tertiary rounded-md"
-        >
-          Previous Uploads
-        </a>
-      </div>
-      <p>
-        Use the input field below to upload your video clip. Drap and drop or
-        click on the field to select your file.
-      </p>
+
+      {#if isEditMode}
+        <p>
+          If you would like to upload a different video, you can drop your video
+          to the zone below or click on it to select a file.
+        </p>
+        <VideoUploadArea {onChangeHandler} />
+      {/if}
     </div>
 
-    <FileDropzone
-      name="file"
-      on:change={onChangeHandler}
-      accept="video/mp4,video/x-m4v,video/*"
-    >
-      <svelte:fragment slot="lead">
-        <i class="fa-solid fa-file-video text-4xl"></i>
-      </svelte:fragment>
-      <svelte:fragment slot="message">
-        Drag and drop your video file here or click to select a file.
-      </svelte:fragment>
-      <svelte:fragment slot="meta">
-        Accepted file types: mp4, m4v, mov, avi, wmv, flv, webm, mkv, mpeg
-      </svelte:fragment>
-    </FileDropzone>
+    {#if videoSrc}
+      <UploadVideoPreview
+        {videoSrc}
+        poster={poster || data?.currentVideo?.poster_url || ''}
+      />
+    {:else if data.currentVideo?.url}
+      <UploadVideoPreview
+        videoSrc={data?.currentVideo?.url}
+        poster={poster || data?.currentVideo?.poster_url || ''}
+      />
+    {/if}
+  {:else}
+    <UploadVideoStepOne {onChangeHandler} />
   {/if}
 </div>
