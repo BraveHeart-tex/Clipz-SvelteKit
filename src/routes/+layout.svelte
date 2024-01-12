@@ -36,11 +36,9 @@
   storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 
   onNavigate(() => {
-    // @ts-ignore
     if (!document.startViewTransition) return;
 
     return new Promise((resolve) => {
-      // @ts-ignore
       document.startViewTransition(() => new Promise(resolve));
     });
   });

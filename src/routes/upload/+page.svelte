@@ -153,8 +153,14 @@
         fileInputs.shift();
       }
 
-      if (!thumbnail && !isEditMode) {
+      if (!thumbnail) {
         fileInputs.pop();
+      }
+
+      if (isEditMode && !thumbnail) {
+        fileInputs = fileInputs.filter(
+          (fileInput) => fileInput.name !== 'thumbnail'
+        );
       }
 
       let uploadPromises: unknown[] = [];
@@ -229,11 +235,15 @@
         formData.set('title', title);
         formData.set('description', description);
         formData.set('videoUrl', videoUrl?.url ?? data?.currentVideo?.url!);
-        if (thumbnailUrl)
+        if (thumbnailUrl) {
           formData.set(
             'thumbnailUrl',
             thumbnailUrl?.url ?? data.currentVideo?.poster_url!
           );
+        } else {
+          formData.set('thumbnailUrl', data.currentVideo?.poster_url ?? '');
+        }
+
         if (isEditMode) formData.set('videoId', data?.currentVideo?.id!);
 
         // send the form data to the server
