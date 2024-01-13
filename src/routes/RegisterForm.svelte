@@ -6,16 +6,14 @@
   import { page } from '$app/stores';
   import TermsAndConditions from '$lib/components/TermsAndConditions.svelte';
   import Popper from '$lib/components/Popper.svelte';
+  import FormButton from '$lib/components/FormButton.svelte';
+  import { superForm } from 'sveltekit-superforms/client';
 
   const modalStore = getModalStore();
-</script>
 
-<Form.Root
-  form={$page?.data?.registerForm}
-  let:config
-  options={{
+  const form = superForm($page?.data?.registerForm, {
     async onResult(event) {
-      if (event.result.type === 'success') {
+      if (event.result.type === 'success' && event?.result?.data) {
         const email = event.result.data.form.data.email;
         const encodedEmail = btoa(email);
         const url = '/email-verification?email=' + encodedEmail;
@@ -25,8 +23,18 @@
           modalStore.close();
         });
       }
-    }
-  }}
+    },
+    validators: registerSchema,
+    autoFocusOnError: true
+  });
+
+  const isSubmmiting = form.submitting;
+</script>
+
+<Form.Root
+  {form}
+  controlled
+  let:config
   schema={registerSchema}
   debug={true}
   class={'flex flex-col gap-1'}
@@ -71,7 +79,11 @@
     </div>
     <Form.Validation class="text-red-500 font-semibold" />
   </Form.Field>
-  <button type="submit" class="btn variant-filled-primary rounded-md mt-4"
-    >Register</button
+  <FormButton
+    loading={$isSubmmiting}
+    type="submit"
+    class="btn variant-filled-primary rounded-md mt-4 flex items-center gap-2"
   >
+    {$isSubmmiting ? 'Loading...' : 'Register'}
+  </FormButton>
 </Form.Root>
