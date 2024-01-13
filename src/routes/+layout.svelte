@@ -24,6 +24,12 @@
   import AuthenticationForm from '$lib/components/AuthenticationModal.svelte';
   import { storePopup } from '@skeletonlabs/skeleton';
   import { user } from '$lib/state.svelte';
+  import { page } from '$app/stores';
+  import {
+    getToastStore,
+    getModalStore,
+    type ToastSettings
+  } from '@skeletonlabs/skeleton';
 
   export let data: LayoutData;
 
@@ -32,6 +38,9 @@
   };
 
   initializeStores();
+
+  const toastStore = getToastStore();
+  const modalStore = getModalStore();
 
   storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 
@@ -46,6 +55,29 @@
   $: {
     const newUser = data?.user;
     user.set(newUser);
+  }
+
+  $: {
+    if ($page.url.searchParams.get('emailVerified')) {
+      const successToast: ToastSettings = {
+        message: ' 🎉 Success! Your email has been verified! 🎉',
+        timeout: 5000,
+        background: 'variant-filled-success'
+      };
+
+      toastStore.trigger(successToast);
+
+      $page.url.searchParams.delete('emailVerified');
+    }
+  }
+
+  $: {
+    if ($page.url.searchParams.get('redirectToLogin')) {
+      modalStore.trigger({
+        type: 'component',
+        component: 'authenticationForm'
+      });
+    }
   }
 </script>
 

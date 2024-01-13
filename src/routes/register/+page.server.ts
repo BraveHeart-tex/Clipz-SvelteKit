@@ -4,6 +4,8 @@ import registerSchema from '$lib/schemas/RegisterSchema';
 import { auth } from '$lib/server/lucia';
 import { Prisma } from '@prisma/client';
 import { setError, superValidate } from 'sveltekit-superforms/server';
+import { generateEmailVerificationToken } from '$lib/token';
+import { sendEmailVerificationLink } from '$lib/email';
 
 export const load: PageServerLoad = async ({ locals }) => {
   const session = await locals.auth.validate();
@@ -29,7 +31,7 @@ export const actions: Actions = {
     try {
       const { email, password, fullName } = form.data;
 
-      await auth.createUser({
+      const user = await auth.createUser({
         key: {
           providerId: 'email',
           providerUserId: email.toLowerCase(),
@@ -37,9 +39,14 @@ export const actions: Actions = {
         },
         attributes: {
           email: email,
-          name: fullName
+          name: fullName,
+          email_verified: false
         }
       });
+
+      const token = await generateEmailVerificationToken(user.userId);
+
+      await sendEmailVerificationLink(email, token);
     } catch (e) {
       if (e instanceof Prisma.PrismaClientKnownRequestError) {
         if (e.code === 'P2002') {

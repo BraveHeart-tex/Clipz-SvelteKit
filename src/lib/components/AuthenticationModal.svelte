@@ -15,10 +15,6 @@
       label: 'Register'
     }
   ];
-
-  const setSelectedTab = (tab: string) => {
-    selectedTab = tab;
-  };
 </script>
 
 <div class="dark:bg-surface-500 bg-surface-200 w-full max-w-2xl">
@@ -47,7 +43,7 @@
           </button>
         </div>
       {:else if selectedTab === 'register'}
-        <RegisterForm {setSelectedTab} />
+        <RegisterForm />
       {/if}
     </svelte:fragment>
   </TabGroup>

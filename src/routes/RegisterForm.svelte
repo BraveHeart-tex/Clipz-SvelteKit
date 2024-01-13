@@ -1,27 +1,31 @@
 <script lang="ts">
   import registerSchema from '$lib/schemas/RegisterSchema';
   import { Form } from 'formsnap';
-  import { getToastStore, type ToastSettings } from '@skeletonlabs/skeleton';
+  import {
+    getToastStore,
+    type ToastSettings,
+    getModalStore
+  } from '@skeletonlabs/skeleton';
   import type { Event } from '$lib/types';
   import { page } from '$app/stores';
   import { superForm } from 'sveltekit-superforms/client';
   import TermsAndConditions from '$lib/components/TermsAndConditions.svelte';
   import Popper from '$lib/components/Popper.svelte';
 
-  export let setSelectedTab: (tab: string) => void;
-
   const toastStore = getToastStore();
+  const modalStore = getModalStore();
 
   const toast: ToastSettings = {
-    message: 'Successfully registered! You can now login to your account.',
+    message:
+      'Success! To complete your registration, please check your email for a confirmation link.',
     background: 'variant-filled-success',
-    timeout: 5000
+    timeout: 6000
   };
 
   const handleResult = (event: Event) => {
     if (event.result.type === 'success') {
+      modalStore.clear();
       toastStore.trigger(toast);
-      setSelectedTab('login');
     }
   };
 
@@ -55,6 +59,10 @@
     <Form.Label>Email</Form.Label>
     <Form.Input type="email" class="input rounded-md" />
     <Form.Validation class="text-red-500 font-semibold" />
+    <Form.Description>
+      Please use a valid email address. It will be used to send you a
+      confirmation email.
+    </Form.Description>
   </Form.Field>
   <Form.Field {config} name={'password'}>
     <Form.Label>Password</Form.Label>

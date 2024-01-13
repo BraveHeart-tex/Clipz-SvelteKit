@@ -8,18 +8,28 @@ datasource db {
 }
 
 model User {
-  id           String    @id @unique
-  email        String    @unique
-  name         String?
-  auth_session Session[]
-  key          Key[]
-  created_at   DateTime  @default(now())
-  updated_at   DateTime  @updatedAt
-  Video        Video[]
-  isAdmin      Boolean   @default(false)
-  Ticket       Ticket[]
+  id             String    @id @unique
+  email          String    @unique
+  email_verified Boolean   @default(false)
+  name           String?
+  auth_session   Session[]
+  key            Key[]
+  created_at     DateTime  @default(now())
+  updated_at     DateTime  @updatedAt
+  Video          Video[]
+  isAdmin        Boolean   @default(false)
+  Ticket         Ticket[]
 
   @@map("tbl_users")
+}
+
+model Email_Verification_Token {
+  id      String @id @unique
+  expires BigInt
+  user_id String
+
+  @@index([user_id])
+  @@map("tbl_email_verification_tokens")
 }
 
 model Video {
