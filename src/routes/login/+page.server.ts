@@ -22,6 +22,18 @@ export const actions: Actions = {
 
     try {
       const { email, password } = form.data;
+      const user = await prisma?.user.findUnique({
+        where: {
+          email
+        }
+      });
+      if (!user?.email_verified) {
+        return setError(
+          form,
+          'email',
+          'Please verify your email address before logging in.'
+        );
+      }
       const key = await auth.useKey('email', email, password);
       const session = await auth.createSession({
         userId: key.userId,

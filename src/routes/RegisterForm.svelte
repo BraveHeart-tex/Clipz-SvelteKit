@@ -1,50 +1,33 @@
 <script lang="ts">
   import registerSchema from '$lib/schemas/RegisterSchema';
   import { Form } from 'formsnap';
-  import {
-    getToastStore,
-    type ToastSettings,
-    getModalStore
-  } from '@skeletonlabs/skeleton';
-  import type { Event } from '$lib/types';
+  import { getModalStore } from '@skeletonlabs/skeleton';
+  import { goto } from '$app/navigation';
   import { page } from '$app/stores';
-  import { superForm } from 'sveltekit-superforms/client';
   import TermsAndConditions from '$lib/components/TermsAndConditions.svelte';
   import Popper from '$lib/components/Popper.svelte';
 
-  const toastStore = getToastStore();
   const modalStore = getModalStore();
-
-  const toast: ToastSettings = {
-    message:
-      'Success! To complete your registration, please check your email for a confirmation link.',
-    background: 'variant-filled-success',
-    timeout: 6000
-  };
-
-  const handleResult = (event: Event) => {
-    if (event.result.type === 'success') {
-      modalStore.clear();
-      toastStore.trigger(toast);
-    }
-  };
-
-  const superFrm = superForm($page?.data?.registerForm, {
-    onResult(event) {
-      handleResult(event);
-    }
-  });
-
-  const capture = superFrm.capture;
-  const restore = superFrm.restore;
-  export const snapshot = { capture, restore };
 </script>
 
 <Form.Root
-  form={superFrm}
-  schema={registerSchema}
-  controlled
+  form={$page?.data?.registerForm}
   let:config
+  options={{
+    async onResult(event) {
+      if (event.result.type === 'success') {
+        const email = event.result.data.form.data.email;
+        const encodedEmail = btoa(email);
+        const url = '/email-verification?email=' + encodedEmail;
+
+        setTimeout(async () => {
+          await goto(url);
+          modalStore.close();
+        });
+      }
+    }
+  }}
+  schema={registerSchema}
   debug={true}
   class={'flex flex-col gap-1'}
   method="POST"

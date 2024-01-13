@@ -47,6 +47,7 @@ export const actions: Actions = {
       const token = await generateEmailVerificationToken(user.userId);
 
       await sendEmailVerificationLink(email, token);
+      return { form };
     } catch (e) {
       if (e instanceof Prisma.PrismaClientKnownRequestError) {
         if (e.code === 'P2002') {
@@ -59,7 +60,5 @@ export const actions: Actions = {
           'Something went wrong while registering the user. Please try again later.'
       });
     }
-
-    return { form };
   }
 };
