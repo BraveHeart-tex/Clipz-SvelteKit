@@ -38,7 +38,7 @@
     </button>
     <div
       data-popup="userMenuPopUp"
-      class="absolute top-0 right-0 w-48 bg-surface-50 dark:bg-surface-600 dark:text-white rounded-md overflow-hidden shadow-xl z-[100] p-2"
+      class="absolute top-0 right-0 min-w-max bg-surface-50 dark:bg-surface-600 dark:text-white rounded-md overflow-hidden shadow-xl z-[100] p-2"
     >
       <div class="flex flex-col items-start gap-2">
         <p class="w-full">

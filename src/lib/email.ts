@@ -33,7 +33,10 @@ export const sendEmailVerificationLink = async (
       </div>
   </body>`
     });
+
+    return true;
   } catch (error) {
     console.log(error);
+    return false;
   }
 };

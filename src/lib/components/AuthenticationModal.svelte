@@ -22,7 +22,7 @@
     rounded="rounded-md"
     hover="hover:variant-soft-primary"
     flex="flex-1"
-    active="rounded-none variant-filled-primary font-semibold"
+    active="rounded-sm variant-filled-primary font-semibold"
     regionPanel="p-4"
   >
     {#each tabs as tab}
