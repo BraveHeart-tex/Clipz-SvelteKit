@@ -10,6 +10,7 @@
   } from '@tanstack/svelte-table';
   import { writable } from 'svelte/store';
   import { onMount } from 'svelte';
+  import { debounce } from '$lib';
 
   type T = $$Generic;
 
@@ -80,12 +81,8 @@
     requestData();
   };
 
-  let timer: NodeJS.Timeout;
-
   const setSearch = (newSearch: string) => {
-    // depounce input
-    clearTimeout(timer);
-    timer = setTimeout(async () => {
+    debounce(() => {
       page = 1;
       search = newSearch;
       requestData();

@@ -3,6 +3,7 @@
   import Header from '$lib/components/Header.svelte';
   import Navigation from '$lib/components/Navigation.svelte';
   import Transition from '$lib/components/Transition.svelte';
+  import { goto } from '$app/navigation';
   import {
     computePosition,
     autoUpdate,
@@ -52,6 +53,20 @@
     });
   });
 
+  const showToastWithRedirect = (message: string) => {
+    const successToast: ToastSettings = {
+      message,
+      timeout: 5000,
+      background: 'variant-filled-success'
+    };
+
+    toastStore.trigger(successToast);
+
+    setTimeout(() => {
+      goto('/');
+    });
+  };
+
   $: {
     const newUser = data?.user;
     user.set(newUser);
@@ -59,15 +74,13 @@
 
   $: {
     if ($page.url.searchParams.get('emailVerified')) {
-      const successToast: ToastSettings = {
-        message: ' 🎉 Success! Your email has been verified! 🎉',
-        timeout: 5000,
-        background: 'variant-filled-success'
-      };
+      showToastWithRedirect(' 🎉 Success! Your email has been verified! 🎉');
+    }
+  }
 
-      toastStore.trigger(successToast);
-
-      $page.url.searchParams.delete('emailVerified');
+  $: {
+    if ($page.url.searchParams.get('passwordReset') === 'success') {
+      showToastWithRedirect('Success! Your password has been reset ✅');
     }
   }
 
