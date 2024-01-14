@@ -13,7 +13,10 @@
 <AppBar>
   <slot:fragment slot="lead">
     <div class="flex items-center">
-      <button on:click={drawerOpen} class="btn btn-sm md:hidden mr-4">
+      <button
+        on:click={drawerOpen}
+        class="btn btn-sm md:hidden mr-4 hover:bg-surface-300 dark:hover:bg-surface-600 transition-all"
+      >
         <i class="fa-solid fa-bars"></i>
       </button>
       <a href="/">

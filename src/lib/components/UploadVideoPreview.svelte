@@ -31,7 +31,15 @@
       <i class="fa-solid fa-video text-2xl"></i>
       <h3 class="h3">Video Preview:</h3>
     </div>
-    <video id="player" playsinline controls data-poster={poster ?? ''}>
+    <video
+      id="player"
+      playsinline
+      controls
+      data-poster={poster ?? ''}
+      data-plyr-config={{
+        title: 'Video Preview'
+      }}
+    >
       <track kind="captions" />
       <source src={videoSrc} type="video/mp4" />
     </video>

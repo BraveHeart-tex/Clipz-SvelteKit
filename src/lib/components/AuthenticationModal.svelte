@@ -2,7 +2,9 @@
   import LoginForm from '../../routes/LoginForm.svelte';
   import RegisterForm from '../../routes/RegisterForm.svelte';
   import { TabGroup, Tab } from '@skeletonlabs/skeleton';
+  import { getModalStore } from '@skeletonlabs/skeleton';
 
+  const modalStore = getModalStore();
   let selectedTab: string = 'login';
 
   let tabs = [
@@ -34,7 +36,14 @@
     <svelte:fragment slot="panel">
       {#if selectedTab === 'login'}
         <LoginForm />
-        <div class="w-full flex items-center mt-4 justify-end">
+        <div class="w-full flex items-center mt-4 justify-between">
+          <a
+            class="text-sm font-semibold hover-underline-animation"
+            href="/forgot-password"
+            on:click={() => modalStore.clear()}
+          >
+            Forgot your password?
+          </a>
           <button
             class="btn btn-sm variant-filled-tertiary rounded-md"
             on:click={() => (selectedTab = 'register')}

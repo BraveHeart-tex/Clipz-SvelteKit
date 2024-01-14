@@ -45,9 +45,13 @@
   {:else}
     <div class="flex flex-col gap-1 mt-4">
       <p>It looks like you have no uploads.</p>
-      <a class="w-max btn variant-filled-primary rounded-md" href="/upload"
-        >Upload a video</a
+      <a
+        class="w-max btn variant-filled-primary rounded-md flex items-center gap-2"
+        href="/upload"
       >
+        <i class="fa-solid fa-upload"></i>
+        Upload a video
+      </a>
     </div>
   {/if}
 {:else}

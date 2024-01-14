@@ -128,9 +128,8 @@
       <div>
         <p>Are you sure you want to approve this video request?</p>
         <p>
-          If you are sure, please type <span class="font-semibold"
-            >{video.title}</span
-          > below.
+          If so, please type <span class="font-semibold">{video.title}</span> below
+          to confirm.
         </p>
       </div>
 

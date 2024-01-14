@@ -29,7 +29,6 @@
   form={superFrm}
   {schema}
   let:config
-  debug={true}
   class={cn('flex flex-col gap-1', formRootClassname)}
   method="POST"
   {action}

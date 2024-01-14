@@ -11,9 +11,11 @@
   import { writable } from 'svelte/store';
   import { onMount } from 'svelte';
 
-  export let data: unknown[] = [];
+  type T = $$Generic;
+
+  export let data: T[] = [];
   export let title = '';
-  export let columns: ColumnDef<unknown>[];
+  export let columns: ColumnDef<T>[];
   export let apiPath: string = '';
   export let actionsColumnLabel = '';
 
@@ -87,7 +89,7 @@
       page = 1;
       search = newSearch;
       requestData();
-    }, 500);
+    }, 750);
   };
 
   $: {
@@ -100,7 +102,7 @@
     requestData();
   };
 
-  const options = writable<TableOptions<unknown>>({
+  const options = writable<TableOptions<T>>({
     data,
     columns,
     state: {
@@ -155,6 +157,7 @@
                           class="whitespace-nowrap"
                         />
                       </button>
+                      <!-- @ts-ignore -->
                       {#if header.column.columnDef.meta?.sort}
                         <tr>
                           <td>
