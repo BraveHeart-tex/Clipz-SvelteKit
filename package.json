@@ -68,6 +68,8 @@
     "lucia": "^2.7.6",
     "nodemailer": "^6.9.8",
     "plyr": "^3.7.8",
+    "svelte-french-toast": "^1.2.0",
+    "svelte-sonner": "^0.3.11",
     "sveltekit-superforms": "^1.13.1",
     "tailwind-merge": "^2.2.0",
     "uuid": "^9.0.1"

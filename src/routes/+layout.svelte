@@ -4,6 +4,7 @@
   import Header from '$lib/components/Header.svelte';
   import Navigation from '$lib/components/Navigation.svelte';
   import Transition from '$lib/components/Transition.svelte';
+  import NotificationComponent from '$lib/components/Notification.svelte';
   import { goto } from '$app/navigation';
   import {
     computePosition,
@@ -57,8 +58,11 @@
   });
 
   onMount(() => {
-    const messaging = getMessaging(app);
     try {
+      // TODO: Move this to a service
+      // Only show permission UI on settings page
+      const messaging = getMessaging(app);
+
       const handleNotificationPermission = async () => {
         try {
           const permission = await Notification.requestPermission();
@@ -73,6 +77,7 @@
 
             if (currentToken) {
               console.log('currentToken', currentToken);
+              // Send the token to your server and update the UI if necessary
             } else {
               console.log(
                 'No registration token available. Request permission to generate one.'
@@ -135,6 +140,7 @@
 
 <Modal components={modalRegistry} />
 <Toast />
+<NotificationComponent />
 <Drawer duration={500} rounded="rounded-none">
   <Navigation />
 </Drawer>
