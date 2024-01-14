@@ -7,6 +7,7 @@ import {
 } from '$env/static/private';
 import pkg from 'firebase-admin';
 import { getStorage } from 'firebase-admin/storage';
+import { getMessaging } from 'firebase-admin/messaging';
 
 try {
   pkg.initializeApp({
@@ -29,3 +30,4 @@ try {
 export const adminDB = getFirestore();
 export const adminAuth = getAuth();
 export const adminStorage = getStorage();
+export const adminMessaging = getMessaging();

@@ -32,6 +32,8 @@
     getModalStore,
     type ToastSettings
   } from '@skeletonlabs/skeleton';
+  import { getMessaging, getToken } from 'firebase/messaging';
+  import { app } from '$lib/firebase';
 
   export let data: LayoutData;
 
@@ -55,8 +57,39 @@
   });
 
   onMount(() => {
-    // firebase messaging shit
-    Notification.requestPermission().then((permission) => {});
+    const messaging = getMessaging(app);
+    try {
+      const handleNotificationPermission = async () => {
+        try {
+          const permission = await Notification.requestPermission();
+
+          if (permission === 'granted') {
+            console.log('Notification permission granted.');
+
+            const currentToken = await getToken(messaging, {
+              vapidKey:
+                'BM73otlGttByAOoPXDYocnEDsZOFKpIpd477VnpNH2kaaurb0CxrMLRhJcDtGB4Ei7l5C0qJ8GcowgqYCzKTN00'
+            });
+
+            if (currentToken) {
+              console.log('currentToken', currentToken);
+            } else {
+              console.log(
+                'No registration token available. Request permission to generate one.'
+              );
+            }
+          } else {
+            console.log('Unable to get permission to notify.');
+          }
+        } catch (error) {
+          console.error('Error handling notification permission:', error);
+        }
+      };
+
+      handleNotificationPermission();
+    } catch (error) {
+      console.error('Error getting messaging:', error);
+    }
   });
 
   const showToastWithRedirect = (message: string) => {
