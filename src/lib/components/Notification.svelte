@@ -2,20 +2,32 @@
   import { onMount } from 'svelte';
   import { getMessaging, onMessage } from 'firebase/messaging';
   import { app } from '$lib/firebase';
-  import NotificationToast from './NotificationToast.svelte';
-  import { Toaster, toast } from 'svelte-sonner';
+  import { type ToastSettings, getToastStore } from '@skeletonlabs/skeleton';
+
+  const toastStore = getToastStore();
 
   onMount(() => {
     const messaging = getMessaging(app);
     onMessage(messaging, (payload) => {
-      toast(NotificationToast, {
-        componentProps: {
-          title: payload.notification?.title,
-          body: payload.notification?.body
-        }
-      });
+      if (payload?.notification?.body) {
+        const { body } = payload.notification;
+
+        if (!body) return;
+
+        const toastSettings: ToastSettings = {
+          hoverable: true,
+          message: body,
+          background: 'variant-filled-secondary',
+          action: {
+            label: 'View',
+            response() {
+              alert('View');
+            }
+          }
+        };
+
+        toastStore.trigger(toastSettings);
+      }
     });
   });
 </script>
-
-<Toaster />

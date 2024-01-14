@@ -66,6 +66,7 @@
     "firebase-admin": "^12.0.0",
     "formsnap": "^0.4.2",
     "lucia": "^2.7.6",
+    "mode-watcher": "^0.1.2",
     "nodemailer": "^6.9.8",
     "plyr": "^3.7.8",
     "svelte-french-toast": "^1.2.0",
