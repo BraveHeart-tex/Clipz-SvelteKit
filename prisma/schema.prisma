@@ -20,7 +20,7 @@ model User {
   isAdmin        Boolean   @default(false)
   Ticket         Ticket[]
 
-  @@map("tbl_users")
+  @@map("tbl_user")
 }
 
 model Email_Verification_Token {
@@ -29,7 +29,16 @@ model Email_Verification_Token {
   user_id String
 
   @@index([user_id])
-  @@map("tbl_email_verification_tokens")
+  @@map("tbl_email_verification_token")
+}
+
+model Reset_Password_Token {
+  id      String @id @unique
+  expires BigInt
+  user_id String @unique
+
+  @@index([user_id])
+  @@map("tbl_reset_password_token")
 }
 
 model Video {
@@ -48,7 +57,7 @@ model Video {
   views           Int          @default(0)
   Ticket          Ticket[]
 
-  @@map("tbl_videos")
+  @@map("tbl_video")
 }
 
 model Ticket {
@@ -63,7 +72,7 @@ model Ticket {
   created_at  DateTime     @default(now())
   updated_at  DateTime     @updatedAt
 
-  @@map("tbl_tickets")
+  @@map("tbl_ticket")
 }
 
 model Session {
@@ -74,7 +83,7 @@ model Session {
   user           User   @relation(references: [id], fields: [user_id], onDelete: Cascade)
 
   @@index([user_id])
-  @@map("tbl_sessions")
+  @@map("tbl_session")
 }
 
 model Key {
@@ -84,7 +93,7 @@ model Key {
   user            User    @relation(references: [id], fields: [user_id], onDelete: Cascade)
 
   @@index([user_id])
-  @@map("tbl_keys")
+  @@map("tbl_key")
 }
 
 enum VideoStatus {
