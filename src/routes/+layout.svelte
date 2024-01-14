@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onNavigate } from '$app/navigation';
+  import { onMount } from 'svelte';
   import Header from '$lib/components/Header.svelte';
   import Navigation from '$lib/components/Navigation.svelte';
   import Transition from '$lib/components/Transition.svelte';
@@ -51,6 +52,11 @@
     return new Promise((resolve) => {
       document.startViewTransition(() => new Promise(resolve));
     });
+  });
+
+  onMount(() => {
+    // firebase messaging shit
+    Notification.requestPermission().then((permission) => {});
   });
 
   const showToastWithRedirect = (message: string) => {

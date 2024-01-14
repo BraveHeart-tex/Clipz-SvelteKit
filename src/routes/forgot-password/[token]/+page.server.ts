@@ -69,5 +69,7 @@ export const actions: Actions = {
     const redirectUrl = new URL(url);
     redirectUrl.pathname = '/';
     redirectUrl.searchParams.set('passwordReset', 'success');
+
+    throw redirect(302, redirectUrl.toString());
   }
 };
