@@ -8,17 +8,21 @@ datasource db {
 }
 
 model User {
-  id             String    @id @unique
-  email          String    @unique
-  email_verified Boolean   @default(false)
-  name           String?
-  auth_session   Session[]
-  key            Key[]
-  created_at     DateTime  @default(now())
-  updated_at     DateTime  @updatedAt
-  Video          Video[]
-  isAdmin        Boolean   @default(false)
-  Ticket         Ticket[]
+  id                          String      @id @unique
+  email                       String      @unique
+  email_verified              Boolean     @default(false)
+  name                        String?
+  auth_session                Session[]
+  key                         Key[]
+  created_at                  DateTime    @default(now())
+  updated_at                  DateTime    @updatedAt
+  Video                       Video[]
+  isAdmin                     Boolean     @default(false)
+  Ticket                      Ticket[]
+  FCM_Token                   FCM_Token[]
+  allow_notifications         Boolean     @default(false)
+  allow_mention_notification  Boolean     @default(false)
+  allow_reaction_notification Boolean     @default(false)
 
   @@map("tbl_user")
 }
@@ -73,6 +77,16 @@ model Ticket {
   updated_at  DateTime     @updatedAt
 
   @@map("tbl_ticket")
+}
+
+model FCM_Token {
+  id      String @id @unique
+  user_id String
+  user    User   @relation(references: [id], fields: [user_id], onDelete: Cascade)
+
+  @@index([user_id])
+  @@index([id])
+  @@map("tbl_fcm_token")
 }
 
 model Session {

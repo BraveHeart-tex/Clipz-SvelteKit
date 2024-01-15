@@ -1,10 +1,25 @@
 <script lang="ts">
-  import { ListBox, popup, type PopupSettings } from '@skeletonlabs/skeleton';
+  import {
+    ListBox,
+    popup,
+    type PopupSettings,
+    type ToastSettings,
+    getToastStore,
+    getModalStore
+  } from '@skeletonlabs/skeleton';
   import type { PageData } from './$types';
   import type { SubmitFunction } from '@sveltejs/kit';
   import { enhance } from '$app/forms';
+  import { getMessaging, getToken } from 'firebase/messaging';
+  import { app } from '$lib/firebase';
+  import { fly } from 'svelte/transition';
+  import { invalidate } from '$app/navigation';
 
   export let data: PageData;
+
+  const toastStore = getToastStore();
+
+  $: notitifcationsEnabled = data.notificationAllowed;
 
   $: theme = data.theme || 'Crimson';
 
@@ -31,6 +46,41 @@
     }
   ];
 
+  const handleNotificationPermission = async () => {
+    const messaging = getMessaging(app);
+    try {
+      const permission = await Notification.requestPermission();
+
+      if (permission === 'granted') {
+        const currentToken = await getToken(messaging, {
+          vapidKey:
+            'BM73otlGttByAOoPXDYocnEDsZOFKpIpd477VnpNH2kaaurb0CxrMLRhJcDtGB4Ei7l5C0qJ8GcowgqYCzKTN00'
+        });
+
+        if (currentToken) {
+          const response = await fetch('/api/notifications/permission', {
+            method: 'POST',
+            body: JSON.stringify({ token: currentToken })
+          });
+
+          const data = await response.json();
+          if (data.message) {
+            invalidate('app:settings');
+          }
+        }
+      }
+    } catch (error) {
+      console.error(error);
+      const errorToast: ToastSettings = {
+        message: 'There was an error getting notification permissions.',
+        background: 'variant-filled-error',
+        timeout: 5000
+      };
+
+      toastStore.trigger(errorToast);
+    }
+  };
+
   const submitUpdateTheme: SubmitFunction = ({ action }) => {
     const theme = action.searchParams.get('theme');
 
@@ -45,6 +95,52 @@
     placement: 'bottom',
     closeQuery: '.listbox-item'
   };
+
+  const handleRemoveNotificationPermission = async () => {
+    try {
+      const response = await fetch('/api/notifications/permission', {
+        method: 'DELETE'
+      });
+
+      const data = await response.json();
+      if (data.message) {
+        invalidate('app:settings');
+      }
+    } catch (error) {
+      console.error(error);
+      const errorToast: ToastSettings = {
+        message: 'There was an error removing notification permissions.',
+        background: 'variant-filled-error',
+        timeout: 5000
+      };
+
+      toastStore.trigger(errorToast);
+    }
+  };
+
+  const handleOtherNotifications = async (key: string, checked: boolean) => {
+    const value = checked ? 1 : 0;
+    try {
+      const response = await fetch(`/api/notifications/permission`, {
+        method: 'PUT',
+        body: JSON.stringify({ key, value })
+      });
+
+      const data = await response.json();
+      if (data.message) {
+        invalidate('app:settings');
+      }
+    } catch (error) {
+      console.error(error);
+      const errorToast: ToastSettings = {
+        message: 'There was an error updating notification permissions.',
+        background: 'variant-filled-error',
+        timeout: 5000
+      };
+
+      toastStore.trigger(errorToast);
+    }
+  };
 </script>
 
 <div class="flex flex-col gap-1">
@@ -55,8 +151,12 @@
   </p>
 </div>
 
-<div class="flex flex-col gap-2 mt-4">
-  <h2 class="h3">Color Theme</h2>
+<!-- Color Theme -->
+<div class="flex flex-col gap-2 mt-8">
+  <div class="flex items-center gap-2">
+    <i class="fa-solid fa-palette"></i>
+    <h2 class="h3">Color Theme</h2>
+  </div>
   <p>
     Choose a color theme for the app. This will change the color of the
     navigation bar, sidebar, and other elements.
@@ -86,5 +186,85 @@
       </form>
     </ListBox>
     <div class="arrow bg-surface-100-800-token" />
+  </div>
+</div>
+
+<!-- Notifications -->
+<div class="flex flex-col gap-2 mt-4">
+  <div class="flex items-center gap-2">
+    <i class="fa-solid fa-bell"></i>
+    <h2 class="h3">Customize Your Notification Experience</h2>
+  </div>
+  <p>
+    Choose how you want to be notified about new messages, mentions, and other
+    events.
+  </p>
+  <div class="flex flex-col gap-2">
+    <div class="flex flex-row gap-2 items-center">
+      <input
+        type="checkbox"
+        id="notifications"
+        name="notifications"
+        class="checkbox"
+        checked={notitifcationsEnabled}
+        on:change={(event) => {
+          if (event.target.checked) {
+            handleNotificationPermission();
+          } else {
+            handleRemoveNotificationPermission();
+          }
+        }}
+      />
+      <label for="notifications"
+        >Enable Notifications (System notifications eg: about your upload status
+        or ticket response.)</label
+      >
+    </div>
+    {#if notitifcationsEnabled}
+      <div
+        class="flex flex-col gap-2"
+        in:fly={{
+          y: -50,
+          duration: 250
+        }}
+        out:fly={{
+          y: -50,
+          duration: 250
+        }}
+      >
+        <div class="flex flex-row gap-2 items-center">
+          <input
+            type="checkbox"
+            id="mentions"
+            name="mentions"
+            class="checkbox"
+            checked={data.mentionNotificationAllowed}
+            on:change={(event) => {
+              handleOtherNotifications(
+                'allow_mention_notification',
+                event.target.checked
+              );
+            }}
+          />
+          <label for="mentions">Mentions</label>
+        </div>
+        <div class="flex flex-row gap-2 items-center">
+          <input
+            type="checkbox"
+            id="reactions"
+            name="reactions"
+            checked={data.reactionNotificationAllowed}
+            on:change={(event) => {
+              handleOtherNotifications(
+                'allow_reaction_notification',
+                event.target.checked
+              );
+            }}
+            class="checkbox"
+          />
+          <label for="reactions">Reactions</label>
+        </div>
+      </div>
+    {/if}
   </div>
 </div>

@@ -18,7 +18,10 @@ export const auth = lucia({
       name: user.name,
       email: user.email,
       isAdmin: user.isAdmin,
-      emailVerified: user.email_verified
+      emailVerified: user.email_verified,
+      allowNotifications: user.allow_notifications,
+      allowMentionNotification: user.allow_mention_notification,
+      allowReactionNotification: user.allow_reaction_notification
     };
   }
 });
