@@ -14,14 +14,18 @@ export const load: PageServerLoad = async ({ locals, cookies, depends }) => {
   const {
     allowNotifications,
     allowMentionNotification,
-    allowReactionNotification
+    allowReactionNotification,
+    name,
+    profilePicture
   } = session.user;
 
   return {
     theme: theme || '',
     notificationAllowed: allowNotifications,
     mentionNotificationAllowed: allowMentionNotification,
-    reactionNotificationAllowed: allowReactionNotification
+    reactionNotificationAllowed: allowReactionNotification,
+    username: name,
+    profilePicture
   };
 };
 

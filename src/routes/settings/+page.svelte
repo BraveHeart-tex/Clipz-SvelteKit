@@ -146,9 +146,14 @@
 <div class="flex flex-col gap-1">
   <h1 class="h2">Settings</h1>
   <p>
-    Set your preferences for the app here. Color theme, notifications, sidebar
-    type, etc.
+    Set your preferences for the app here. You can change your profile picture,
+    manage your notification settings, and more.
   </p>
+</div>
+
+<!-- Profile Picture -->
+<div class="flex flex-col gap-2">
+  <!-- TODO: Fallback profile picture default avatar -->
 </div>
 
 <!-- Color Theme -->
