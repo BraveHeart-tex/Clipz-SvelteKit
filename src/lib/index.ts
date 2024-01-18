@@ -25,6 +25,40 @@ export const debounce = (callback: () => void, delay = 500) => {
   }, delay);
 };
 
+export function longpress(node: HTMLElement, threshold = 350) {
+  const handlePressStart = (event: MouseEvent | TouchEvent) => {
+    event.preventDefault();
+    let start = Date.now();
+
+    const timeout = setTimeout(() => {
+      node.dispatchEvent(new CustomEvent('longpress'));
+    }, threshold);
+
+    const cancel = () => {
+      clearTimeout(timeout);
+      node.removeEventListener('mousemove', cancel);
+      node.removeEventListener('mouseup', cancel);
+      node.removeEventListener('touchmove', cancel);
+      node.removeEventListener('touchend', cancel);
+    };
+
+    node.addEventListener('mousemove', cancel);
+    node.addEventListener('mouseup', cancel);
+    node.addEventListener('touchmove', cancel);
+    node.addEventListener('touchend', cancel);
+  };
+
+  node.addEventListener('mousedown', handlePressStart);
+  node.addEventListener('touchstart', handlePressStart);
+
+  return {
+    destroy() {
+      node.removeEventListener('mousedown', handlePressStart);
+      node.removeEventListener('touchstart', handlePressStart);
+    }
+  };
+}
+
 export const generateReadbleEnum = ({
   key,
   separator = '_'

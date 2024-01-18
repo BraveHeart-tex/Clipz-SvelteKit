@@ -1,6 +1,7 @@
 import { VideoStatus } from '@prisma/client';
 import { json, type RequestHandler } from '@sveltejs/kit';
 import prisma from '$lib/server/prisma';
+import { adminMessaging } from '$lib/server/admin';
 
 export const PUT: RequestHandler = async ({ params, locals, request }) => {
   const session = await locals.auth.validate();
@@ -55,6 +56,47 @@ export const PUT: RequestHandler = async ({ params, locals, request }) => {
     },
     data: queryData
   });
+
+  if (status === VideoStatus.REJECTED) {
+    const user = await prisma.user.findUnique({
+      where: {
+        id: result.user_id
+      }
+    });
+
+    if (!user || !user.allow_notifications) {
+      return json(
+        { message: 'Video status updated successfully.' },
+        { status: 200 }
+      );
+    }
+
+    // send notification to the user
+    const registeredTokens = await prisma.fCM_Token.findMany({
+      where: {
+        user_id: result.user_id
+      }
+    });
+
+    const message = {
+      data: {
+        title: 'Video Rejected',
+        body: `Your video has been rejected. Reason: ${body.rejectionReason}`
+      },
+      tokens: registeredTokens.map((token) => token.id)
+    };
+
+    adminMessaging.sendEachForMulticast(message).then(
+      (response) => {
+        if (response.failureCount > 0) {
+          console.log('Failed to send notification to some tokens', response);
+        }
+      },
+      (error) => {
+        console.log('Error sending notification to tokens', error);
+      }
+    );
+  }
 
   if (result) {
     return json(

@@ -13,6 +13,9 @@
   import { goto } from '$app/navigation';
 
   export let upload: Video;
+  export let editMode: boolean;
+  export let checked: boolean;
+  export let onCheckboxChange: (checked: boolean, upload: Video) => void;
 
   const modalStore = getModalStore();
   const toastStore = getToastStore();
@@ -90,12 +93,22 @@
 </script>
 
 <div class="border-b border-b-gray-400/50 flex justify-between py-4 px-2">
-  <span class="flex-auto">
-    <dt class="text-lg font-semibold">{upload.title}</dt>
-    <dd class="text-gray-500 dark:text-gray-300">
-      {upload.description}
-    </dd>
-  </span>
+  <div class="flex items-center gap-2">
+    {#if editMode}
+      <input
+        type="checkbox"
+        class="w-4 h-4 checkbox"
+        {checked}
+        on:change={(e) => onCheckboxChange(e.target.checked, upload)}
+      />
+    {/if}
+    <span class="flex-auto">
+      <dt class="text-lg font-semibold">{upload.title}</dt>
+      <dd class="text-gray-500 dark:text-gray-300">
+        {upload.description}
+      </dd>
+    </span>
+  </div>
   <div class="flex items-center gap-2">
     <span class="badge">
       <UploadStatusBadge status={upload.status} />

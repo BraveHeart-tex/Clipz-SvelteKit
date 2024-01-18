@@ -9,6 +9,8 @@
   onMount(() => {
     const messaging = getMessaging(app);
     onMessage(messaging, (payload) => {
+      console.log('🚀 ~ onMessage ~ payload:', payload);
+
       if (payload?.notification?.body) {
         const { body } = payload.notification;
 

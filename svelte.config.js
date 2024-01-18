@@ -8,7 +8,10 @@ const config = {
   exclude: ['svelte-sonner'],
 
   kit: {
-    adapter: adapter()
+    adapter: adapter(),
+    alias: {
+      $: './'
+    }
   }
 };
 export default config;

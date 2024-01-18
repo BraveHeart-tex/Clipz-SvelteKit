@@ -3,8 +3,19 @@
   import UploadSearchForm from '$lib/components/UploadSearchForm.svelte';
   import { myUploadsStore } from '$lib/stores/myUploads';
   import MyUploadsListRow from '$lib/components/MyUploadsListRow.svelte';
+  import { cn, longpress } from '$/src/lib';
+  import type { Video } from '@prisma/client';
+  import {
+    getModalStore,
+    getToastStore,
+    type ModalSettings,
+    type ToastSettings
+  } from '@skeletonlabs/skeleton';
+  import { invalidate } from '$app/navigation';
 
   export let data: PageData;
+  const modalStore = getModalStore();
+  const toastStore = getToastStore();
 
   $: hasSearchParams =
     (data?.userUploads?.length ?? 0) > 0 && $myUploadsStore?.data?.length === 0;
@@ -19,12 +30,88 @@
       hasPreviousPage: data?.hasPreviousPage || false
     }));
   }
+
+  let editMode = false;
+
+  $: selectedUploads = [] as Video[];
+
+  const onCheckboxChange = (checked: boolean, upload: Video) => {
+    if (checked) {
+      selectedUploads.push(upload);
+      selectedUploads = selectedUploads;
+    } else {
+      selectedUploads = selectedUploads.filter((u) => u.id !== upload.id);
+    }
+  };
+
+  const handleDeleteSelectedVideos = () => {
+    const confirmModal: ModalSettings = {
+      type: 'confirm',
+      title: selectedUploads.length === 1 ? 'Delete Video' : `Delete Videos`,
+      body:
+        (selectedUploads.length === 1
+          ? 'Are you sure you want to delete this video?'
+          : `You have selected ${selectedUploads.length} videos. Are you sure you want to delete all of them?`) +
+        ' This action cannot be undone.',
+      async response(r) {
+        if (r) {
+          try {
+            const promises = selectedUploads.map((item) => {
+              return fetch(`/api/videos/${item.id}`, {
+                method: 'DELETE'
+              });
+            });
+
+            await Promise.all(promises);
+
+            invalidate('app:myVideos');
+            const successToast: ToastSettings = {
+              message: 'Your video was deleted successfully.',
+              background: 'variant-filled-success',
+              timeout: 5000
+            };
+
+            toastStore.trigger(successToast);
+          } catch (error) {
+            const errorToast: ToastSettings = {
+              message: 'There was an error deleting your video.',
+              background: 'variant-filled-error',
+              timeout: 5000
+            };
+
+            toastStore.trigger(errorToast);
+          } finally {
+            editMode = false;
+            selectedUploads = [];
+          }
+        }
+      }
+    };
+
+    modalStore.trigger(confirmModal);
+  };
 </script>
 
 <h1 class="h2">My Uploads</h1>
 <p>Manage your uploads here. Search, delete, and edit your uploads.</p>
 
 <UploadSearchForm />
+{#if editMode && selectedUploads.length > 0}
+  <div class="flex items-center gap-2 justify-end w-full">
+    <p class=" font-semibold">
+      ({selectedUploads.length}) {selectedUploads.length === 1
+        ? 'video'
+        : 'videos'} selected
+    </p>
+    <button
+      class="btn flex gap-2 btn-sm rounded-md variant-filled-error"
+      on:click={handleDeleteSelectedVideos}
+    >
+      <i class="fa-solid fa-trash"></i>
+      Delete
+    </button>
+  </div>
+{/if}
 
 {#if !$myUploadsStore || $myUploadsStore?.data?.length === 0}
   {#if hasSearchParams}
@@ -56,9 +143,22 @@
   {/if}
 {:else}
   <div class="max-h-[calc(100vh - 100px)] w-full">
-    <dl class="flex flex-col">
+    <dl
+      class={cn('flex flex-col select-none w-full')}
+      use:longpress
+      on:longpress={(e) => {
+        editMode = !editMode;
+      }}
+    >
       {#each $myUploadsStore.data as upload}
-        <MyUploadsListRow {upload} />
+        <MyUploadsListRow
+          checked={selectedUploads.find((item) => item.id === upload.id)
+            ? true
+            : false}
+          {editMode}
+          {onCheckboxChange}
+          {upload}
+        />
       {/each}
     </dl>
   </div>
