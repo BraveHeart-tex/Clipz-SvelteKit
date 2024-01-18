@@ -40,13 +40,6 @@
       }
     },
     {
-      icon: '<i class="fa-solid fa-xmark"></i>',
-      label: 'Reject',
-      onClick: (row: Video) => {
-        handleReject(row);
-      }
-    },
-    {
       icon: '<i class="fa-solid fa-check"></i>',
       label: 'Approve',
       onClick: (row: Video) => {

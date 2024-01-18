@@ -14,6 +14,7 @@
   import { app } from '$lib/firebase';
   import { fly } from 'svelte/transition';
   import { invalidate } from '$app/navigation';
+  import { onMount } from 'svelte';
 
   export let data: PageData;
 
@@ -95,6 +96,19 @@
     placement: 'bottom',
     closeQuery: '.listbox-item'
   };
+
+  onMount(() => {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker
+        .register('/firebase-messaging-sw.js')
+        .then(function (registration) {
+          console.log('Registration successful, scope is:', registration.scope);
+        })
+        .catch(function (err) {
+          console.error('Service worker registration failed, error:', err);
+        });
+    }
+  });
 
   const handleRemoveNotificationPermission = async () => {
     try {
