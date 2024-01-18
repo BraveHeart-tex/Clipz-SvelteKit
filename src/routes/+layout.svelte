@@ -32,8 +32,6 @@
     getModalStore,
     type ToastSettings
   } from '@skeletonlabs/skeleton';
-  import { onMount } from 'svelte';
-  import { getMessaging, getToken } from 'firebase/messaging';
 
   export let data: LayoutData;
 
