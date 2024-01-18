@@ -53,6 +53,9 @@ dependencies:
   plyr:
     specifier: ^3.7.8
     version: 3.7.8
+  svelte-sonner:
+    specifier: ^0.3.11
+    version: 0.3.11(svelte@4.2.8)
   sveltekit-superforms:
     specifier: ^1.13.1
     version: 1.13.1(@sveltejs/kit@2.0.6)(svelte@4.2.8)(zod@3.22.4)
@@ -139,6 +142,9 @@ devDependencies:
   svelte-check:
     specifier: ^3.6.0
     version: 3.6.2(postcss@8.4.32)(svelte@4.2.8)
+  svoast:
+    specifier: ^2.3.0
+    version: 2.3.0(svelte@4.2.8)
   tailwindcss:
     specifier: 3.4.0
     version: 3.4.0
@@ -4204,6 +4210,14 @@ packages:
       typescript: 5.3.3
     dev: true
 
+  /svelte-sonner@0.3.11(svelte@4.2.8):
+    resolution: {integrity: sha512-TkjgDC7zr0waky81Z9CShXMD+4NQ7UASuRx0BhgQo8ZTDQQYk8X8MzJa3zVtZVa6RYJEiahHBXx8Zt/Ie9G5hg==}
+    peerDependencies:
+      svelte: '>=3 <5'
+    dependencies:
+      svelte: 4.2.8
+    dev: false
+
   /svelte@4.2.8:
     resolution: {integrity: sha512-hU6dh1MPl8gh6klQZwK/n73GiAHiR95IkFsesLPbMeEZi36ydaXL/ZAb4g9sayT0MXzpxyZjR28yderJHxcmYA==}
     engines: {node: '>=16'}
@@ -4233,6 +4247,14 @@ packages:
       svelte: 4.2.8
       zod: 3.22.4
     dev: false
+
+  /svoast@2.3.0(svelte@4.2.8):
+    resolution: {integrity: sha512-ZAjtPy1o478xG6l3JOwZ1VELyd2U7sldXAENp5Yvy+LS7/yuJJ+1u0Q43cDv6pubZwbeAAj0YboXrMpZcEI6iA==}
+    peerDependencies:
+      svelte: ^4.0.0
+    dependencies:
+      svelte: 4.2.8
+    dev: true
 
   /tailwind-merge@2.2.0:
     resolution: {integrity: sha512-SqqhhaL0T06SW59+JVNfAqKdqLs0497esifRrZ7jOaefP3o64fdFNDMrAQWZFMxTLJPiHVjRLUywT8uFz1xNWQ==}

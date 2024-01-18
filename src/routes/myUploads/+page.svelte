@@ -12,6 +12,7 @@
     type ToastSettings
   } from '@skeletonlabs/skeleton';
   import { invalidate } from '$app/navigation';
+  import { fade } from 'svelte/transition';
 
   export let data: PageData;
   const modalStore = getModalStore();
@@ -97,7 +98,13 @@
 
 <UploadSearchForm />
 {#if editMode && selectedUploads.length > 0}
-  <div class="flex items-center gap-2 justify-end w-full">
+  <div
+    class="flex items-center gap-2 justify-end w-full"
+    in:fade={{ duration: 400 }}
+    out:fade={{
+      duration: 400
+    }}
+  >
     <p class=" font-semibold">
       ({selectedUploads.length}) {selectedUploads.length === 1
         ? 'video'
