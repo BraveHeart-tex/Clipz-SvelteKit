@@ -8,24 +8,37 @@ datasource db {
 }
 
 model User {
-  id                          String      @id @unique
-  email                       String      @unique
-  profile_picture             String?     @db.LongText
-  email_verified              Boolean     @default(false)
+  id                          String         @id @unique
+  email                       String         @unique
+  profile_picture             String?        @db.LongText
+  email_verified              Boolean        @default(false)
   name                        String?
   auth_session                Session[]
   key                         Key[]
-  created_at                  DateTime    @default(now())
-  updated_at                  DateTime    @updatedAt
+  created_at                  DateTime       @default(now())
+  updated_at                  DateTime       @updatedAt
   Video                       Video[]
-  isAdmin                     Boolean     @default(false)
+  isAdmin                     Boolean        @default(false)
   Ticket                      Ticket[]
   FCM_Token                   FCM_Token[]
-  allow_notifications         Boolean     @default(false)
-  allow_mention_notification  Boolean     @default(false)
-  allow_reaction_notification Boolean     @default(false)
+  allow_notifications         Boolean        @default(false)
+  allow_mention_notification  Boolean        @default(false)
+  allow_reaction_notification Boolean        @default(false)
+  Notification                Notification[]
 
   @@map("tbl_user")
+}
+
+model Notification {
+  id          String   @id @unique
+  user_id     String
+  user        User     @relation(references: [id], fields: [user_id], onDelete: Cascade)
+  title       String
+  description String
+  created_at  DateTime @default(now())
+  is_read     Boolean  @default(false)
+
+  @@map("tbl_notification")
 }
 
 model Email_Verification_Token {
