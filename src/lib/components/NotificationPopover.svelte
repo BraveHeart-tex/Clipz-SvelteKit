@@ -6,6 +6,22 @@
 
   $: User = $user;
   $: notifications = $notificationsStore.unreadNotifications;
+
+  const handleMarkAllAsRead = () => {
+    try {
+      const promises = notifications.map((notification) => {
+        return fetch(`/api/notifications/${notification.id}`, {
+          method: 'PUT'
+        });
+      });
+
+      Promise.all(promises).then(() => {
+        notificationsStore.markAllAsRead();
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  };
 </script>
 
 {#if User}
@@ -13,7 +29,7 @@
     <button slot="trigger" class="btn btn-md relative">
       {#if notifications.length > 0}
         <span
-          class="absolute top-0 right-2 w-5 h-5 rounded-full bg-error-500 flex items-center justify-center"
+          class="absolute top-0 right-2 w-5 h-5 rounded-full bg-red-500 flex items-center justify-center"
         >
           <span class="text-sm text-white">
             {notifications.length}
@@ -55,7 +71,7 @@
             <button
               class="btn btn-sm rounded-md variant-filled-primary w-max"
               on:click={() => {
-                notificationsStore.markAllAsRead();
+                handleMarkAllAsRead();
               }}
             >
               Mark all as read

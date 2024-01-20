@@ -8,7 +8,7 @@ export function createNotificationsStore(initialData: Notification[]) {
   }>({
     notifications: initialData,
     unreadNotifications: initialData.filter(
-      (notification) => !notification.is_read
+      (notification) => !notification.read_date
     )
   });
 
@@ -19,11 +19,18 @@ export function createNotificationsStore(initialData: Notification[]) {
       );
 
       if (notification) {
-        notification.is_read = true;
+        notification.read_date = new Date();
       }
 
       return {
         ...state,
+        notifications: state.notifications.map((notification) => {
+          if (notification.id === id) {
+            notification.read_date = new Date();
+          }
+
+          return notification;
+        }),
         unreadNotifications: state.unreadNotifications.filter(
           (notification) => notification.id !== id
         )
@@ -44,7 +51,7 @@ export function createNotificationsStore(initialData: Notification[]) {
   function markAllAsRead() {
     store.update((state) => {
       state.notifications.forEach((notification) => {
-        notification.is_read = true;
+        notification.read_date = new Date();
       });
 
       return {

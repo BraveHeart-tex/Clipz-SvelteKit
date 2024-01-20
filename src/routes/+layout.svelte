@@ -126,8 +126,9 @@
         ...state,
         notifications: data.notifications || [],
         unreadNotifications:
-          data.notifications?.filter((notification) => !notification.is_read) ||
-          []
+          data.notifications?.filter(
+            (notification) => !notification.read_date
+          ) || []
       }));
     }
   }

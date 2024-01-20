@@ -91,10 +91,7 @@ export const PUT: RequestHandler = async ({ params, locals, request }) => {
         data: {
           title: 'Video Rejected',
           body: `Your video (${result.title}) has been rejected. Reason: ${body.rejectionReason}`,
-          notificationObject: JSON.stringify({
-            ...createdNotification,
-            is_read: 0
-          })
+          notificationObject: JSON.stringify(createdNotification)
         },
         tokens: registeredTokens.map((token) => token.id)
       };

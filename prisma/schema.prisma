@@ -30,13 +30,13 @@ model User {
 }
 
 model Notification {
-  id          String   @id @unique @default(cuid())
+  id          String    @id @unique @default(cuid())
   user_id     String
-  user        User     @relation(references: [id], fields: [user_id], onDelete: Cascade)
+  user        User      @relation(references: [id], fields: [user_id], onDelete: Cascade)
   title       String
   description String
-  created_at  DateTime @default(now())
-  is_read     Boolean  @default(false)
+  created_at  DateTime  @default(now())
+  read_date   DateTime?
 
   @@map("tbl_notification")
 }

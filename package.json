@@ -60,6 +60,7 @@
     "@vitejs/plugin-basic-ssl": "^1.0.2",
     "bcryptjs": "^2.4.3",
     "clsx": "^2.0.0",
+    "date-fns": "^3.3.0",
     "firebase": "^10.7.1",
     "firebase-admin": "^12.0.0",
     "formsnap": "^0.4.2",
