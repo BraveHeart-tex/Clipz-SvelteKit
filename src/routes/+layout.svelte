@@ -1,6 +1,8 @@
 <script lang="ts">
   import { onNavigate } from '$app/navigation';
-  import Header from '$lib/components/Header.svelte';
+  import { AppBar, LightSwitch } from '@skeletonlabs/skeleton';
+  import { getDrawerStore } from '@skeletonlabs/skeleton';
+  import UserMenu from '$lib/components/UserMenu.svelte';
   import Navigation from '$lib/components/Navigation.svelte';
   import Transition from '$lib/components/Transition.svelte';
   import NotificationComponent from '$lib/components/Notification.svelte';
@@ -32,8 +34,12 @@
     getModalStore,
     type ToastSettings
   } from '@skeletonlabs/skeleton';
+  import { cn } from '../lib';
+  import { onMount } from 'svelte';
+  import NotificationPopover from '../lib/components/NotificationPopover.svelte';
 
   export let data: LayoutData;
+  let sidebarCollapsed = false;
 
   const modalRegistry: Record<string, ModalComponent> = {
     authenticationForm: { ref: AuthenticationForm }
@@ -43,8 +49,26 @@
 
   const toastStore = getToastStore();
   const modalStore = getModalStore();
+  const drawerStore = getDrawerStore();
 
   storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
+
+  function drawerOpen() {
+    drawerStore.open();
+  }
+
+  onMount(() => {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker
+        .register('/firebase-messaging-sw.js')
+        .then(function (registration) {
+          console.log('Registration successful, scope is:', registration.scope);
+        })
+        .catch(function (err) {
+          console.error('Service worker registration failed, error:', err);
+        });
+    }
+  });
 
   onNavigate(() => {
     if (!document.startViewTransition) return;
@@ -102,9 +126,48 @@
   <Navigation />
 </Drawer>
 
-<AppShell slotSidebarLeft="w-0 md:w-52 bg-surface-500/10">
+<AppShell
+  slotSidebarLeft={cn(
+    'w-0 md:w-52 bg-surface-500/10',
+    sidebarCollapsed && 'md:w-0'
+  )}
+>
   <svelte:fragment slot="header">
-    <Header />
+    <AppBar>
+      <slot:fragment slot="lead">
+        <div class="flex items-center">
+          <button
+            on:click={() => {
+              sidebarCollapsed = !sidebarCollapsed;
+            }}
+            class="btn btn-sm hidden lg:inline-flex mr-2 hover:bg-surface-300 dark:hover:bg-surface-600 transition-all"
+          >
+            <i class="fa-solid fa-bars"></i>
+          </button>
+          <button
+            on:click={drawerOpen}
+            class="btn btn-sm md:hidden mr-2 hover:bg-surface-300 dark:hover:bg-surface-600 transition-all"
+          >
+            <i class="fa-solid fa-bars"></i>
+          </button>
+          <a href="/">
+            <img
+              src="/Logo.svg"
+              alt="Logo"
+              class="w-[100px] invert dark:invert-0 transition-all"
+            />
+          </a>
+        </div>
+      </slot:fragment>
+      <!-- User Menu -->
+      <slot:fragment slot="trail">
+        <div class="flex items-center gap-1">
+          <LightSwitch />
+          <NotificationPopover />
+          <UserMenu />
+        </div>
+      </slot:fragment>
+    </AppBar>
   </svelte:fragment>
   <svelte:fragment slot="sidebarLeft">
     <Navigation />

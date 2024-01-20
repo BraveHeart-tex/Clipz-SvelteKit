@@ -8,6 +8,7 @@
     type ToastSettings
   } from '@skeletonlabs/skeleton';
   import { user } from '$lib/state.svelte';
+  import { fly } from 'svelte/transition';
 
   $: User = $user;
 
@@ -97,14 +98,17 @@
   }
 </script>
 
-<nav class="list-nav p-4">
-  <ul>
+<nav class="p-4">
+  <ul class="flex flex-col gap-1">
     {#each navigationlinks.filter((item) => {
       if (!User) return !item.adminOnly;
       if (User && User.isAdmin) return item;
       return item.visible && !item.adminOnly;
     }) as link}
-      <li aria-current={$page.url.pathname === link.href ? 'page' : null}>
+      <li
+        class="p-2 hover:variant-filled-surface rounded-md"
+        aria-current={$page.url.pathname === link.href ? 'page' : null}
+      >
         <a
           href={link.visible ? link.href : '#'}
           class="font-semibold flex items-center gap-2"

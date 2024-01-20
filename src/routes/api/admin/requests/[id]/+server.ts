@@ -81,19 +81,21 @@ export const PUT: RequestHandler = async ({ params, locals, request }) => {
     const message = {
       data: {
         title: 'Video Rejected',
-        body: `Your video has been rejected. Reason: ${body.rejectionReason}`
+        body: `Your video (${result.title}) has been rejected. Reason: ${body.rejectionReason}`
       },
       tokens: registeredTokens.map((token) => token.id)
     };
 
+    console.log('Sending notification to tokens', message.tokens);
+
     adminMessaging.sendEachForMulticast(message).then(
       (response) => {
         if (response.failureCount > 0) {
-          console.log('Failed to send notification to some tokens', response);
+          console.error('Failed to send notification to some tokens');
         }
       },
       (error) => {
-        console.log('Error sending notification to tokens', error);
+        console.error('Error sending notification to tokens', error);
       }
     );
   }

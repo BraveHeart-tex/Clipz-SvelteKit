@@ -25,24 +25,32 @@
   });
 </script>
 
-<div class={cn('grid grid-cols-1 gap-2  mt-4', poster && 'lg:grid-cols-2')}>
+<div class={cn('grid grid-cols-1 gap-2 mt-4', poster && 'lg:grid-cols-2')}>
   <div class="flex flex-col gap-2">
     <div class="flex items-center gap-1">
       <i class="fa-solid fa-video text-2xl"></i>
       <h3 class="h3">Video Preview:</h3>
     </div>
-    <video
-      id="player"
-      playsinline
-      controls
-      data-poster={poster ?? ''}
-      data-plyr-config={{
-        title: 'Video Preview'
-      }}
+    <div
+      class={cn(
+        'rounded-md shadow-md lg:max-w-6xl',
+        poster && 'lg:col-span-1',
+        !poster && 'lg:col-span-2'
+      )}
     >
-      <track kind="captions" />
-      <source src={videoSrc} type="video/mp4" />
-    </video>
+      <video
+        id="player"
+        playsinline
+        controls
+        data-poster={poster ?? ''}
+        data-plyr-config={{
+          title: 'Video Preview'
+        }}
+      >
+        <track kind="captions" />
+        <source src={videoSrc} type="video/mp4" />
+      </video>
+    </div>
   </div>
 
   {#if poster}
