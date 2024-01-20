@@ -88,10 +88,13 @@ export async function updateVideoStatus({
       };
     }
 
-    await fetch(`/api/admin/requests/${row.id}`, {
+    const result = await fetch(`/api/admin/requests/${row.id}`, {
       method: 'PUT',
       body: JSON.stringify(requestBody)
     });
+
+    console.log('🚀 ~ result:', result);
+
     invalidate('app:admin');
     toastStore.trigger({
       message: successMessage,
@@ -99,7 +102,8 @@ export async function updateVideoStatus({
       timeout: 4000
     });
   } catch (error) {
-    console.error(error);
+    console.log('🚀 ~ updateVideoStatus error:', error);
+
     toastStore.trigger({
       message: errorMessage,
       background: 'variant-filled-error',

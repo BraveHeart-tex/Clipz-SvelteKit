@@ -3,16 +3,18 @@
   import { getMessaging, onMessage } from 'firebase/messaging';
   import { app } from '$lib/firebase';
   import { Toaster, toast } from 'svelte-sonner';
+  import type { Notification } from '@prisma/client';
 
   import NotificationToast from './NotificationToast.svelte';
+  import { notificationsStore } from '../stores/notifications';
 
   onMount(() => {
     const messaging = getMessaging(app);
     onMessage(messaging, (payload) => {
-      console.log('🚀 ~ onMessage ~ payload:', payload);
-
       if (payload?.data?.body) {
-        const { body } = payload.data;
+        console.log(payload.data);
+
+        const { body, notificationObject } = payload.data;
 
         toast.custom(NotificationToast, {
           duration: 5000,
@@ -22,6 +24,10 @@
             body: body
           }
         });
+
+        notificationsStore.addNotification(
+          JSON.parse(notificationObject) as Notification
+        );
       }
     });
   });

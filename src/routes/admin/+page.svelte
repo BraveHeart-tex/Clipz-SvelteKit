@@ -109,7 +109,7 @@
         {#if selectedTab === tab.value}
           <div
             aria-current="step"
-            class="absolute bg-primary-500 bottom-0 h-[2px] z-10 w-full"
+            class="absolute bg-primary-500 bottom-0 h-[2px] z-1 w-full"
           />
         {/if}
       </button>

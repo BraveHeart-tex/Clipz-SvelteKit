@@ -3,14 +3,24 @@
   import Popper from './Popper.svelte';
   import { user } from '$lib/state.svelte';
   import { notificationsStore } from '../stores/notifications';
+
   $: User = $user;
-  $: notifications = $notificationsStore.notifications;
+  $: notifications = $notificationsStore.unreadNotifications;
 </script>
 
 {#if User}
   <Popper>
-    <button slot="trigger" class="btn btn-sm">
-      <i class="fa-solid fa-bell"></i>
+    <button slot="trigger" class="btn btn-md relative">
+      {#if notifications.length > 0}
+        <span
+          class="absolute top-0 right-2 w-5 h-5 rounded-full bg-error-500 flex items-center justify-center"
+        >
+          <span class="text-sm text-white">
+            {notifications.length}
+          </span>
+        </span>
+      {/if}
+      <i class="fa-solid fa-bell text-lg"></i>
     </button>
 
     <div slot="content">
@@ -40,12 +50,24 @@
             {/each}
           </div>
         {/if}
-        <a
-          href="/notifications"
-          class="btn btn-sm rounded-md variant-filled-primary w-max mt-2"
-        >
-          Show All Notifications
-        </a>
+        <div class="flex items-center gap-2 justify-between mt-2 w-full">
+          {#if notifications.length > 0}
+            <button
+              class="btn btn-sm rounded-md variant-filled-primary w-max"
+              on:click={() => {
+                notificationsStore.markAllAsRead();
+              }}
+            >
+              Mark all as read
+            </button>
+          {/if}
+          <a
+            href="/notifications"
+            class="btn btn-sm rounded-md variant-filled-surface w-max"
+          >
+            Show All Notifications
+          </a>
+        </div>
       </div>
     </div>
   </Popper>

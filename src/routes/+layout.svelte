@@ -37,9 +37,9 @@
   import { cn } from '../lib';
   import { onMount } from 'svelte';
   import NotificationPopover from '../lib/components/NotificationPopover.svelte';
+  import { notificationsStore } from '../lib/stores/notifications';
 
   export let data: LayoutData;
-  let sidebarCollapsed = false;
 
   const modalRegistry: Record<string, ModalComponent> = {
     authenticationForm: { ref: AuthenticationForm }
@@ -52,6 +52,8 @@
   const drawerStore = getDrawerStore();
 
   storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
+
+  let sidebarCollapsed = false;
 
   function drawerOpen() {
     drawerStore.open();
@@ -115,6 +117,18 @@
         type: 'component',
         component: 'authenticationForm'
       });
+    }
+  }
+
+  $: {
+    if (Array.isArray(data.notifications)) {
+      notificationsStore.update((state) => ({
+        ...state,
+        notifications: data.notifications || [],
+        unreadNotifications:
+          data.notifications?.filter((notification) => !notification.is_read) ||
+          []
+      }));
     }
   }
 </script>

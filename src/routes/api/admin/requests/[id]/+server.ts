@@ -1,7 +1,7 @@
 import { VideoStatus } from '@prisma/client';
 import { json, type RequestHandler } from '@sveltejs/kit';
 import prisma from '$lib/server/prisma';
-import { adminMessaging } from '$lib/server/admin';
+import { sendNotification } from '$lib/server/admin';
 
 export const PUT: RequestHandler = async ({ params, locals, request }) => {
   const session = await locals.auth.validate();
@@ -78,26 +78,43 @@ export const PUT: RequestHandler = async ({ params, locals, request }) => {
       }
     });
 
-    const message = {
-      data: {
-        title: 'Video Rejected',
-        body: `Your video (${result.title}) has been rejected. Reason: ${body.rejectionReason}`
-      },
-      tokens: registeredTokens.map((token) => token.id)
-    };
-
-    console.log('Sending notification to tokens', message.tokens);
-
-    adminMessaging.sendEachForMulticast(message).then(
-      (response) => {
-        if (response.failureCount > 0) {
-          console.error('Failed to send notification to some tokens');
+    try {
+      const createdNotification = await prisma.notification.create({
+        data: {
+          title: 'Video Rejected',
+          description: `Your video (${result.title}) has been rejected. Reason: ${body.rejectionReason}`,
+          user_id: result.user_id
         }
-      },
-      (error) => {
-        console.error('Error sending notification to tokens', error);
-      }
-    );
+      });
+
+      const message = {
+        data: {
+          title: 'Video Rejected',
+          body: `Your video (${result.title}) has been rejected. Reason: ${body.rejectionReason}`,
+          notificationObject: JSON.stringify({
+            ...createdNotification,
+            is_read: 0
+          })
+        },
+        tokens: registeredTokens.map((token) => token.id)
+      };
+
+      await sendNotification({
+        message,
+        isMultiple: true
+      });
+
+      return json(
+        { message: 'Video status updated successfully.' },
+        { status: 200 }
+      );
+    } catch (error) {
+      console.error('Error sending notification to tokens', error);
+      return json(
+        { message: 'Video status updated successfully.' },
+        { status: 200 }
+      );
+    }
   }
 
   if (result) {

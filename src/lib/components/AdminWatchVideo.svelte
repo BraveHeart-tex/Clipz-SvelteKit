@@ -160,6 +160,8 @@
           disabled={confirmationTitle !== video.title}
           class="btn variant-filled-success rounded-md flex items-center gap-1"
           on:click={async () => {
+            modalStore.close();
+
             await updateVideoStatus({
               row: video,
               errorMessage: 'There was an error approving the video request.',
@@ -167,8 +169,6 @@
               status: VideoStatus.PUBLISHED,
               successMessage: 'Video request approved.'
             });
-
-            modalStore.close();
           }}
         >
           <i class="fa-solid fa-check"></i>
