@@ -91,13 +91,21 @@
   </div>
 </div>
 
-{#if notifications.length === 0}
+{#if notifications.length === 0 && !query}
   <div class="flex flex-col gap-1 w-full">
     <h2 class="h3 flex items-center gap-1">
       <i class="fa-solid fa-bell-slash"></i>
       <span class="ml-2"> No Notifications </span>
     </h2>
     <p class="text-sm">You don't have any notifications yet.</p>
+  </div>
+{:else if notifications.length === 0 && query}
+  <div class="flex flex-col gap-1 w-full">
+    <h2 class="h3 flex items-center gap-1">
+      <i class="fa-solid fa-bell-slash"></i>
+      <span class="ml-2"> No Results </span>
+    </h2>
+    <p class="text-sm">No notifications found for "{query}".</p>
   </div>
 {:else}
   <h2 class="text-xl font-semibold mb-2">
@@ -108,7 +116,7 @@
     </span>
   </h2>
   <div
-    class="flex flex-col border p-4 max-h-[400px] overflow-auto border-surface-200 dark:border-surface-500 gap-2 w-full"
+    class="flex flex-col border rounded-md p-4 max-h-[400px] overflow-auto border-surface-200 dark:border-surface-500 gap-2 w-full"
   >
     {#each notifications as notification (notification.id)}
       <NotificationPopoverItem {notification} {selectedTab} />

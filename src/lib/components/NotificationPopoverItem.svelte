@@ -6,7 +6,10 @@
   import { formatDistance } from 'date-fns';
   export let notification: Notification;
   export let selectedTab = '';
-  const { title, description, created_at, read_date } = notification;
+
+  const { title, description, created_at } = notification;
+
+  $: read_date = notification.read_date;
 
   let startX: number;
 
@@ -69,7 +72,7 @@
   <div class="flex items-center justify-between">
     <h3 class="text-lg font-semibold">{title}</h3>
     <span class="text-sm text-surface-500 dark:text-surface-100"
-      >{formatDistance(new Date(read_date || created_at), new Date(), {
+      >{formatDistance(new Date(created_at), new Date(), {
         addSuffix: true
       })}</span
     >
