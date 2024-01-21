@@ -65,12 +65,12 @@
   on:touchend={handleTouchEnd}
   in:fly={getTransitionAttributes('in')}
   out:fly={getTransitionAttributes('out')}
-  class={cn(
-    'bg-surface-100 dark:bg-surface-700 p-2 rounded-md shadow-md w-full cursor-pointer hover:bg-surface-200 transition-all dark:hover:bg-surface-500 relative'
-  )}
+  class="bg-surface-100 dark:bg-surface-700 p-2 rounded-md shadow-md w-full cursor-pointer hover:bg-surface-200 transition-all dark:hover:bg-surface-500 relative"
 >
   <div class="flex items-center justify-between">
-    <h3 class="text-lg font-semibold">{title}</h3>
+    <h3 class={cn('text-lg font-semibold ', !selectedTab && 'max-w-[400px]')}>
+      {title}
+    </h3>
     <span class="text-sm text-surface-500 dark:text-surface-100"
       >{formatDistance(new Date(created_at), new Date(), {
         addSuffix: true
@@ -78,7 +78,9 @@
     >
   </div>
 
-  <p class="text-sm">{description}</p>
+  <p class={cn('text-sm', !selectedTab && 'max-w-[400px] truncate')}>
+    {description}
+  </p>
   <div class="flex w-full justify-end">
     {#if !read_date}
       <button

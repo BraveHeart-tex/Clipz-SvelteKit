@@ -38,7 +38,7 @@
     <span class="ml-2">Notifications</span>
   </h2>
   <p>
-    Search for notifications by title or description. Read notifications will be
+    Take a detailed look to your notifications here. Read notifications will be
     deleted after 30 days.
   </p>
 </div>
