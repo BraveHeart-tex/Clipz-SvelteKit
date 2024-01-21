@@ -47,10 +47,24 @@ export const actions: Actions = {
     }
 
     const body = await request.json();
-    console.log('🚀 ~ profilePicture: ~ body:', body);
-    const { profilePicture } = body;
+    const { profilePicture, deletePicture } = body;
 
-    if (typeof profilePicture !== 'string' || !profilePicture) {
+    if (deletePicture) {
+      await prisma.user.update({
+        where: {
+          id: session.user.userId
+        },
+        data: {
+          profile_picture: null
+        }
+      });
+
+      return {
+        success: true
+      };
+    }
+
+    if (typeof profilePicture !== 'string' && !profilePicture) {
       return fail(400, {
         error: 'invalid_request'
       });

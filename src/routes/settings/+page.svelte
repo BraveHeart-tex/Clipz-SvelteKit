@@ -4,7 +4,9 @@
     popup,
     type PopupSettings,
     type ToastSettings,
-    getToastStore
+    getToastStore,
+    type ModalSettings,
+    getModalStore
   } from '@skeletonlabs/skeleton';
   import type { PageData } from './$types';
   import type { SubmitFunction } from '@sveltejs/kit';
@@ -14,8 +16,8 @@
   import { fly } from 'svelte/transition';
   import { invalidate } from '$app/navigation';
   import { user } from '$lib/state.svelte';
-
   import {
+    deleteObject,
     getDownloadURL,
     getStorage,
     ref,
@@ -27,9 +29,11 @@
   export let data: PageData;
 
   const toastStore = getToastStore();
+  const modalStore = getModalStore();
 
   $: notitifcationsEnabled = data.notificationAllowed;
   $: User = $user;
+  $: uploading = false;
 
   let progress = 0;
 
@@ -180,6 +184,7 @@
       return;
     }
 
+    uploading = true;
     const storage = getStorage(app);
     const storageRef = ref(storage, `avatars/${data.username}`);
     const uploadTask = uploadBytesResumable(storageRef, file);
@@ -200,6 +205,7 @@
 
         toastStore.trigger(errorToast);
         progress = 0;
+        uploading = false;
       },
       async () => {
         try {
@@ -227,6 +233,7 @@
               ...user,
               profilePicture: downloadURL
             }));
+            uploading = false;
           }
         } catch (error) {
           console.error(error);
@@ -238,13 +245,78 @@
 
           toastStore.trigger(errorToast);
           progress = 0;
+          uploading = false;
         }
       }
     );
   };
+
+  const deleteAvatar = () => {
+    const modal: ModalSettings = {
+      type: 'confirm',
+      title: 'Delete Avatar',
+      body: 'Are you sure you want to delete your avatar?',
+      async response(r) {
+        if (r) {
+          const storage = getStorage(app);
+          const storageRef = ref(storage, `avatars/${data.username}`);
+
+          try {
+            const response = await fetch('/settings?/profilePicture', {
+              method: 'POST',
+              body: JSON.stringify({
+                deletePicture: true
+              })
+            });
+
+            const apiData = await response.json();
+
+            if (apiData.type === 'success') {
+              deleteObject(storageRef)
+                .then((value) => {
+                  const successToast: ToastSettings = {
+                    message: 'Avatar deleted successfully.',
+                    background: 'variant-filled-success',
+                    timeout: 5000
+                  };
+
+                  toastStore.trigger(successToast);
+
+                  // @ts-expect-error
+                  user.update((user) => ({
+                    ...user,
+                    profilePicture: null
+                  }));
+                })
+                .catch((error) => {
+                  const errorToast: ToastSettings = {
+                    message: 'There was an error deleting your avatar.',
+                    background: 'variant-filled-error',
+                    timeout: 5000
+                  };
+
+                  toastStore.trigger(errorToast);
+                });
+            }
+          } catch (error) {
+            console.error(error);
+            const errorToast: ToastSettings = {
+              message: 'There was an error deleting your avatar.',
+              background: 'variant-filled-error',
+              timeout: 5000
+            };
+
+            toastStore.trigger(errorToast);
+          }
+        }
+      }
+    };
+
+    modalStore.trigger(modal);
+  };
 </script>
 
-{#if progress > 0}
+{#if uploading}
   <ProgressModal
     title="Uploading Your Avatar"
     description="Please do not close this window or navigate away from this page until the
@@ -275,12 +347,22 @@ upload is complete."
     </p>
   </div>
   {#if User?.profilePicture}
-    <img
-      src={User?.profilePicture || ''}
-      loading="lazy"
-      alt={User?.name}
-      class="rounded-full w-24 h-24 object-cover"
-    />
+    <div class="relative w-max">
+      <img
+        src={User?.profilePicture || ''}
+        loading="lazy"
+        alt={User?.name}
+        class="rounded-full w-24 h-24 object-cover"
+      />
+      <button
+        class="btn w-5 h-5 btn-icon variant-filled-error absolute top-0 right-0"
+        on:click={() => {
+          deleteAvatar();
+        }}
+      >
+        <i class="fa-solid fa-times"></i>
+      </button>
+    </div>
   {/if}
 
   <form
@@ -293,13 +375,13 @@ upload is complete."
       for="profilePicture"
       class={cn(
         'btn variant-filled-primary btn-sm rounded-md w-48 cursor-pointer',
-        progress > 0 && 'pointer-events-none'
+        uploading && 'pointer-events-none opacity-70'
       )}
       aria-disabled={progress > 0}
     >
       <span>
         <i class="fa-solid fa-upload"></i>
-        {data.profilePicture ? 'Change' : 'Upload'}
+        {User?.profilePicture ? 'Change' : 'Upload'}
         Profile Picture
       </span>
     </label>

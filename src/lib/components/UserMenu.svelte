@@ -30,7 +30,7 @@
       <Avatar
         width="w-11"
         class="cursor-pointer"
-        src={User?.profilePicture || ''}
+        src={User?.profilePicture || '/images/default-avatar.svg'}
         initials={User?.name
           ?.split(' ')
           .map((n) => n[0])
