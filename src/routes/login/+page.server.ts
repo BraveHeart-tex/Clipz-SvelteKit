@@ -27,7 +27,7 @@ export const actions: Actions = {
           email
         }
       });
-      if (!user?.email_verified) {
+      if (user && !user?.email_verified) {
         return setError(
           form,
           'email',

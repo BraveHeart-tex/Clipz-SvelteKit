@@ -38,9 +38,10 @@
   import { onMount } from 'svelte';
   import NotificationPopover from '../lib/components/NotificationPopover.svelte';
   import { notificationsStore } from '../lib/stores/notifications';
-  import { getMessaging, getToken } from 'firebase/messaging';
+  import { deleteToken, getMessaging, getToken } from 'firebase/messaging';
   import { app } from '../lib/firebase';
   import { browser } from '$app/environment';
+  import { FirebaseError } from 'firebase/app';
 
   export let data: LayoutData;
   let askForNotificationPermission = false;
@@ -87,6 +88,17 @@
         }
       }
     } catch (error) {
+      if (error instanceof FirebaseError) {
+        console.error('Messaging error', error);
+        const errorCode = error.code;
+        if (
+          errorCode === 'messaging/invalid-argument' ||
+          errorCode === 'messaging/registration-token-not-registered'
+        ) {
+          // delete the token
+          await deleteToken(messaging);
+        }
+      }
       console.error(error);
     }
   };
@@ -137,7 +149,9 @@
     toastStore.trigger(successToast);
 
     setTimeout(() => {
-      goto('/');
+      if (browser) {
+        goto('/');
+      }
     });
   };
 

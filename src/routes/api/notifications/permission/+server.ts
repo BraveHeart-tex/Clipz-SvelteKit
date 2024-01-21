@@ -14,10 +14,34 @@ export const POST: RequestHandler = async ({ locals, request }) => {
   }
 
   try {
+    const existingToken = await prisma.fCM_Token.findUnique({
+      where: {
+        id: token,
+        user_id: session.user.userId
+      }
+    });
+
+    if (existingToken) {
+      // update the stale time of the token
+      await prisma.fCM_Token.update({
+        where: {
+          id: token
+        },
+        data: {
+          valid_till: Date.now() + 5184000000
+        }
+      });
+      return json(
+        { message: 'Successfully updated notification permissions.' },
+        { status: 200 }
+      );
+    }
+
     await prisma.fCM_Token.create({
       data: {
         user_id: session.user.userId,
-        id: token
+        id: token,
+        valid_till: Date.now() + 5184000000
       }
     });
 

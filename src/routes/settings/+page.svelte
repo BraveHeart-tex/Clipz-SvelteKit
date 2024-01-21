@@ -336,7 +336,7 @@ upload is complete."
 <!-- Profile Picture -->
 <div class="flex flex-col gap-2 my-4">
   <!-- TODO: Fallback profile picture default avatar -->
-  <div>
+  <div class="flex flex-col gap-2">
     <h2 class="h3 flex items-center gap-2">
       <i class="fa-solid fa-user"></i>
       Profile Picture
