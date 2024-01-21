@@ -66,6 +66,7 @@
 
   const handleNotificationPermission = async () => {
     const messaging = getMessaging(app);
+    await navigator.serviceWorker.ready;
     try {
       const permission = await Notification.requestPermission();
 

@@ -41,13 +41,13 @@ export const PUT: RequestHandler = async ({ params, locals, request }) => {
 
   const queryData: {
     status: VideoStatus;
-    rejectionReason?: string;
+    rejection_reason?: string;
   } = {
     status
   };
 
   if (status === VideoStatus.REJECTED) {
-    queryData.rejectionReason = body.rejectionReason;
+    queryData.rejection_reason = body.rejectionReason;
   }
 
   const result = await prisma.video.update({

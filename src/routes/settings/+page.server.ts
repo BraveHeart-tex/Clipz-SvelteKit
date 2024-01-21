@@ -12,19 +12,21 @@ export const load: PageServerLoad = async ({ locals, cookies, depends }) => {
 
   const theme = cookies.get('colorTheme');
 
-  const {
-    allowNotifications,
-    allowMentionNotification,
-    allowReactionNotification,
-    name,
-    profilePicture
-  } = session.user;
+  const { name, profilePicture } = session.user;
+
+  const notificationSettings = await prisma.notificationSettings.findUnique({
+    where: {
+      user_id: session.user.userId
+    }
+  });
 
   return {
     theme: theme || '',
-    notificationAllowed: allowNotifications,
-    mentionNotificationAllowed: allowMentionNotification,
-    reactionNotificationAllowed: allowReactionNotification,
+    notificationAllowed: notificationSettings?.allow_notifications,
+    mentionNotificationAllowed:
+      notificationSettings?.allow_mention_notification,
+    reactionNotificationAllowed:
+      notificationSettings?.allow_reaction_notification,
     username: name,
     profilePicture
   };

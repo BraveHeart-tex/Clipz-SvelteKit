@@ -7,6 +7,7 @@
   } from '@skeletonlabs/skeleton';
   import { Avatar } from '@skeletonlabs/skeleton';
   import { user } from '$lib/state.svelte';
+  import { cn } from '..';
 
   $: User = $user;
 
@@ -29,8 +30,8 @@
     <button use:popup={popupClick}>
       <Avatar
         width="w-11"
-        class="cursor-pointer"
-        src={User?.profilePicture || '/images/default-avatar.svg'}
+        class={cn('cursor-pointer')}
+        src={User?.profilePicture || ''}
         initials={User?.name
           ?.split(' ')
           .map((n) => n[0])
