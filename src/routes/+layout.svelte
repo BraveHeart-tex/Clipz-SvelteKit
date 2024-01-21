@@ -143,7 +143,7 @@
 
 <AppShell
   slotSidebarLeft={cn(
-    'w-0 md:w-52 bg-surface-500/10',
+    'hidden md:block md:w-52 bg-surface-500/10',
     sidebarCollapsed && 'md:w-0'
   )}
 >
@@ -155,7 +155,7 @@
             on:click={() => {
               sidebarCollapsed = !sidebarCollapsed;
             }}
-            class="btn btn-sm hidden lg:inline-flex mr-2 hover:bg-surface-300 dark:hover:bg-surface-600 transition-all"
+            class="btn btn-sm hidden md:inline-flex mr-2 hover:bg-surface-300 dark:hover:bg-surface-600 transition-all"
           >
             <i class="fa-solid fa-bars"></i>
           </button>
