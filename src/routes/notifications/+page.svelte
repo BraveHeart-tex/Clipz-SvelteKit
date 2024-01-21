@@ -73,7 +73,8 @@
       }}
       class={cn(
         'btn btn-sm rounded-md',
-        selectedTab === 'all' && 'variant-filled-primary'
+        selectedTab === 'all' &&
+          'variant-filled-primary dark:variant-filled-secondary'
       )}>All</button
     >
     <button
@@ -83,7 +84,8 @@
       }}
       class={cn(
         'btn btn-sm rounded-md',
-        selectedTab === 'unread' && 'variant-filled-primary'
+        selectedTab === 'unread' &&
+          'variant-filled-primary dark:variant-filled-secondary'
       )}>Unread</button
     >
   </div>
@@ -116,7 +118,7 @@
   <div
     class="flex flex-col border rounded-md p-4 max-h-[400px] overflow-auto border-surface-200 dark:border-surface-500 gap-2 w-full"
   >
-    {#each notifications as notification (notification.id)}
+    {#each notifications.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()) as notification (notification.id)}
       <NotificationPopoverItem {notification} {selectedTab} />
     {/each}
   </div>

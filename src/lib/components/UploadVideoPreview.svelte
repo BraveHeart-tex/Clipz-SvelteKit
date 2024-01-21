@@ -5,6 +5,7 @@
 
   export let poster: string;
   export let videoSrc: string;
+  export let handleRemoveThumbnail: (() => void) | null = null;
 
   onMount(() => {
     const player = new Plyr('#player', {
@@ -58,6 +59,11 @@
       <div class="flex items-center gap-1">
         <i class="fa-solid fa-photo-film text-2xl"></i>
         <h3 class="h3">Thumbnail Preview:</h3>
+        {#if handleRemoveThumbnail}
+          <button class="ml-auto btn-icon btn" on:click={handleRemoveThumbnail}>
+            <i class="fa-solid fa-trash"></i>
+          </button>
+        {/if}
       </div>
       <img
         src={poster}

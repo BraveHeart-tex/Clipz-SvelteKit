@@ -297,6 +297,24 @@
     }
   };
 
+  const handleRemoveThumbnail = () => {
+    const modal: ModalSettings = {
+      type: 'confirm',
+      title: 'Remove Thumbnail',
+      body: 'Are you sure you want to remove this thumbnail?',
+      buttonTextCancel: 'Cancel',
+      buttonTextConfirm: 'Yes, remove thumbnail',
+      response(r) {
+        if (r) {
+          thumbnail = null;
+          poster = '';
+        }
+      }
+    };
+
+    modalStore.trigger(modal);
+  };
+
   $: {
     if (submitCompleted) {
       const successToast: ToastSettings = {
@@ -397,11 +415,13 @@
 
     {#if videoSrc}
       <UploadVideoPreview
+        {handleRemoveThumbnail}
         {videoSrc}
         poster={poster || data?.currentVideo?.poster_url || ''}
       />
     {:else if data.currentVideo?.url}
       <UploadVideoPreview
+        {handleRemoveThumbnail}
         videoSrc={data?.currentVideo?.url}
         poster={poster || data?.currentVideo?.poster_url || ''}
       />
