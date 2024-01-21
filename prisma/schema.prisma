@@ -21,7 +21,7 @@ model User {
   isAdmin                     Boolean        @default(false)
   Ticket                      Ticket[]
   FCM_Token                   FCM_Token[]
-  allow_notifications         Boolean        @default(false)
+  allow_notifications         Boolean        @default(true)
   allow_mention_notification  Boolean        @default(false)
   allow_reaction_notification Boolean        @default(false)
   Notification                Notification[]
