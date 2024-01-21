@@ -19,6 +19,14 @@ declare global {
     type DatabaseSessionAttributes = {};
   }
 
+  namespace svelteHTML {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    interface HTMLAttributes<T> {
+      'on:clickOutside'?: () => void;
+      'on:longpress'?: () => void;
+    }
+  }
+
   interface Document {
     startViewTransition(
       updateCallback: () => Promise<void> | void

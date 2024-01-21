@@ -153,7 +153,7 @@
     <dl
       class={cn('flex flex-col select-none w-full')}
       use:longpress
-      on:longpress={(e) => {
+      on:longpress={() => {
         editMode = !editMode;
       }}
     >

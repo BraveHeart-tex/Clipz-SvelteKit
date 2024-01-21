@@ -123,6 +123,8 @@
 <style>
   h1,
   h3 {
-    @apply font-bold my-4;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    margin-top: 1rem;
   }
 </style>

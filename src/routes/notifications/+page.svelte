@@ -4,8 +4,6 @@
   import NotificationPopoverItem from '$/src/lib/components/NotificationPopoverItem.svelte';
   import { cn } from '$lib';
 
-  export let data: PageData;
-
   $: notifications = $notificationsStore.notifications;
 
   $: {

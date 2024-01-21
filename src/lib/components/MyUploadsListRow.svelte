@@ -99,7 +99,10 @@
         type="checkbox"
         class="w-4 h-4 checkbox"
         {checked}
-        on:change={(e) => onCheckboxChange(e.target.checked, upload)}
+        on:change={(e) => {
+          // @ts-ignore
+          onCheckboxChange(e.target.checked, upload);
+        }}
       />
     {/if}
     <span class="flex-auto">

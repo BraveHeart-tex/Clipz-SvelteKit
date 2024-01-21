@@ -246,7 +246,7 @@
             on:change={(event) => {
               handleOtherNotifications(
                 'allow_mention_notification',
-                event.target.checked
+                event?.target.checked
               );
             }}
           />

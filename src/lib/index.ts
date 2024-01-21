@@ -25,10 +25,32 @@ export const debounce = (callback: () => void, delay = 500) => {
   }, delay);
 };
 
+export function clickOutside(node: HTMLElement, visible: boolean) {
+  window.addEventListener('click', handleClick);
+
+  function handleClick(e: Event) {
+    const triggerButton = document.getElementById(
+      'notification-popover-trigger'
+    );
+    if (
+      !node.contains(e.target as Node) &&
+      visible &&
+      !triggerButton?.contains(e.target as Node)
+    ) {
+      node.dispatchEvent(new CustomEvent('clickOutside'));
+    }
+  }
+
+  return {
+    destroy() {
+      window.removeEventListener('click', handleClick);
+    }
+  };
+}
+
 export function longpress(node: HTMLElement, threshold = 350) {
   const handlePressStart = (event: MouseEvent | TouchEvent) => {
     event.preventDefault();
-    let start = Date.now();
 
     const timeout = setTimeout(() => {
       node.dispatchEvent(new CustomEvent('longpress'));

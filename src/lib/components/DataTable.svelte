@@ -155,7 +155,7 @@
                         />
                       </button>
                       <!-- @ts-ignore -->
-                      {#if header.column.columnDef.meta?.sort}
+                      {#if header.column.columnDef.meta && header.column.columnDef.meta.sort}
                         <tr>
                           <td>
                             <input
