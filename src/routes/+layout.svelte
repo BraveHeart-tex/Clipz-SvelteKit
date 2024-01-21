@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onNavigate } from '$app/navigation';
+  import { invalidate, onNavigate } from '$app/navigation';
   import { AppBar, LightSwitch } from '@skeletonlabs/skeleton';
   import { getDrawerStore } from '@skeletonlabs/skeleton';
   import UserMenu from '$lib/components/UserMenu.svelte';
@@ -38,8 +38,12 @@
   import { onMount } from 'svelte';
   import NotificationPopover from '../lib/components/NotificationPopover.svelte';
   import { notificationsStore } from '../lib/stores/notifications';
+  import { getMessaging, getToken } from 'firebase/messaging';
+  import { app } from '../lib/firebase';
+  import { browser } from '$app/environment';
 
   export let data: LayoutData;
+  let askForNotificationPermission = false;
 
   const modalRegistry: Record<string, ModalComponent> = {
     authenticationForm: { ref: AuthenticationForm }
@@ -59,18 +63,61 @@
     drawerStore.open();
   }
 
-  onMount(() => {
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker
-        .register('/firebase-messaging-sw.js')
-        .then(function (registration) {
-          console.log('Registration successful, scope is:', registration.scope);
-        })
-        .catch(function (err) {
-          console.error('Service worker registration failed, error:', err);
+  const handleNotificationPermission = async () => {
+    const messaging = getMessaging(app);
+    try {
+      const permission = await Notification.requestPermission();
+
+      if (permission === 'granted') {
+        const currentToken = await getToken(messaging, {
+          vapidKey:
+            'BM73otlGttByAOoPXDYocnEDsZOFKpIpd477VnpNH2kaaurb0CxrMLRhJcDtGB4Ei7l5C0qJ8GcowgqYCzKTN00'
         });
+
+        if (currentToken) {
+          const response = await fetch('/api/notifications/permission', {
+            method: 'POST',
+            body: JSON.stringify({ token: currentToken })
+          });
+
+          const data = await response.json();
+          if (data.message) {
+            invalidate('app:settings');
+          }
+        }
+      }
+    } catch (error) {
+      console.error(error);
     }
+  };
+
+  onMount(async () => {
+    navigator.serviceWorker
+      .register('/firebase-messaging-sw.js')
+      .then((registration) => {
+        console.log('Registration successful, scope is:', registration.scope);
+      })
+      .catch((err) => {
+        console.error('Service worker registration failed, error:', err);
+      });
   });
+
+  $: {
+    if (askForNotificationPermission && browser) {
+      navigator.serviceWorker.ready.then(async () => {
+        const permission = await Notification.requestPermission();
+        if (permission === 'granted') {
+          handleNotificationPermission();
+        } else if (permission === 'default') {
+          Notification.requestPermission().then((permission) => {
+            if (permission === 'granted') {
+              handleNotificationPermission();
+            }
+          });
+        }
+      });
+    }
+  }
 
   onNavigate(() => {
     if (!document.startViewTransition) return;
@@ -96,6 +143,9 @@
 
   $: {
     const newUser = data?.user;
+    if (newUser?.userId) {
+      askForNotificationPermission = true;
+    }
     user.set(newUser);
   }
 
