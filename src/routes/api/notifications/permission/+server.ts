@@ -45,9 +45,9 @@ export const POST: RequestHandler = async ({ locals, request }) => {
       }
     });
 
-    await prisma.user.update({
+    await prisma.notificationSettings.update({
       where: {
-        id: session.user.userId
+        user_id: session.user.userId
       },
       data: {
         allow_notifications: true
@@ -118,9 +118,9 @@ export const DELETE: RequestHandler = async ({ locals }) => {
       }
     });
 
-    await prisma.user.update({
+    await prisma.notificationSettings.update({
       where: {
-        id: session.user.userId
+        user_id: session.user.userId
       },
       data: {
         allow_notifications: false,

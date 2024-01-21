@@ -64,10 +64,29 @@ export const PUT: RequestHandler = async ({ params, locals, request }) => {
       }
     });
 
-    if (!user || !user.allow_notifications) {
+    if (!user) {
       return json(
         { message: 'Video status updated successfully.' },
         { status: 200 }
+      );
+    }
+
+    const notificationPermission = await prisma.notificationSettings.findUnique(
+      {
+        where: {
+          user_id: result.user_id
+        }
+      }
+    );
+
+    if (!notificationPermission?.allow_notifications) {
+      return json(
+        {
+          message: 'Video status updated successfully.'
+        },
+        {
+          status: 200
+        }
       );
     }
 

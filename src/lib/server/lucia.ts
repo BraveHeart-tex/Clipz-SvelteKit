@@ -19,10 +19,7 @@ export const auth = lucia({
       email: user.email,
       profilePicture: user.profile_picture,
       isAdmin: user.isAdmin,
-      emailVerified: user.email_verified,
-      allowNotifications: user.allow_notifications,
-      allowMentionNotification: user.allow_mention_notification,
-      allowReactionNotification: user.allow_reaction_notification
+      emailVerified: user.email_verified
     };
   }
 });

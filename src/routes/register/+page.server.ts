@@ -1,3 +1,4 @@
+import prisma from '$lib/server/prisma';
 import { redirect, type Actions, fail } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import registerSchema from '$lib/schemas/RegisterSchema';
@@ -41,6 +42,12 @@ export const actions: Actions = {
           email: email,
           name: fullName,
           email_verified: false
+        }
+      });
+
+      await prisma.notificationSettings.create({
+        data: {
+          user_id: user.userId
         }
       });
 
