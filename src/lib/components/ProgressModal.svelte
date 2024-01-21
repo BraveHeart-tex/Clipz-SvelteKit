@@ -2,6 +2,8 @@
   import { ProgressBar } from '@skeletonlabs/skeleton';
 
   export let progress: number = 0;
+  export let title: string;
+  export let description: string;
 </script>
 
 <div
@@ -13,12 +15,11 @@
     <div class="flex items-center gap-1">
       <i class="fa-solid fa-cloud-arrow-up text-3xl"></i>
       <h3 class="h3">
-        Your video is being uploaded (%{progress.toFixed(0)})
+        {title} (%{progress.toFixed(0)})
       </h3>
     </div>
     <p>
-      Please do not close this window or navigate away from this page until the
-      upload is complete.
+      {description}
     </p>
     <ProgressBar
       label="Progress Bar"

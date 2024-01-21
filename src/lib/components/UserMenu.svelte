@@ -30,6 +30,7 @@
       <Avatar
         width="w-11"
         class="cursor-pointer"
+        src={User?.profilePicture || ''}
         initials={User?.name
           ?.split(' ')
           .map((n) => n[0])

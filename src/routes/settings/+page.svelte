@@ -13,12 +13,25 @@
   import { app } from '$lib/firebase';
   import { fly } from 'svelte/transition';
   import { invalidate } from '$app/navigation';
+  import { user } from '$lib/state.svelte';
+
+  import {
+    getDownloadURL,
+    getStorage,
+    ref,
+    uploadBytesResumable
+  } from 'firebase/storage';
+  import ProgressModal from '$/src/lib/components/ProgressModal.svelte';
+  import { cn } from '$/src/lib';
 
   export let data: PageData;
 
   const toastStore = getToastStore();
 
   $: notitifcationsEnabled = data.notificationAllowed;
+  $: User = $user;
+
+  let progress = 0;
 
   $: theme = data.theme || 'Crimson';
 
@@ -140,7 +153,105 @@
       toastStore.trigger(errorToast);
     }
   };
+
+  const handleAvatarUpload = (event: Event) => {
+    const fileInput = event.target as HTMLInputElement;
+    const file = fileInput.files && fileInput.files[0];
+    if (!file) return;
+    if (file.size > 1024 * 1024 * 5) {
+      const errorToast: ToastSettings = {
+        message: 'File size must be less than 5MB.',
+        background: 'variant-filled-error',
+        timeout: 5000
+      };
+
+      toastStore.trigger(errorToast);
+      return;
+    }
+
+    if (!file.type.startsWith('image/')) {
+      const errorToast: ToastSettings = {
+        message: 'File must be an image.',
+        background: 'variant-filled-error',
+        timeout: 5000
+      };
+
+      toastStore.trigger(errorToast);
+      return;
+    }
+
+    const storage = getStorage(app);
+    const storageRef = ref(storage, `avatars/${data.username}`);
+    const uploadTask = uploadBytesResumable(storageRef, file);
+
+    uploadTask.on(
+      'state_changed',
+      (snapshot) => {
+        const UploadProgress =
+          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        progress = UploadProgress;
+      },
+      (error) => {
+        const errorToast: ToastSettings = {
+          message: 'There was an error uploading your avatar.',
+          background: 'variant-filled-error',
+          timeout: 5000
+        };
+
+        toastStore.trigger(errorToast);
+        progress = 0;
+      },
+      async () => {
+        try {
+          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+          const response = await fetch('/settings?/profilePicture', {
+            method: 'POST',
+            body: JSON.stringify({
+              profilePicture: downloadURL
+            })
+          });
+
+          const data = await response.json();
+
+          if (data.type === 'success') {
+            progress = 0;
+            const successToast: ToastSettings = {
+              message: 'Avatar uploaded successfully.',
+              background: 'variant-filled-success',
+              timeout: 5000
+            };
+
+            toastStore.trigger(successToast);
+            // @ts-expect-error
+            user.update((user) => ({
+              ...user,
+              profilePicture: downloadURL
+            }));
+          }
+        } catch (error) {
+          console.error(error);
+          const errorToast: ToastSettings = {
+            message: 'There was an error uploading your avatar.',
+            background: 'variant-filled-error',
+            timeout: 5000
+          };
+
+          toastStore.trigger(errorToast);
+          progress = 0;
+        }
+      }
+    );
+  };
 </script>
+
+{#if progress > 0}
+  <ProgressModal
+    title="Uploading Your Avatar"
+    description="Please do not close this window or navigate away from this page until the
+upload is complete."
+    {progress}
+  />
+{/if}
 
 <div class="flex flex-col gap-1">
   <h1 class="h2">Settings</h1>
@@ -151,8 +262,56 @@
 </div>
 
 <!-- Profile Picture -->
-<div class="flex flex-col gap-2">
+<div class="flex flex-col gap-2 my-4">
   <!-- TODO: Fallback profile picture default avatar -->
+  <div>
+    <h2 class="h3 flex items-center gap-2">
+      <i class="fa-solid fa-user"></i>
+      Profile Picture
+    </h2>
+    <p>
+      Your profile picture is used to identify you in the app. It is visible to
+      other users.
+    </p>
+  </div>
+  {#if User?.profilePicture}
+    <img
+      src={User?.profilePicture || ''}
+      loading="lazy"
+      alt={User?.name}
+      class="rounded-full w-24 h-24 object-cover"
+    />
+  {/if}
+
+  <form
+    method="POST"
+    class=""
+    enctype="multipart/form-data"
+    use:enhance={submitUpdateTheme}
+  >
+    <label
+      for="profilePicture"
+      class={cn(
+        'btn variant-filled-primary btn-sm rounded-md w-48 cursor-pointer',
+        progress > 0 && 'pointer-events-none'
+      )}
+      aria-disabled={progress > 0}
+    >
+      <span>
+        <i class="fa-solid fa-upload"></i>
+        {data.profilePicture ? 'Change' : 'Upload'}
+        Profile Picture
+      </span>
+    </label>
+    <input
+      type="file"
+      name="profilePicture"
+      id="profilePicture"
+      class="hidden"
+      accept="image/*"
+      on:change={handleAvatarUpload}
+    />
+  </form>
 </div>
 
 <!-- Color Theme -->

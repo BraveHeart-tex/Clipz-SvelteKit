@@ -13,7 +13,7 @@
   import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
   import { storage } from '$lib/firebase';
   import { v4 as uuidv4 } from 'uuid';
-  import UploadProgress from '$lib/components/UploadProgress.svelte';
+  import UploadProgress from '$/src/lib/components/ProgressModal.svelte';
   import UploadVideoPreview from '$lib/components/UploadVideoPreview.svelte';
   import { goto } from '$app/navigation';
   import UploadVideoStepOne from '$lib/components/UploadVideoStepOne.svelte';
@@ -340,7 +340,12 @@
       </p>
     </div>
     {#if isSubmitting && !submitCompleted}
-      <UploadProgress {progress} />
+      <UploadProgress
+        title="Uploading Video"
+        description="Please do not close this window or navigate away from this page until the
+      upload is complete."
+        {progress}
+      />
     {/if}
     <div class="grid grid-cols-1 gap-4 mt-4 lg:max-w-[75%]">
       <Form.Root

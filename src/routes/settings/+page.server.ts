@@ -1,4 +1,5 @@
-import { redirect, type Actions } from '@sveltejs/kit';
+import prisma from '$lib/server/prisma';
+import { fail, redirect, type Actions } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals, cookies, depends }) => {
@@ -36,6 +37,42 @@ export const actions: Actions = {
       cookies.set('colorTheme', theme, {
         path: '/',
         maxAge: 60 * 60 * 24 * 365
+      });
+    }
+  },
+  profilePicture: async ({ locals, request }) => {
+    const session = await locals.auth.validate();
+    if (!session) {
+      throw redirect(303, '/');
+    }
+
+    const body = await request.json();
+    console.log('🚀 ~ profilePicture: ~ body:', body);
+    const { profilePicture } = body;
+
+    if (typeof profilePicture !== 'string' || !profilePicture) {
+      return fail(400, {
+        error: 'invalid_request'
+      });
+    }
+
+    try {
+      await prisma.user.update({
+        where: {
+          id: session.user.userId
+        },
+        data: {
+          profile_picture: profilePicture
+        }
+      });
+
+      return {
+        success: true
+      };
+    } catch (error) {
+      console.error(error);
+      return fail(500, {
+        error: 'Something went wrong while updating your profile picture'
       });
     }
   }
