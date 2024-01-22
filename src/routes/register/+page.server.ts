@@ -5,8 +5,8 @@ import registerSchema from '$lib/schemas/RegisterSchema';
 import { auth } from '$lib/server/lucia';
 import { Prisma } from '@prisma/client';
 import { setError, superValidate } from 'sveltekit-superforms/server';
-import { generateEmailVerificationToken } from '$lib/token';
 import { sendEmailVerificationLink } from '$lib/email';
+import { emailVerificationService } from '$/src/lib/services/email-verification-service';
 
 export const load: PageServerLoad = async ({ locals }) => {
   const session = await locals.auth.validate();
@@ -51,7 +51,12 @@ export const actions: Actions = {
         }
       });
 
-      const token = await generateEmailVerificationToken(user.userId);
+      const token =
+        await emailVerificationService.generateEmailVerificationToken(
+          user.userId
+        );
+
+      console.log('🚀 ~ default: ~ token:', token);
 
       await sendEmailVerificationLink(email, token);
       return { form };

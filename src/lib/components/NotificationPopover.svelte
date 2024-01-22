@@ -1,7 +1,7 @@
 <script lang="ts">
   import NotificationPopoverItem from './NotificationPopoverItem.svelte';
   import Popper from './Popper.svelte';
-  import { user } from '$lib/state.svelte';
+  import { user } from '$/src/lib/stores/user';
   import { notificationsStore } from '../stores/notifications';
   import { onMount } from 'svelte';
   import { fade, fly } from 'svelte/transition';

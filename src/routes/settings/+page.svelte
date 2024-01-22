@@ -15,7 +15,7 @@
   import { app } from '$lib/firebase';
   import { fly } from 'svelte/transition';
   import { invalidate } from '$app/navigation';
-  import { user } from '$lib/state.svelte';
+  import { user } from '$/src/lib/stores/user';
   import {
     deleteObject,
     getDownloadURL,

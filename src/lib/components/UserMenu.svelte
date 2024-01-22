@@ -6,7 +6,7 @@
     type PopupSettings
   } from '@skeletonlabs/skeleton';
   import { Avatar } from '@skeletonlabs/skeleton';
-  import { user } from '$lib/state.svelte';
+  import { user } from '$/src/lib/stores/user';
   import { cn } from '..';
 
   $: User = $user;

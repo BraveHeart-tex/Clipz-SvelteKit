@@ -27,7 +27,7 @@
   import type { LayoutData } from './$types';
   import AuthenticationForm from '$lib/components/AuthenticationModal.svelte';
   import { storePopup } from '@skeletonlabs/skeleton';
-  import { user } from '$lib/state.svelte';
+  import { user } from '$/src/lib/stores/user';
   import { page } from '$app/stores';
   import {
     getToastStore,

@@ -7,7 +7,7 @@
     type ModalSettings,
     type ToastSettings
   } from '@skeletonlabs/skeleton';
-  import { user } from '$lib/state.svelte';
+  import { user } from '$/src/lib/stores/user';
   import { fly } from 'svelte/transition';
 
   $: User = $user;
