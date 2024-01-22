@@ -1,10 +1,10 @@
+import { emailSenderService } from '$/src/lib/services/email-sender-service';
 import { setError, superValidate } from 'sveltekit-superforms/server';
 import type { PageServerLoad } from './$types';
 import forgotPasswordSchema from '$lib/schemas/ForgotPasswordSchema';
 import { fail, redirect, type Actions } from '@sveltejs/kit';
-import { generatePasswordResetToken } from '$lib/reset-password-token';
 import prisma from '$lib/server/prisma';
-import { sendResetPasswordLink } from '$lib/email';
+import { resetPasswordService } from '$/src/lib/services/reset-password-service';
 
 export const load = (async ({ locals }) => {
   const session = await locals.auth.validate();
@@ -38,9 +38,11 @@ export const actions: Actions = {
         return setError(form, 'email', 'User with this email does not exist.');
       }
 
-      const resetToken = await generatePasswordResetToken(storedUser.id);
+      const resetToken = await resetPasswordService.generatePasswordResetToken(
+        storedUser.id
+      );
       if (resetToken) {
-        await sendResetPasswordLink(email, resetToken);
+        await emailSenderService.sendResetPasswordLink(email, resetToken);
       }
 
       return { form };

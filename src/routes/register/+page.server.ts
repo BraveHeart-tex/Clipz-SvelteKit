@@ -1,12 +1,12 @@
-import prisma from '$lib/server/prisma';
 import { redirect, type Actions, fail } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import registerSchema from '$lib/schemas/RegisterSchema';
 import { auth } from '$lib/server/lucia';
 import { Prisma } from '@prisma/client';
 import { setError, superValidate } from 'sveltekit-superforms/server';
-import { sendEmailVerificationLink } from '$lib/email';
 import { emailVerificationService } from '$/src/lib/services/email-verification-service';
+import { emailSenderService } from '$/src/lib/services/email-sender-service';
+import { notificationSettingsRepository } from '$/src/lib/repository/notification-settings-repository';
 
 export const load: PageServerLoad = async ({ locals }) => {
   const session = await locals.auth.validate();
@@ -45,20 +45,16 @@ export const actions: Actions = {
         }
       });
 
-      await prisma.notificationSettings.create({
-        data: {
-          user_id: user.userId
-        }
-      });
+      await notificationSettingsRepository.createNotificationSettings(
+        user.userId
+      );
 
       const token =
         await emailVerificationService.generateEmailVerificationToken(
           user.userId
         );
 
-      console.log('🚀 ~ default: ~ token:', token);
-
-      await sendEmailVerificationLink(email, token);
+      await emailSenderService.sendEmailVerificationLink(email, token);
       return { form };
     } catch (e) {
       if (e instanceof Prisma.PrismaClientKnownRequestError) {

@@ -1,7 +1,7 @@
 import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
-import { validateEmailVerificationToken } from '$lib/token';
 import { auth } from '$lib/server/lucia';
+import { emailVerificationService } from '$/src/lib/services/email-verification-service';
 
 export const load = (async ({ locals, params, url }) => {
   const session = await locals.auth.validate();
@@ -14,7 +14,8 @@ export const load = (async ({ locals, params, url }) => {
   if (!token) throw redirect(302, '/');
 
   try {
-    const userId = await validateEmailVerificationToken(token);
+    const userId =
+      await emailVerificationService.validateEmailVerificationToken(token);
     const user = await auth.getUser(userId);
     await auth.invalidateAllUserSessions(user.userId);
     await auth.updateUserAttributes(user.userId, {

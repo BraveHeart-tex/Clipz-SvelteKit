@@ -28,19 +28,9 @@ class EmailSenderService implements IEmailSenderService {
 
   async sendEmailVerificationLink(email: string, token: string) {
     try {
-      const transporter = nodemailer.createTransport({
-        host: EMAIL_HOST,
-        port: 465,
-        secure: true,
-        auth: {
-          user: EMAIL_USER,
-          pass: EMAIL_PASSWORD
-        }
-      });
-
       const verificationLink = ORIGIN + `/email-verification/${token}`;
 
-      await transporter.sendMail({
+      await this.transporter.sendMail({
         from: 'Clipz <no-reply@clipz.borakaraca.tech>',
         to: email,
         subject: 'Verify your email address',

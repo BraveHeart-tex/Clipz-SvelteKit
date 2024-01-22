@@ -1,6 +1,6 @@
+import { resetPasswordService } from '$lib/services/reset-password-service';
 import { fail, redirect, type Actions } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
-import { validatePasswordResetToken } from '$lib/reset-password-token';
 import { superValidate } from 'sveltekit-superforms/server';
 import resetPasswordSchema from '$lib/schemas/ResetPasswordSchema';
 import { auth } from '$lib/server/lucia';
@@ -43,7 +43,8 @@ export const actions: Actions = {
     if (!token) return fail(400, { form });
 
     try {
-      const userId = await validatePasswordResetToken(token);
+      const userId =
+        await resetPasswordService.validatePasswordResetToken(token);
       let user = await auth.getUser(userId);
       await auth.invalidateAllUserSessions(user.userId);
       await auth.updateKeyPassword('email', user.email!, form.data.password);
