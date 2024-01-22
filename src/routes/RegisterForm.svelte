@@ -39,7 +39,7 @@
   debug={true}
   class={'flex flex-col gap-1'}
   method="POST"
-  action="/register"
+  action="/auth/register"
 >
   <Form.Field {config} name={'fullName'}>
     <Form.Label>Name</Form.Label>

@@ -60,18 +60,6 @@
     });
   };
 
-  const handleReject = (row: Video) => {
-    handleAdminReviewAction({
-      row,
-      action: 'Reject',
-      errorMessage: 'There was an error rejecting the video request.',
-      modalStore,
-      toastStore,
-      status: VideoStatus.REJECTED,
-      successMessage: 'Video request rejected.'
-    });
-  };
-
   const handleWatch = (row: Video) => {
     const watchModal: ModalSettings = {
       type: 'component',

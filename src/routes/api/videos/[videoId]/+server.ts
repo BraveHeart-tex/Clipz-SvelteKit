@@ -1,4 +1,4 @@
-import { deleteVideoFromFirebaseStorage } from '$lib';
+import { videoService } from '$lib/services/video-service';
 import { json, redirect, type RequestHandler } from '@sveltejs/kit';
 
 export const DELETE: RequestHandler = async ({ locals, params }) => {
@@ -35,7 +35,7 @@ export const DELETE: RequestHandler = async ({ locals, params }) => {
     );
   }
 
-  await deleteVideoFromFirebaseStorage({ video });
+  await videoService.deleteVideoFromFirebaseStorage({ video });
 
   return json({ message: `Video deleted successfully.` }, { status: 200 });
 };

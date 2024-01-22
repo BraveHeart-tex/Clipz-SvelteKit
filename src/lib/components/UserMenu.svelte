@@ -48,7 +48,7 @@
           <br />
           <span class="text-sm dark:text-white">{User?.email}</span>
         </p>
-        <form method="post" action="/logout">
+        <form method="post" action="/auth/logout">
           <button
             class="self-end btn btn-sm variant-filled-primary rounded-md"
             type="submit">Sign out</button

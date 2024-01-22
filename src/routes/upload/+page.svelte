@@ -9,7 +9,7 @@
     type ToastSettings
   } from '@skeletonlabs/skeleton';
   import { superForm } from 'sveltekit-superforms/client';
-  import { acceptedFileTypes, deleteVideoFromFirebaseStorage } from '$lib';
+  import { acceptedFileTypes } from '$lib';
   import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
   import { storage } from '$lib/firebase';
   import { v4 as uuidv4 } from 'uuid';
@@ -18,6 +18,7 @@
   import { goto } from '$app/navigation';
   import UploadVideoStepOne from '$lib/components/UploadVideoStepOne.svelte';
   import VideoUploadArea from '$lib/components/VideoUploadArea.svelte';
+  import { videoService } from '$/src/lib/services/video-service';
 
   export let data: PageData;
   $: videoSrc = '';
@@ -142,7 +143,7 @@
       ];
 
       if (isEditMode && videoSrc) {
-        await deleteVideoFromFirebaseStorage({
+        await videoService.deleteVideoFromFirebaseStorage({
           video: data.currentVideo!,
           deleteThumbnail: poster ? true : false
         });

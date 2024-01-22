@@ -50,7 +50,7 @@
   <Form
     form={$page?.data?.loginForm}
     schema={loginSchema}
-    action="/login"
+    action="/auth/login"
     {onResult}
   >
     <button

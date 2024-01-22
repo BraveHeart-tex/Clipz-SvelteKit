@@ -10,8 +10,6 @@ import type {
 } from '@skeletonlabs/skeleton';
 import type { Video } from '@prisma/client';
 import { invalidate } from '$app/navigation';
-import { deleteObject, ref } from 'firebase/storage';
-import { storage } from './firebase';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -127,29 +125,6 @@ export const mapDocumentWithId = (doc: DocumentSnapshot) => ({
   id: doc.id,
   ...doc.data()
 });
-
-export const generateVideoThumbnail = (file: File) => {
-  return new Promise((resolve) => {
-    const canvas = document.createElement('canvas');
-    const video = document.createElement('video');
-
-    // this is important
-    video.autoplay = true;
-    video.muted = true;
-    video.src = URL.createObjectURL(file);
-
-    video.onloadeddata = () => {
-      const ctx = canvas.getContext('2d');
-
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-
-      ctx?.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
-      video.pause();
-      return resolve(canvas.toDataURL('image/png'));
-    };
-  });
-};
 
 export function generateFormFields(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -267,39 +242,6 @@ export const handleDeleteVideoClick = ({
   modalStore.trigger(modal);
 };
 
-export async function deleteVideoFromFirebaseStorage({
-  video,
-  deleteThumbnail = true
-}: {
-  video: Video;
-  deleteThumbnail?: boolean;
-}) {
-  console.log(video);
-
-  try {
-    const videoStorageRef = ref(
-      storage,
-      '/videos/' + getFirebaseStoragePath(video.url)
-    );
-
-    const thumbnailStorageRef = ref(
-      storage,
-      '/thumbnails/' + getFirebaseStoragePath(video.poster_url!)
-    );
-
-    await deleteObject(videoStorageRef);
-
-    if (deleteThumbnail) {
-      await deleteObject(thumbnailStorageRef);
-    }
-  } catch (error) {
-    console.error(error);
-    return {
-      error
-    };
-  }
-}
-
 export const isValidUrl = (urlString: string) => {
   const urlPattern = new RegExp(
     '^(https?:\\/\\/)?' + // validate protocol
@@ -313,7 +255,7 @@ export const isValidUrl = (urlString: string) => {
   return !!urlPattern.test(urlString);
 };
 
-function getFirebaseStoragePath(url: string) {
+export function getFirebaseStoragePath(url: string) {
   try {
     if (!url) return;
     const regex = RegExp(/%2F(.*?)\?alt/);
