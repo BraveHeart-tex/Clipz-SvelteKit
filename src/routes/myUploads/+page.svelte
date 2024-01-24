@@ -137,8 +137,8 @@
       </button>
     </div>
   {:else}
-    <div class="flex flex-col gap-1 mt-4">
-      <p>It looks like you have no uploads.</p>
+    <div class="flex flex-col items-center w-full justify-center gap-1 mt-4">
+      <h2 class="h4">It looks like you have no uploads.</h2>
       <a
         class="w-max btn variant-filled-primary rounded-md flex items-center gap-2"
         href="/upload"
