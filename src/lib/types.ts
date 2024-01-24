@@ -1,6 +1,12 @@
-import type { Video } from '@prisma/client';
 import type { ActionResult } from '@sveltejs/kit';
 import firebase from 'firebase/compat/app';
+import { type VideoServiceType } from '$lib/services/video-service';
+import type { SuperForm } from 'sveltekit-superforms/client';
+import { type FirebaseStorage } from 'firebase/storage';
+import type { ModalStore, ToastStore } from '@skeletonlabs/skeleton';
+import { type Subscriber, type Writable } from 'svelte/store';
+import type { Video } from '@prisma/client';
+import type uploadVideoSchema from './schemas/UploadVideoSchema';
 
 export interface IClip {
   id: string;
@@ -15,7 +21,7 @@ export interface IClip {
   screenshotFileName: string;
 }
 
-export interface Event {
+export interface FormEvent {
   result: ActionResult;
   formEl: HTMLFormElement;
   cancel: () => void;
@@ -48,4 +54,45 @@ export interface PopupAction {
     upload: Video
   ) => void;
   icon: string;
+}
+
+export interface UploadStore {
+  videoSrc: string;
+  poster: string;
+  uploadedFile: File | null;
+  progress: number;
+  isSubmitting: boolean;
+  submitCompleted: boolean;
+  thumbnail: File | null;
+  isEditMode: boolean;
+  currentVideo: Video | null;
+}
+
+export interface IVideoFormHandlerParams {
+  modalStore: ModalStore;
+  toastStore: ToastStore;
+  superFrm: SuperForm<typeof uploadVideoSchema>;
+  isEditMode: boolean;
+  storage: FirebaseStorage;
+  videoService: VideoServiceType;
+  currentVideo: Video | null;
+}
+
+export interface IVideoFormHandler {
+  modalStore: ModalStore;
+  toastStore: ToastStore;
+  storage: FirebaseStorage;
+  uploadStore: Writable<UploadStore>;
+  superFrm: SuperForm<typeof uploadVideoSchema>;
+  videoService: VideoServiceType;
+  handleRemoveThumbnail: () => void;
+  handleCancelUploadClick: () => void;
+  handleVideoChange: (event: Event) => void;
+  handleThumbnailChange: (event: Event) => void;
+  handleUploadSubmit: (event: Event) => void;
+  handleSubmitCompletion: () => void;
+  resetForm: () => void;
+  subscribe: (run: Subscriber<UploadStore>) => () => void;
+  handleUploadError: (error: Error) => void;
+  sendDataToServer: (formData: FormData) => Promise<void>;
 }

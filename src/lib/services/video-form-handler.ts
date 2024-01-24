@@ -15,33 +15,15 @@ import type {
 } from '@skeletonlabs/skeleton';
 import { writable, type Subscriber, type Writable, get } from 'svelte/store';
 import { goto } from '$app/navigation';
-import { acceptedFileTypes } from '..';
+import { acceptedFileTypes } from '$lib';
 import { v4 as uuidv4 } from 'uuid';
-import type { Video } from '@prisma/client';
+import type {
+  IVideoFormHandler,
+  IVideoFormHandlerParams,
+  UploadStore
+} from '$lib/types';
 
-interface UploadStore {
-  videoSrc: string;
-  poster: string;
-  uploadedFile: File | null;
-  progress: number;
-  isSubmitting: boolean;
-  submitCompleted: boolean;
-  thumbnail: File | null;
-  isEditMode: boolean;
-  currentVideo: Video | null;
-}
-
-interface IVideoFormHandlerParams {
-  modalStore: ModalStore;
-  toastStore: ToastStore;
-  superFrm: SuperForm<typeof uploadVideoSchema>;
-  isEditMode: boolean;
-  storage: FirebaseStorage;
-  videoService: VideoServiceType;
-  currentVideo: Video | null;
-}
-
-export class VideoFormHandler {
+export class VideoFormHandler implements IVideoFormHandler {
   modalStore: ModalStore;
   toastStore: ToastStore;
   storage: FirebaseStorage;
@@ -137,8 +119,6 @@ export class VideoFormHandler {
       if (!file || file.type !== 'video/mp4') return;
 
       if (acceptedFileTypes.includes(file.type)) {
-        console.log('this.uploadStore', this.uploadStore);
-
         this.uploadStore.update((store) => ({
           ...store,
           uploadedFile: file
@@ -225,8 +205,6 @@ export class VideoFormHandler {
     try {
       const { title, description } = validationResult.data;
 
-      const formData = new FormData();
-
       const {
         uploadedFile,
         thumbnail,
@@ -281,10 +259,6 @@ export class VideoFormHandler {
       }
 
       let uploadPromises: unknown[] = [];
-      console.log(
-        '🚀 ~ VideoFormHandler ~ handleUploadSubmit ~ uploadPromises:',
-        uploadPromises
-      );
 
       if (fileInputs.length === 0) {
         uploadPromises = [
@@ -334,10 +308,6 @@ export class VideoFormHandler {
               () => {
                 getDownloadURL(uploadTask.snapshot.ref).then((url) => {
                   if (url) {
-                    console.log(
-                      '🚀 ~ VideoFormHandler ~ getDownloadURL ~ url:',
-                      url
-                    );
                     resolve({
                       name: fileInput.name,
                       url
@@ -354,7 +324,6 @@ export class VideoFormHandler {
       }
 
       const urls = await Promise.all(uploadPromises);
-      console.log(urls);
 
       if (urls.length > 0) {
         const urlResults = urls as {
@@ -362,11 +331,10 @@ export class VideoFormHandler {
           url: string;
         }[];
 
-        console.log('🚀 ~ VideoFormHandler ~ urlResults', urlResults);
-
         const videoUrl = urlResults.find((url) => url.name === 'video');
         const thumbnailUrl = urlResults.find((url) => url.name === 'thumbnail');
 
+        const formData = new FormData();
         formData.set('title', title);
         formData.set('description', description);
         formData.set('videoUrl', videoUrl?.url ?? currentVideo?.url!);
@@ -381,38 +349,55 @@ export class VideoFormHandler {
 
         if (isEditMode) formData.set('videoId', currentVideo?.id!);
 
-        // send the form data to the server
-        fetch(isEditMode ? '/upload?/updateVideo' : '/upload?/uploadVideo', {
-          method: 'POST',
-          body: formData
-        }).then(() => {
-          console.log('UPLOAD is complete');
-
-          this.uploadStore.update((store) => ({
-            ...store,
-            isSubmitting: false,
-            submitCompleted: true
-          }));
-          this.handleSubmitCompletion();
-        });
+        await this.sendDataToServer(formData);
       }
     } catch (error) {
-      console.error(error);
-      this.uploadStore.update((store) => ({
-        ...store,
-        isSubmitting: false
-      }));
-      const errorToast: ToastSettings = {
-        message:
-          'An error occurred while uploading your video. Please try again later.',
-        background: 'variant-filled-error',
-        timeout: 5000
-      };
-      this.toastStore.trigger(errorToast);
+      this.handleUploadError(error as Error);
     }
   }
 
+  async sendDataToServer(formData: FormData) {
+    const { isEditMode } = get(this.uploadStore);
+    try {
+      const endpoint = isEditMode
+        ? '/upload?/updateVideo'
+        : '/upload?/uploadVideo';
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        body: formData
+      });
+
+      if (response.ok) {
+        this.handleSubmitCompletion();
+      } else {
+        this.handleUploadError(new Error('Failed to upload video'));
+      }
+    } catch (error) {
+      this.handleUploadError(error as Error);
+    }
+  }
+
+  handleUploadError(error: Error) {
+    console.error(error);
+    this.uploadStore.update((store) => ({
+      ...store,
+      isSubmitting: false
+    }));
+    const errorToast: ToastSettings = {
+      message:
+        'An error occurred while uploading your video. Please try again later.',
+      background: 'variant-filled-error',
+      timeout: 5000
+    };
+    this.toastStore.trigger(errorToast);
+  }
+
   handleSubmitCompletion() {
+    this.uploadStore.update((store) => ({
+      ...store,
+      isSubmitting: false,
+      submitCompleted: true
+    }));
     const successToast: ToastSettings = {
       message: 'Your video has been uploaded successfully.',
       background: 'variant-filled-success',

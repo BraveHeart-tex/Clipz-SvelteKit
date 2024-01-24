@@ -65,7 +65,7 @@
             const rejectionReasonModal: ModalSettings = {
               type: 'confirm',
               title: 'Rejection Reason',
-              body: `<div class='flex flex-col gap-2'><p>Your video request was rejected because: </p> <span>${upload?.rejectionReason}</span>
+              body: `<div class='flex flex-col gap-2'><p>Your video request was rejected because: </p> <span>${upload?.rejection_reason}</span>
               <p>Would you like to delete it?</p>
                 </div>`,
               buttonTextConfirm: 'Delete',

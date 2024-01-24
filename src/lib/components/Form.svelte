@@ -1,6 +1,6 @@
 <script lang="ts">
   import { cn, generateFormFields } from '$lib';
-  import type { Event } from '$lib/types';
+  import type { FormEvent } from '$lib/types';
   import { Form, type SuperValidated } from 'formsnap';
   import { superForm } from 'sveltekit-superforms/client';
   import type { ZodEffects, ZodObject } from 'zod';
@@ -9,7 +9,7 @@
   export let schema: ZodObject<any> | ZodEffects<ZodObject<any>>;
   export let formRootClassname = '';
   export let action = '';
-  export let onResult = (event: Event) => {};
+  export let onResult = (event: FormEvent) => {};
 
   const formFields = generateFormFields(schema);
 

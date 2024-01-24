@@ -3,7 +3,7 @@
   import { page } from '$app/stores';
   import Form from '$lib/components/Form.svelte';
   import { loginSchema } from '$lib/schemas/LoginSchema';
-  import type { Event } from '$lib/types';
+  import type { FormEvent } from '$lib/types';
   import {
     getModalStore,
     getToastStore,
@@ -20,7 +20,7 @@
     timeout: 4000
   };
 
-  const onResult = (event: Event) => {
+  const onResult = (event: FormEvent) => {
     if (event.result.status === 500) {
       const alertModal: ModalSettings = {
         title: 'Server error',
