@@ -64,7 +64,6 @@ export interface UploadStore {
   isSubmitting: boolean;
   submitCompleted: boolean;
   thumbnail: File | null;
-  isEditMode: boolean;
   currentVideo: Video | null;
 }
 
@@ -72,7 +71,6 @@ export interface IVideoFormHandlerParams {
   modalStore: ModalStore;
   toastStore: ToastStore;
   superFrm: SuperForm<typeof uploadVideoSchema>;
-  isEditMode: boolean;
   storage: FirebaseStorage;
   videoService: VideoServiceType;
   currentVideo: Video | null;

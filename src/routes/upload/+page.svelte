@@ -27,7 +27,6 @@
     modalStore,
     toastStore,
     superFrm,
-    isEditMode,
     storage,
     currentVideo: data.currentVideo || null,
     videoService

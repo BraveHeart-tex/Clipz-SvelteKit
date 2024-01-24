@@ -35,7 +35,6 @@ export class VideoFormHandler implements IVideoFormHandler {
     modalStore,
     toastStore,
     superFrm,
-    isEditMode,
     storage,
     videoService,
     currentVideo
@@ -53,7 +52,6 @@ export class VideoFormHandler implements IVideoFormHandler {
       isSubmitting: false,
       submitCompleted: false,
       thumbnail: null,
-      isEditMode,
       currentVideo: currentVideo ?? null
     });
 
@@ -205,14 +203,9 @@ export class VideoFormHandler implements IVideoFormHandler {
     try {
       const { title, description } = validationResult.data;
 
-      const {
-        uploadedFile,
-        thumbnail,
-        isEditMode,
-        videoSrc,
-        poster,
-        currentVideo
-      } = get(this.uploadStore);
+      const { uploadedFile, thumbnail, videoSrc, poster, currentVideo } = get(
+        this.uploadStore
+      );
 
       let fileInputs = [
         {
@@ -236,6 +229,8 @@ export class VideoFormHandler implements IVideoFormHandler {
           )
         }
       ];
+
+      const isEditMode = currentVideo ? true : false;
 
       if (isEditMode && videoSrc) {
         await this.videoService.deleteVideoFromFirebaseStorage({
@@ -357,11 +352,13 @@ export class VideoFormHandler implements IVideoFormHandler {
   }
 
   async sendDataToServer(formData: FormData) {
-    const { isEditMode } = get(this.uploadStore);
+    const isEditMode = get(this.uploadStore).currentVideo ? true : false;
+
     try {
       const endpoint = isEditMode
         ? '/upload?/updateVideo'
         : '/upload?/uploadVideo';
+
       const response = await fetch(endpoint, {
         method: 'POST',
         body: formData
@@ -420,7 +417,7 @@ export class VideoFormHandler implements IVideoFormHandler {
       thumbnail: null
     }));
 
-    const { isEditMode } = get(this.uploadStore);
+    const isEditMode = get(this.uploadStore).currentVideo ? true : false;
     if (isEditMode) {
       goto('/upload');
     }

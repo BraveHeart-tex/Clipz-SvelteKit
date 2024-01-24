@@ -8,6 +8,8 @@
     getToastStore,
     type ModalSettings
   } from '@skeletonlabs/skeleton';
+  import { cubicOut } from 'svelte/easing';
+  import { fly } from 'svelte/transition';
   import Popper from '$lib/components/Popper.svelte';
   import { handleAdminReviewAction } from '$lib/admin';
   import AdminWatchVideo from '$lib/components/AdminWatchVideo.svelte';
@@ -135,7 +137,12 @@
               >
                 <i class="fa-solid fa-ellipsis-vertical"></i>
               </div>
-              <div slot="content" class="card p-4 w-72 shadow-xl">
+              <div
+                slot="content"
+                class="card p-4 w-72 shadow-xl"
+                in:fly={{ duration: 300, easing: cubicOut, y: 50 }}
+                out:fly={{ duration: 300, easing: cubicOut, y: 50 }}
+              >
                 {#each actions as action}
                   <button
                     class="w-full btn flex items-center gap-1 justify-start hover:bg-surface-200 dark:hover:bg-surface-600 rounded-md"
