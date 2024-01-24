@@ -41,3 +41,4 @@ class VideoService {
 }
 
 export const videoService = new VideoService();
+export type VideoServiceType = typeof videoService;

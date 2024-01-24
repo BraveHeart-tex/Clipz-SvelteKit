@@ -6,7 +6,7 @@
 
 <FileDropzone
   name="file"
-  on:change={onChangeHandler}
+  on:change={(e) => onChangeHandler(e)}
   accept="video/mp4,video/x-m4v,video/*"
 >
   <svelte:fragment slot="lead">
