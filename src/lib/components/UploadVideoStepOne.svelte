@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { FileDropzone } from '@skeletonlabs/skeleton';
   import VideoUploadArea from './VideoUploadArea.svelte';
 
   export let onChangeHandler: (event: Event) => void;

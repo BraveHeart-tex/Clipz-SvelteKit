@@ -30,12 +30,18 @@
 >
   <Form.Field {config} name="password">
     <Form.Label>Password</Form.Label>
-    <Form.Input type="password" class="input rounded-md" />
+    <Form.Input
+      type="password"
+      class="input rounded-md w-full lg:max-w-[45%]"
+    />
     <Form.Validation class="text-red-500 font-semibold" />
   </Form.Field>
   <Form.Field {config} name="confirmPassword">
     <Form.Label>Confirm Password</Form.Label>
-    <Form.Input type="password" class="input rounded-md" />
+    <Form.Input
+      type="password"
+      class="input rounded-md w-full lg:max-w-[45%]"
+    />
     <Form.Validation class="text-red-500 font-semibold" />
   </Form.Field>
 

@@ -15,7 +15,5 @@
   <svelte:fragment slot="message">
     Drag and drop your video file here or click to select a file.
   </svelte:fragment>
-  <svelte:fragment slot="meta">
-    Accepted file types: mp4, m4v, mov, avi, wmv, flv, webm, mkv, mpeg
-  </svelte:fragment>
+  <svelte:fragment slot="meta">Accepted file types: mp4</svelte:fragment>
 </FileDropzone>

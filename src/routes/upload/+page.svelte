@@ -38,6 +38,7 @@
     validators: uploadVideoSchema
   });
 
+  // DONE:
   async function onChangeHandler(e: Event) {
     const target = e.target as HTMLInputElement;
     if (target.files) {
@@ -72,6 +73,7 @@
     }
   }
 
+  // Done:
   const resetForm = () => {
     superFrm.reset();
     videoSrc = '';
@@ -86,6 +88,7 @@
     }
   };
 
+  // DONE:
   const handleCancelClick = () => {
     const modal: ModalSettings = {
       type: 'confirm',
@@ -103,6 +106,7 @@
     modalStore.trigger(modal);
   };
 
+  // Done:
   const handleSubmit = async (e: Event) => {
     e.preventDefault();
     isSubmitting = true;
@@ -269,6 +273,7 @@
     }
   };
 
+  // DONE:
   const handleThumbnailChange = (event: Event) => {
     const target = event.target as HTMLInputElement;
     if (target.files) {
@@ -294,10 +299,10 @@
         };
         toastStore.trigger(errorToast);
       }
-    } else {
     }
   };
 
+  // DONE
   const handleRemoveThumbnail = () => {
     const modal: ModalSettings = {
       type: 'confirm',
@@ -316,6 +321,7 @@
     modalStore.trigger(modal);
   };
 
+  // DONE:
   $: {
     if (submitCompleted) {
       const successToast: ToastSettings = {
