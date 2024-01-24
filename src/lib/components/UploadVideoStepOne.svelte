@@ -7,7 +7,11 @@
 <div class="flex flex-col gap-1 mb-4">
   <div class="flex justify-between items-center">
     <h1 class="h2">Upload Your Clip Here</h1>
-    <a href="/myUploads" class="btn btn-sm variant-filled-tertiary rounded-md">
+    <a
+      href="/myUploads"
+      class="btn btn-sm variant-filled-tertiary rounded-md flex items-center gap-1"
+    >
+      <i class="fa-solid fa-clock-rotate-left"></i>
       Previous Uploads
     </a>
   </div>

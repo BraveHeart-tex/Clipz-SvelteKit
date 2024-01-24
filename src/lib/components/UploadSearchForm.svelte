@@ -33,8 +33,6 @@
       toastStore.trigger(errorToast);
     }
   };
-
-  console.log();
 </script>
 
 <form
@@ -66,10 +64,10 @@
       {/each}
     </select>
   </div>
-  <div class="flex items-center gap-2">
+  <div class="flex items-center gap-2 justify-between lg:justify-start">
     <button
       type="button"
-      class="w-max btn rounded-md variant-filled-secondary"
+      class="w-max btn rounded-md"
       on:click={() => {
         myUploadsStore.reset($page?.data?.userUploads);
       }}>Reset</button
