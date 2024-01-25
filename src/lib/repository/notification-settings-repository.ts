@@ -1,21 +1,21 @@
+import type { Prisma } from '@prisma/client';
 import prisma from '../server/prisma';
 
 class NotificationSettingsRepository {
   constructor() {}
-  async createNotificationSettings(userId: string) {
+  async create(data: Prisma.NotificationSettingsUncheckedCreateInput) {
     try {
-      await prisma.notificationSettings.create({
-        data: {
-          user_id: userId
-        }
+      return await prisma.notificationSettings.create({
+        data
       });
-      return true;
     } catch (error) {
       console.log(error);
-      return false;
+      return null;
     }
   }
 }
 
 export const notificationSettingsRepository =
   new NotificationSettingsRepository();
+
+export type NotificationSettingsRepositoryType = NotificationSettingsRepository;

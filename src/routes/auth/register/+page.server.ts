@@ -6,7 +6,7 @@ import { Prisma } from '@prisma/client';
 import { setError, superValidate } from 'sveltekit-superforms/server';
 import { emailVerificationService } from '$/src/lib/services/email-verification-service';
 import { emailSenderService } from '$/src/lib/services/email-sender-service';
-import { notificationSettingsRepository } from '$/src/lib/repository/notification-settings-repository';
+import { notificationSettingsService } from '$/src/lib/services/notification-settings-service';
 
 export const load: PageServerLoad = async ({ locals }) => {
   const session = await locals.auth.validate();
@@ -45,9 +45,9 @@ export const actions: Actions = {
         }
       });
 
-      await notificationSettingsRepository.createNotificationSettings(
-        user.userId
-      );
+      await notificationSettingsService.createNotificationSettings({
+        user_id: user.userId
+      });
 
       const token =
         await emailVerificationService.generateEmailVerificationToken(
