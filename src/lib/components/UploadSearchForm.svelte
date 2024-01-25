@@ -5,6 +5,7 @@
   import { VideoStatus } from '@prisma/client';
   import { getToastStore, type ToastSettings } from '@skeletonlabs/skeleton';
   import { page } from '$app/stores';
+  import { user } from '$lib/stores/user';
 
   const toastStore = getToastStore();
 
@@ -15,8 +16,9 @@
   const handleSearchSubmit = async (e: Event) => {
     e.preventDefault();
     try {
+      const userId = $user?.userId;
       const response = await fetch(
-        `/api/myUploads?q=${$myUploadsStore.searchQuery}&status=${$myUploadsStore.statusQuery}`
+        `/api/uploads/${userId}?q=${$myUploadsStore.searchQuery}&status=${$myUploadsStore.statusQuery}`
       );
       const data = (await response.json()) as SearchUploadsResponse;
       myUploadsStore.update((store) => ({

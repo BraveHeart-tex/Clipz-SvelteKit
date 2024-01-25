@@ -1,10 +1,28 @@
 import type { Prisma, VideoStatus } from '@prisma/client';
 import { json, type RequestHandler } from '@sveltejs/kit';
 
-export const GET: RequestHandler = async ({ url, locals }) => {
+export const GET: RequestHandler = async ({ url, locals, params }) => {
   const session = await locals.auth.validate();
   if (!session) {
     return json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const userId = params.userId as string;
+  if (!userId || typeof userId !== 'string') {
+    return json({ error: 'Invalid user id' }, { status: 400 });
+  }
+
+  const user = await prisma?.user.findUnique({
+    where: {
+      id: userId
+    }
+  });
+
+  if (!user) {
+    return json(
+      { error: 'User not found with the given id.' },
+      { status: 404 }
+    );
   }
 
   const searchParams = url.searchParams;
@@ -16,7 +34,7 @@ export const GET: RequestHandler = async ({ url, locals }) => {
   const skipAmount = (Number(page) - 1) * pageSize;
 
   const whereCondition: Prisma.VideoWhereInput = {
-    user_id: session.user.userId,
+    user_id: userId,
     OR: [
       {
         title: {

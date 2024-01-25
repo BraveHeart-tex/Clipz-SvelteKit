@@ -1,5 +1,5 @@
-import { sendEmailVerificationLink } from '$lib/email';
-import { generateEmailVerificationToken } from '$lib/token';
+import { emailSenderService } from '$/src/lib/services/email-sender-service';
+import { emailVerificationService } from '$/src/lib/services/email-verification-service';
 import { json, redirect, type RequestHandler } from '@sveltejs/kit';
 import { z } from 'zod';
 
@@ -23,8 +23,14 @@ export const POST: RequestHandler = async ({ request, locals }) => {
         { status: 404 }
       );
 
-    const token = await generateEmailVerificationToken(user.id);
-    const emailResult = await sendEmailVerificationLink(email, token);
+    const token = await emailVerificationService.generateEmailVerificationToken(
+      user.id
+    );
+
+    const emailResult = await emailSenderService.sendEmailVerificationLink(
+      email,
+      token
+    );
 
     if (emailResult)
       return json(
