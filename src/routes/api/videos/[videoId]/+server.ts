@@ -1,4 +1,3 @@
-import { videoRepository } from '$/src/lib/repository/video-repository';
 import { videoService } from '$lib/services/video-service';
 import { json, redirect, type RequestHandler } from '@sveltejs/kit';
 
@@ -21,7 +20,7 @@ export const DELETE: RequestHandler = async ({ locals, params }) => {
 
   const videoId = params.videoId;
 
-  const video = await videoRepository.deleteVideo(videoId);
+  const video = await videoService.deleteVideo(videoId);
 
   if (!video) {
     return json(

@@ -2,7 +2,7 @@ import { redirect, type Actions, fail } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import { superValidate } from 'sveltekit-superforms/server';
 import uploadVideoSchema from '$lib/schemas/UploadVideoSchema';
-import { videoRepository } from '$/src/lib/repository/video-repository';
+import { videoService } from '$/src/lib/services/video-service';
 
 export const load: PageServerLoad = async ({ locals, url }) => {
   const session = await locals.auth.validate();
@@ -13,7 +13,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 
   const videoId = url.searchParams.get('videoId');
   if (videoId) {
-    const video = await videoRepository.getVideo(videoId);
+    const video = await videoService.getVideoById(videoId);
 
     if (!video) {
       throw redirect(302, '/');
@@ -63,7 +63,7 @@ export const actions: Actions = {
       const url = formData.get('videoUrl') as string;
       const poster_url = formData.get('thumbnailUrl') as string;
 
-      await videoRepository.createVideo({
+      await videoService.createVideo({
         title,
         description,
         user_id: userId,
@@ -102,7 +102,8 @@ export const actions: Actions = {
       const poster_url = formData.get('thumbnailUrl') as string;
 
       const id = formData.get('videoId') as string;
-      await videoRepository.updateVideo(id, {
+
+      await videoService.updateVideo(id, {
         title,
         description,
         url,

@@ -2,7 +2,7 @@ import type { Prisma, Video } from '@prisma/client';
 import prisma from '../server/prisma';
 
 class VideoRepository {
-  async getVideo(id: string): Promise<Video | null> {
+  async getOne(id: string): Promise<Video | null> {
     try {
       const video = await prisma.video.findUnique({
         where: {
@@ -17,7 +17,7 @@ class VideoRepository {
     }
   }
 
-  async createVideo(data: Prisma.VideoUncheckedCreateInput) {
+  async create(data: Prisma.VideoUncheckedCreateInput) {
     try {
       const video = await prisma.video.create({
         data
@@ -30,7 +30,7 @@ class VideoRepository {
     }
   }
 
-  async updateVideo(id: string, data: Prisma.VideoUpdateInput) {
+  async update(id: string, data: Prisma.VideoUpdateInput) {
     try {
       const video = await prisma.video.update({
         where: {
@@ -46,7 +46,7 @@ class VideoRepository {
     }
   }
 
-  async deleteVideo(id: string) {
+  async delete(id: string) {
     try {
       const video = await prisma.video.delete({
         where: {
@@ -63,3 +63,4 @@ class VideoRepository {
 }
 
 export const videoRepository = new VideoRepository();
+export type VideoRepositoryType = typeof videoRepository;
