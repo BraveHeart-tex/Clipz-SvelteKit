@@ -10,7 +10,6 @@
   import VideoUploadArea from '$lib/components/VideoUploadArea.svelte';
   import { VideoFormHandler } from '$/src/lib/services/video-form-handler';
   import { storage } from '$/src/lib/firebase';
-  import { videoService } from '$/src/lib/services/video-service';
 
   export let data: PageData;
 
@@ -28,8 +27,7 @@
     toastStore,
     superFrm,
     storage,
-    currentVideo: data.currentVideo || null,
-    videoService
+    currentVideo: data.currentVideo || null
   });
 </script>
 

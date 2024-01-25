@@ -1,4 +1,3 @@
-import { type VideoServiceType } from '$lib/services/video-service';
 import uploadVideoSchema from '../schemas/UploadVideoSchema';
 import type { SuperForm } from 'sveltekit-superforms/client';
 import {
