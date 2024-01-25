@@ -13,8 +13,6 @@ class VideoService {
     video: Video;
     deleteThumbnail?: boolean;
   }) {
-    console.log(video);
-
     try {
       const videoStorageRef = ref(
         storage,

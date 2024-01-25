@@ -1,3 +1,4 @@
+import { videoRepository } from '$/src/lib/repository/video-repository';
 import { videoService } from '$lib/services/video-service';
 import { json, redirect, type RequestHandler } from '@sveltejs/kit';
 
@@ -20,11 +21,7 @@ export const DELETE: RequestHandler = async ({ locals, params }) => {
 
   const videoId = params.videoId;
 
-  const video = await prisma?.video.delete({
-    where: {
-      id: videoId
-    }
-  });
+  const video = await videoRepository.deleteVideo(videoId);
 
   if (!video) {
     return json(

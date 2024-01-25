@@ -2,6 +2,7 @@ import { redirect, type Actions, fail } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import { superValidate } from 'sveltekit-superforms/server';
 import uploadVideoSchema from '$lib/schemas/UploadVideoSchema';
+import { videoRepository } from '$/src/lib/repository/video-repository';
 
 export const load: PageServerLoad = async ({ locals, url }) => {
   const session = await locals.auth.validate();
@@ -12,12 +13,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 
   const videoId = url.searchParams.get('videoId');
   if (videoId) {
-    const video = await prisma?.video.findUnique({
-      where: {
-        id: videoId,
-        user_id: session.user.userId
-      }
-    });
+    const video = await videoRepository.getVideo(videoId);
 
     if (!video) {
       throw redirect(302, '/');
@@ -67,14 +63,12 @@ export const actions: Actions = {
       const url = formData.get('videoUrl') as string;
       const poster_url = formData.get('thumbnailUrl') as string;
 
-      await prisma?.video.create({
-        data: {
-          title,
-          description,
-          user_id: userId,
-          url,
-          poster_url
-        }
+      await videoRepository.createVideo({
+        title,
+        description,
+        user_id: userId,
+        url,
+        poster_url
       });
     } catch (error) {
       console.error(error);
@@ -103,22 +97,16 @@ export const actions: Actions = {
 
     try {
       const { title, description } = form.data;
-      const userId = session.user.userId;
 
       const url = formData.get('videoUrl') as string;
       const poster_url = formData.get('thumbnailUrl') as string;
 
-      await prisma?.video.update({
-        where: {
-          id: formData.get('videoId') as string,
-          user_id: userId
-        },
-        data: {
-          title,
-          description,
-          url,
-          poster_url
-        }
+      const id = formData.get('videoId') as string;
+      await videoRepository.updateVideo(id, {
+        title,
+        description,
+        url,
+        poster_url
       });
     } catch (error) {
       console.error(error);

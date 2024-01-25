@@ -36,6 +36,9 @@ export const load: PageServerLoad = async ({ locals, url, depends }) => {
         }
       ],
       created_at: {}
+    },
+    orderBy: {
+      id: 'desc'
     }
   });
 
