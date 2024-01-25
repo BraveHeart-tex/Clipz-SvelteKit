@@ -72,7 +72,6 @@ export interface IVideoFormHandlerParams {
   toastStore: ToastStore;
   superFrm: SuperForm<typeof uploadVideoSchema>;
   storage: FirebaseStorage;
-  videoService: VideoServiceType;
   currentVideo: Video | null;
 }
 
@@ -82,7 +81,6 @@ export interface IVideoFormHandler {
   storage: FirebaseStorage;
   uploadStore: Writable<UploadStore>;
   superFrm: SuperForm<typeof uploadVideoSchema>;
-  videoService: VideoServiceType;
   handleRemoveThumbnail: () => void;
   handleCancelUploadClick: () => void;
   handleVideoChange: (event: Event) => void;

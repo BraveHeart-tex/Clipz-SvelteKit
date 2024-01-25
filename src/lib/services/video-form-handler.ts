@@ -15,7 +15,7 @@ import type {
 } from '@skeletonlabs/skeleton';
 import { writable, type Subscriber, type Writable, get } from 'svelte/store';
 import { goto } from '$app/navigation';
-import { acceptedFileTypes } from '$lib';
+import { acceptedFileTypes, deleteVideoFromFirebaseStorage } from '$lib';
 import { v4 as uuidv4 } from 'uuid';
 import type {
   IVideoFormHandler,
@@ -29,21 +29,18 @@ export class VideoFormHandler implements IVideoFormHandler {
   storage: FirebaseStorage;
   uploadStore: Writable<UploadStore>;
   superFrm: SuperForm<typeof uploadVideoSchema>;
-  videoService: VideoServiceType;
 
   constructor({
     modalStore,
     toastStore,
     superFrm,
     storage,
-    videoService,
     currentVideo
   }: IVideoFormHandlerParams) {
     this.modalStore = modalStore;
     this.toastStore = toastStore;
     this.storage = storage;
     this.superFrm = superFrm;
-    this.videoService = videoService;
     this.uploadStore = writable({
       videoSrc: '',
       poster: '',
@@ -233,7 +230,7 @@ export class VideoFormHandler implements IVideoFormHandler {
       const isEditMode = currentVideo ? true : false;
 
       if (isEditMode && videoSrc) {
-        await this.videoService.deleteVideoFromFirebaseStorage({
+        await deleteVideoFromFirebaseStorage({
           video: currentVideo!,
           deleteThumbnail: poster ? true : false
         });
