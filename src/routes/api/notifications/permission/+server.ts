@@ -1,6 +1,8 @@
 import { json, type RequestHandler } from '@sveltejs/kit';
 import prisma from '$lib/server/prisma';
+import userService from '$/src/lib/services/user-service';
 
+// TODO:
 export const POST: RequestHandler = async ({ locals, request }) => {
   const session = await locals.auth.validate();
   if (!session) {
@@ -83,13 +85,8 @@ export const PUT: RequestHandler = async ({ locals, request }) => {
   }
 
   try {
-    await prisma.user.update({
-      where: {
-        id: session.user.userId
-      },
-      data: {
-        [key]: !!value
-      }
+    await userService.update(session.user.userId, {
+      [key]: !!value
     });
 
     return json(

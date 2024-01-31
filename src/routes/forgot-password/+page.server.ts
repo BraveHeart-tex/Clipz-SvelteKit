@@ -3,8 +3,8 @@ import { setError, superValidate } from 'sveltekit-superforms/server';
 import type { PageServerLoad } from './$types';
 import forgotPasswordSchema from '$lib/schemas/ForgotPasswordSchema';
 import { fail, redirect, type Actions } from '@sveltejs/kit';
-import prisma from '$lib/server/prisma';
 import { resetPasswordService } from '$/src/lib/services/reset-password-service';
+import userService from '$/src/lib/services/user-service';
 
 export const load = (async ({ locals }) => {
   const session = await locals.auth.validate();
@@ -28,11 +28,7 @@ export const actions: Actions = {
 
     try {
       const email = form.data.email;
-      const storedUser = await prisma.user.findUnique({
-        where: {
-          email
-        }
-      });
+      const storedUser = await userService.getByEmail(email);
 
       if (!storedUser) {
         return setError(form, 'email', 'User with this email does not exist.');

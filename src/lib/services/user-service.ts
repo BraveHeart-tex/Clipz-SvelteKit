@@ -17,6 +17,14 @@ export class UserService {
     });
   }
 
+  async getByEmail(email: string) {
+    return await this.dbService.user.findUnique({
+      where: {
+        email
+      }
+    });
+  }
+
   async create(data: Prisma.UserCreateInput) {
     return await this.dbService.user.create({
       data

@@ -10,6 +10,10 @@ export class NotificationSettingsService {
       data
     });
   }
+
+  async getOne(args: Prisma.NotificationSettingsFindUniqueArgs) {
+    return await this.dbService.notificationSettings.findUnique(args);
+  }
 }
 
 export const notificationSettingsService = new NotificationSettingsService(

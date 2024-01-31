@@ -1,5 +1,6 @@
 import { emailSenderService } from '$/src/lib/services/email-sender-service';
 import { emailVerificationService } from '$/src/lib/services/email-verification-service';
+import userService from '$/src/lib/services/user-service';
 import { json, redirect, type RequestHandler } from '@sveltejs/kit';
 import { z } from 'zod';
 
@@ -15,7 +16,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
     return json({ error: validationResult.error }, { status: 400 });
 
   try {
-    const user = await prisma?.user.findUnique({ where: { email } });
+    const user = await userService.getByEmail(email);
 
     if (!user)
       return json(

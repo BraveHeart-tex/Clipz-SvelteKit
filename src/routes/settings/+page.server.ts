@@ -1,6 +1,7 @@
-import prisma from '$lib/server/prisma';
 import { fail, redirect, type Actions } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
+import userService from '$/src/lib/services/user-service';
+import { notificationSettingsService } from '$/src/lib/services/notification-settings-service';
 
 export const load: PageServerLoad = async ({ locals, cookies, depends }) => {
   const session = await locals.auth.validate();
@@ -14,7 +15,7 @@ export const load: PageServerLoad = async ({ locals, cookies, depends }) => {
 
   const { name, profilePicture } = session.user;
 
-  const notificationSettings = await prisma.notificationSettings.findUnique({
+  const notificationSettings = await notificationSettingsService.getOne({
     where: {
       user_id: session.user.userId
     }
@@ -52,13 +53,8 @@ export const actions: Actions = {
     const { profilePicture, deletePicture } = body;
 
     if (deletePicture) {
-      await prisma.user.update({
-        where: {
-          id: session.user.userId
-        },
-        data: {
-          profile_picture: null
-        }
+      await userService.update(session.user.userId, {
+        profile_picture: null
       });
 
       return {
@@ -73,13 +69,8 @@ export const actions: Actions = {
     }
 
     try {
-      await prisma.user.update({
-        where: {
-          id: session.user.userId
-        },
-        data: {
-          profile_picture: profilePicture
-        }
+      await userService.update(session.user.userId, {
+        profile_picture: profilePicture
       });
 
       return {
