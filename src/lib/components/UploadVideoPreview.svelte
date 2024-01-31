@@ -32,24 +32,17 @@
       <i class="fa-solid fa-video text-2xl"></i>
       <h3 class="h3">Video Preview:</h3>
     </div>
-    <div
-      class={cn(
-        'rounded-md shadow-md lg:max-w-6xl w-full h-full flex flex-col items-stretch',
-        poster && 'lg:col-span-1',
-        !poster && 'lg:col-span-2'
-      )}
-    >
+    <div class={cn(poster && 'lg:col-span-1', !poster && 'lg:col-span-2')}>
       <video
         id="player"
         playsinline
         width="800"
-        height="800"
-        class="w-full h-full lg:w-[800px] lg:h-[800px]"
+        height="600"
         controls
         data-poster={poster ?? ''}
-        data-plyr-config="{{
+        data-plyr-config={{
           title: 'Video Preview'
-        }}w"
+        }}
       >
         <track kind="captions" />
         <source src={videoSrc} type="video/mp4" />
