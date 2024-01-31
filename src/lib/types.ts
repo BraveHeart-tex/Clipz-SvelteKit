@@ -1,6 +1,5 @@
 import type { ActionResult } from '@sveltejs/kit';
 import firebase from 'firebase/compat/app';
-import { type VideoServiceType } from '$lib/services/video-service';
 import type { SuperForm } from 'sveltekit-superforms/client';
 import { type FirebaseStorage } from 'firebase/storage';
 import type { ModalStore, ToastStore } from '@skeletonlabs/skeleton';

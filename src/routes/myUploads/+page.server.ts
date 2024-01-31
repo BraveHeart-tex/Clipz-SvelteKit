@@ -1,6 +1,6 @@
 import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
-import myUploadsService from '$/src/lib/services/myUploads-service';
+import { videoService } from '$/src/lib/services/video-service';
 
 export const load: PageServerLoad = async ({ locals, url, depends }) => {
   const session = await locals.auth.validate();
@@ -19,7 +19,7 @@ export const load: PageServerLoad = async ({ locals, url, depends }) => {
   const pageSize = 12;
   const skipAmount = (Number(page) - 1) * pageSize;
 
-  const userUploads = await myUploadsService.getMany({
+  const userUploads = await videoService.getMany({
     skip: skipAmount,
     take: pageSize,
     where: {

@@ -1,34 +1,34 @@
-import {
-  videoRepository,
-  type VideoRepositoryType
-} from '$/src/lib/repository/video-repository';
-import type { Prisma, Video } from '@prisma/client';
-import { deleteObject, ref, type FirebaseStorage } from 'firebase/storage';
-import { storage } from '../firebase';
-import { getFirebaseStoragePath } from '..';
+import type { Prisma } from '@prisma/client';
+import dbService, { DbService } from './db-service';
 
-class VideoService {
-  constructor(
-    private videoRepository: VideoRepositoryType,
-    private firebaseStorage: FirebaseStorage
-  ) {}
+export class VideoService {
+  constructor(private dbService: DbService) {}
 
-  async getVideoById(id: string) {
-    return await this.videoRepository.getOne(id);
+  async getMany(args?: Prisma.VideoFindManyArgs) {
+    return this.dbService.video.findMany(args);
   }
 
-  async createVideo(data: Prisma.VideoUncheckedCreateInput) {
-    return await this.videoRepository.create(data);
+  async create(data: Prisma.VideoUncheckedCreateInput) {
+    return this.dbService.video.create({
+      data
+    });
   }
 
-  async updateVideo(id: string, data: Prisma.VideoUpdateInput) {
-    return await this.videoRepository.update(id, data);
+  async delete(id: string) {
+    return this.dbService.video.delete({
+      where: {
+        id
+      }
+    });
   }
 
-  async deleteVideo(id: string) {
-    return await this.videoRepository.delete(id);
+  async update(args: Prisma.VideoUpdateArgs) {
+    return this.dbService.video.update(args);
+  }
+
+  async getOne(args: Prisma.VideoFindUniqueArgs) {
+    return this.dbService.video.findUnique(args);
   }
 }
 
-export const videoService = new VideoService(videoRepository, storage);
-export type VideoServiceType = typeof videoService;
+export const videoService = new VideoService(dbService);

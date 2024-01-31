@@ -21,7 +21,7 @@ export const DELETE: RequestHandler = async ({ locals, params }) => {
 
   const videoId = params.videoId;
 
-  const video = await videoService.deleteVideo(videoId);
+  const video = await videoService.delete(videoId);
 
   if (!video) {
     return json(

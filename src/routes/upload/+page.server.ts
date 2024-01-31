@@ -13,7 +13,11 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 
   const videoId = url.searchParams.get('videoId');
   if (videoId) {
-    const video = await videoService.getVideoById(videoId);
+    const video = await videoService.getOne({
+      where: {
+        id: videoId
+      }
+    });
 
     if (!video) {
       throw redirect(302, '/');
@@ -63,7 +67,7 @@ export const actions: Actions = {
       const url = formData.get('videoUrl') as string;
       const poster_url = formData.get('thumbnailUrl') as string;
 
-      await videoService.createVideo({
+      await videoService.create({
         title,
         description,
         user_id: userId,
@@ -103,11 +107,16 @@ export const actions: Actions = {
 
       const id = formData.get('videoId') as string;
 
-      await videoService.updateVideo(id, {
-        title,
-        description,
-        url,
-        poster_url
+      await videoService.update({
+        where: {
+          id
+        },
+        data: {
+          title,
+          description,
+          url,
+          poster_url
+        }
       });
     } catch (error) {
       console.error(error);
