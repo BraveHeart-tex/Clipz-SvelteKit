@@ -1,5 +1,6 @@
 import { generateRandomString, isWithinExpiration } from 'lucia/utils';
-import prisma from '$lib/server/prisma';
+import type { DbService } from './db-service';
+import dbService from './db-service';
 
 interface IResetPasswordService {
   generatePasswordResetToken: (userId: string) => Promise<string | null>;
@@ -8,15 +9,16 @@ interface IResetPasswordService {
 
 class ResetPasswordService implements IResetPasswordService {
   private EXPIRES_IN = 1000 * 60 * 60 * 2; // 2 hours
-  constructor() {}
+  constructor(private dbService: DbService) {}
 
   async generatePasswordResetToken(userId: string) {
     try {
-      const storedUserTokens = await prisma?.reset_Password_Token.findMany({
-        where: {
-          user_id: userId
-        }
-      });
+      const storedUserTokens =
+        await this.dbService.reset_Password_Token.findMany({
+          where: {
+            user_id: userId
+          }
+        });
       if (storedUserTokens.length > 0) {
         const reusableStoredToken = storedUserTokens.find((token) => {
           // check if expiration is within 1 hour
@@ -29,7 +31,7 @@ class ResetPasswordService implements IResetPasswordService {
       }
       const token = generateRandomString(63);
 
-      await prisma.reset_Password_Token.create({
+      await this.dbService.reset_Password_Token.create({
         data: {
           id: token,
           expires: new Date().getTime() + this.EXPIRES_IN,
@@ -44,7 +46,7 @@ class ResetPasswordService implements IResetPasswordService {
   }
 
   async validatePasswordResetToken(token: string) {
-    const storedToken = await prisma.$transaction(async (trx) => {
+    const storedToken = await this.dbService.$transaction(async (trx) => {
       const storedToken = await trx.reset_Password_Token.findUnique({
         where: {
           id: token
@@ -69,4 +71,4 @@ class ResetPasswordService implements IResetPasswordService {
   }
 }
 
-export const resetPasswordService = new ResetPasswordService();
+export const resetPasswordService = new ResetPasswordService(dbService);

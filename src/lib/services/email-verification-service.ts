@@ -1,5 +1,6 @@
 import { generateRandomString, isWithinExpiration } from 'lucia/utils';
-import prisma from '$lib/server/prisma';
+import type { DbService } from './db-service';
+import dbService from './db-service';
 
 interface IEmailVerificationService {
   generateEmailVerificationToken: (userId: string) => Promise<string>;
@@ -7,16 +8,17 @@ interface IEmailVerificationService {
 }
 
 class EmailVerificationService implements IEmailVerificationService {
-  constructor() {}
+  constructor(private dbService: DbService) {}
 
   private EXPIRES_IN = 1000 * 60 * 60 * 2; // 2 hours
 
   async generateEmailVerificationToken(userId: string) {
-    const storedUserTokens = await prisma.email_Verification_Token.findMany({
-      where: {
-        user_id: userId
-      }
-    });
+    const storedUserTokens =
+      await this.dbService.email_Verification_Token.findMany({
+        where: {
+          user_id: userId
+        }
+      });
     if (storedUserTokens.length > 0) {
       const reusableStoredToken = storedUserTokens.find((token) => {
         // check if expiration is within 1 hour
@@ -27,7 +29,7 @@ class EmailVerificationService implements IEmailVerificationService {
     }
     const token = generateRandomString(63);
 
-    await prisma.email_Verification_Token.create({
+    await this.dbService.email_Verification_Token.create({
       data: {
         id: token,
         expires: new Date().getTime() + this.EXPIRES_IN,
@@ -39,7 +41,7 @@ class EmailVerificationService implements IEmailVerificationService {
   }
 
   async validateEmailVerificationToken(token: string) {
-    const storedToken = await prisma.$transaction(async (trx) => {
+    const storedToken = await this.dbService.$transaction(async (trx) => {
       const storedToken = await trx.email_Verification_Token.findUnique({
         where: {
           id: token
@@ -62,4 +64,4 @@ class EmailVerificationService implements IEmailVerificationService {
   }
 }
 
-export const emailVerificationService = new EmailVerificationService();
+export const emailVerificationService = new EmailVerificationService(dbService);
