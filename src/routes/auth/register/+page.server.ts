@@ -45,7 +45,7 @@ export const actions: Actions = {
         }
       });
 
-      await notificationSettingsService.createNotificationSettings({
+      await notificationSettingsService.create({
         user_id: user.userId
       });
 

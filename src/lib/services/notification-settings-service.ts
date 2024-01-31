@@ -1,24 +1,17 @@
-import {
-  notificationSettingsRepository,
-  type NotificationSettingsRepositoryType
-} from '$/src/lib/repository/notification-settings-repository';
 import type { Prisma } from '@prisma/client';
+import type { DbService } from './db-service';
+import dbService from './db-service';
 
-class NotificationSettingsService {
-  constructor(
-    private notificationSettingsRepository: NotificationSettingsRepositoryType
-  ) {}
+export class NotificationSettingsService {
+  constructor(private dbService: DbService) {}
 
-  async createNotificationSettings(
-    data: Prisma.NotificationSettingsUncheckedCreateInput
-  ) {
-    return await this.notificationSettingsRepository.create(data);
+  async create(data: Prisma.NotificationSettingsUncheckedCreateInput) {
+    return await this.dbService.notificationSettings.create({
+      data
+    });
   }
 }
 
 export const notificationSettingsService = new NotificationSettingsService(
-  notificationSettingsRepository
+  dbService
 );
-
-export type NotificationSettingsServiceType =
-  typeof notificationSettingsService;
