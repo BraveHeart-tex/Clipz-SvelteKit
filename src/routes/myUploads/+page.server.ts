@@ -1,5 +1,6 @@
 import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
+import myUploadsService from '$/src/lib/services/myUplodas-service';
 
 export const load: PageServerLoad = async ({ locals, url, depends }) => {
   const session = await locals.auth.validate();
@@ -18,7 +19,7 @@ export const load: PageServerLoad = async ({ locals, url, depends }) => {
   const pageSize = 12;
   const skipAmount = (Number(page) - 1) * pageSize;
 
-  const userUploads = await prisma?.video.findMany({
+  const userUploads = await myUploadsService.getAll({
     skip: skipAmount,
     take: pageSize,
     where: {
