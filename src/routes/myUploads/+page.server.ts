@@ -1,6 +1,6 @@
 import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
-import myUploadsService from '$/src/lib/services/myUplodas-service';
+import myUploadsService from '$/src/lib/services/myUploads-service';
 
 export const load: PageServerLoad = async ({ locals, url, depends }) => {
   const session = await locals.auth.validate();
