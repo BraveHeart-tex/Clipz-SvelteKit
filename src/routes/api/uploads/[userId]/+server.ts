@@ -1,3 +1,5 @@
+import userService from '$/src/lib/services/user-service';
+import { videoService } from '$/src/lib/services/video-service';
 import type { Prisma, VideoStatus } from '@prisma/client';
 import { json, type RequestHandler } from '@sveltejs/kit';
 
@@ -12,11 +14,7 @@ export const GET: RequestHandler = async ({ url, locals, params }) => {
     return json({ error: 'Invalid user id' }, { status: 400 });
   }
 
-  const user = await prisma?.user.findUnique({
-    where: {
-      id: userId
-    }
-  });
+  const user = await userService.getOne(userId);
 
   if (!user) {
     return json(
@@ -53,7 +51,7 @@ export const GET: RequestHandler = async ({ url, locals, params }) => {
     whereCondition.status = statusQuery as VideoStatus;
   }
 
-  const userUploads = await prisma?.video.findMany({
+  const userUploads = await videoService.getMany({
     skip: skipAmount,
     take: pageSize,
     where: whereCondition
