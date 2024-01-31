@@ -19,7 +19,7 @@ export const load: PageServerLoad = async ({ locals, url, depends }) => {
   const pageSize = 12;
   const skipAmount = (Number(page) - 1) * pageSize;
 
-  const userUploads = await myUploadsService.getAll({
+  const userUploads = await myUploadsService.getMany({
     skip: skipAmount,
     take: pageSize,
     where: {
