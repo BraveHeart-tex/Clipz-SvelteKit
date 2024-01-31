@@ -34,7 +34,7 @@
     </div>
     <div
       class={cn(
-        'rounded-md shadow-md lg:max-w-6xl',
+        'rounded-md shadow-md lg:max-w-6xl w-full h-full flex flex-col items-stretch',
         poster && 'lg:col-span-1',
         !poster && 'lg:col-span-2'
       )}
@@ -42,11 +42,14 @@
       <video
         id="player"
         playsinline
+        width="800"
+        height="800"
+        class="w-full h-full lg:w-[800px] lg:h-[800px]"
         controls
         data-poster={poster ?? ''}
-        data-plyr-config={{
+        data-plyr-config="{{
           title: 'Video Preview'
-        }}
+        }}w"
       >
         <track kind="captions" />
         <source src={videoSrc} type="video/mp4" />
@@ -68,7 +71,7 @@
       <img
         src={poster}
         alt="video thumbnail"
-        class="rounded-md shadow-md"
+        class="rounded-md shadow-md w-full h-full lg:w-[800px] lg:h-[500px] object-cover"
         width="800"
         height="600"
       />
