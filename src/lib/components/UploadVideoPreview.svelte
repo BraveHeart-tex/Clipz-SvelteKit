@@ -26,7 +26,12 @@
   });
 </script>
 
-<div class={cn('grid grid-cols-1 gap-2 mt-4', poster && 'lg:grid-cols-2')}>
+<div
+  class={cn(
+    'max-w-4xl grid grid-cols-1 gap-2 mt-4',
+    poster && 'lg:grid-cols-2 max-w-max'
+  )}
+>
   <div class="flex flex-col gap-2">
     <div class="flex items-center gap-1">
       <i class="fa-solid fa-video text-2xl"></i>
@@ -35,9 +40,10 @@
     <div class={cn(poster && 'lg:col-span-1', !poster && 'lg:col-span-2')}>
       <video
         id="player"
+        class="min-h-[400px]"
         playsinline
-        width="800"
-        height="600"
+        width="1920"
+        height="1080"
         controls
         data-poster={poster ?? ''}
         data-plyr-config={{

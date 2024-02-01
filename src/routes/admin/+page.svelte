@@ -65,7 +65,8 @@
   const handleWatch = (row: Video) => {
     const watchModal: ModalSettings = {
       type: 'component',
-      component: { ref: AdminWatchVideo, props: { video: row } }
+      component: { ref: AdminWatchVideo, props: { video: row } },
+      modalClasses: 'max-w-4xl max-h-3/4'
     };
 
     modalStore.trigger(watchModal);

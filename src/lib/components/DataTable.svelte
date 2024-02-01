@@ -86,7 +86,7 @@
       page = 1;
       search = newSearch;
       requestData();
-    }, 750);
+    }, 500);
   };
 
   $: {
@@ -122,15 +122,6 @@
     {title}
   </h3>
   <div class="flex flex-col gap-2">
-    <div>
-      <input
-        class="input rounded-md"
-        type="search"
-        bind:value={search}
-        on:input={() => setSearch(search)}
-        placeholder="Search all rows..."
-      />
-    </div>
     <div class="table-container rounded-md">
       <table class="table rounded-md table-hover">
         <thead>
