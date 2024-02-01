@@ -1,3 +1,4 @@
+import { videoService } from '$/src/lib/services/video-service';
 import { VideoStatus, type Prisma } from '@prisma/client';
 import { json, type RequestHandler } from '@sveltejs/kit';
 
@@ -50,13 +51,14 @@ export const GET: RequestHandler = async ({ url, locals }) => {
   // pagination
   const skip = (page - 1) * pageSize;
 
-  const result = await prisma?.video.findMany({
+  const result = await videoService.getMany({
     where: whereCondition,
     orderBy,
     skip,
     take: pageSize
   });
 
+  // TODO: add to videoService
   const total = await prisma?.video.count({ where: whereCondition });
 
   return json({

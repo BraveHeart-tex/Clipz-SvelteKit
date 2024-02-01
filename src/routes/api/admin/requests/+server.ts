@@ -1,3 +1,4 @@
+import { videoService } from '$/src/lib/services/video-service';
 import type { Prisma, VideoStatus } from '@prisma/client';
 import { json, type RequestHandler } from '@sveltejs/kit';
 
@@ -35,7 +36,7 @@ export const GET: RequestHandler = async ({ url, locals }) => {
     whereCondition.status = statusQuery as VideoStatus;
   }
 
-  const userUploads = await prisma?.video.findMany({
+  const userUploads = await videoService.getMany({
     skip: skipAmount,
     take: pageSize,
     where: whereCondition

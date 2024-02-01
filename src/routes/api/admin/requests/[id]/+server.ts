@@ -1,7 +1,11 @@
 import { VideoStatus } from '@prisma/client';
 import { json, type RequestHandler } from '@sveltejs/kit';
-import prisma from '$lib/server/prisma';
 import { sendNotification } from '$lib/server/admin';
+import { videoService } from '$/src/lib/services/video-service';
+import userService from '$/src/lib/services/user-service';
+import { notificationSettingsService } from '$/src/lib/services/notification-settings-service';
+import { notificationService } from '$/src/lib/services/notification-service';
+import { fcmService } from '$/src/lib/services/fcm-token-service';
 
 export const PUT: RequestHandler = async ({ params, locals, request }) => {
   const session = await locals.auth.validate();
@@ -50,7 +54,7 @@ export const PUT: RequestHandler = async ({ params, locals, request }) => {
     queryData.rejection_reason = body.rejectionReason;
   }
 
-  const result = await prisma.video.update({
+  const result = await videoService.update({
     where: {
       id: videoRequestId
     },
@@ -58,11 +62,7 @@ export const PUT: RequestHandler = async ({ params, locals, request }) => {
   });
 
   if (status === VideoStatus.REJECTED) {
-    const user = await prisma.user.findUnique({
-      where: {
-        id: result.user_id
-      }
-    });
+    const user = await userService.getOne(result.user_id);
 
     if (!user) {
       return json(
@@ -71,13 +71,11 @@ export const PUT: RequestHandler = async ({ params, locals, request }) => {
       );
     }
 
-    const notificationPermission = await prisma.notificationSettings.findUnique(
-      {
-        where: {
-          user_id: result.user_id
-        }
+    const notificationPermission = await notificationSettingsService.getOne({
+      where: {
+        user_id: result.user_id
       }
-    );
+    });
 
     if (!notificationPermission?.allow_notifications) {
       return json(
@@ -90,20 +88,17 @@ export const PUT: RequestHandler = async ({ params, locals, request }) => {
       );
     }
 
-    // send notification to the user
-    const registeredTokens = await prisma.fCM_Token.findMany({
+    const registeredTokens = await fcmService.getMany({
       where: {
         user_id: result.user_id
       }
     });
 
     try {
-      const createdNotification = await prisma.notification.create({
-        data: {
-          title: 'Video Rejected',
-          description: `Your video (${result.title}) has been rejected. Reason: ${body.rejectionReason}`,
-          user_id: result.user_id
-        }
+      const createdNotification = await notificationService.create({
+        title: 'Video Rejected',
+        description: `Your video (${result.title}) has been rejected. Reason: ${body.rejectionReason}`,
+        user_id: result.user_id
       });
 
       const message = {

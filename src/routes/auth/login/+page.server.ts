@@ -4,6 +4,7 @@ import { setError, superValidate } from 'sveltekit-superforms/server';
 import { loginSchema } from '$lib/schemas/LoginSchema';
 import { auth } from '$lib/server/lucia';
 import { LuciaError } from 'lucia';
+import userService from '$/src/lib/services/user-service';
 
 export const load: PageServerLoad = async ({ locals }) => {
   const session = await locals.auth.validate();
@@ -22,11 +23,8 @@ export const actions: Actions = {
 
     try {
       const { email, password } = form.data;
-      const user = await prisma?.user.findUnique({
-        where: {
-          email
-        }
-      });
+
+      const user = await userService.getByEmail(email);
       if (user && !user?.email_verified) {
         return setError(
           form,

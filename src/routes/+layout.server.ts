@@ -2,6 +2,7 @@ import { superValidate } from 'sveltekit-superforms/server';
 import type { LayoutServerLoad } from './$types';
 import registerSchema from '$lib/schemas/RegisterSchema';
 import { loginSchema } from '$lib/schemas/LoginSchema';
+import { notificationService } from '../lib/services/notification-service';
 
 export const load = (async ({ url, locals }) => {
   try {
@@ -21,7 +22,7 @@ export const load = (async ({ url, locals }) => {
       };
     }
 
-    const notifications = await prisma?.notification.findMany({
+    const notifications = await notificationService.getMany({
       where: {
         user_id: session.user.userId
       }
