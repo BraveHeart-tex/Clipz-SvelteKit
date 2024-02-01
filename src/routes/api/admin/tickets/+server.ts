@@ -58,8 +58,7 @@ export const GET: RequestHandler = async ({ url, locals }) => {
     take: pageSize
   });
 
-  // TODO: add to videoService
-  const total = await prisma?.video.count({ where: whereCondition });
+  const total = await videoService.getCount({ where: whereCondition });
 
   return json({
     rows: result,

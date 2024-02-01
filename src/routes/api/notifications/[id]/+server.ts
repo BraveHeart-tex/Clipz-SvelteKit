@@ -1,4 +1,4 @@
-import prisma from '$lib/server/prisma';
+import { notificationService } from '$/src/lib/services/notification-service';
 import { json, type RequestHandler } from '@sveltejs/kit';
 
 export const PUT: RequestHandler = async ({ locals, params }) => {
@@ -15,24 +15,14 @@ export const PUT: RequestHandler = async ({ locals, params }) => {
   }
 
   try {
-    const notification = await prisma.notification.findUnique({
-      where: {
-        id,
-        user_id: session.user.userId
-      }
-    });
+    const notification = await notificationService.getOne(id);
 
     if (!notification) {
       return json({ error: 'Notification not found' }, { status: 404 });
     }
 
-    await prisma.notification.update({
-      where: {
-        id
-      },
-      data: {
-        read_date: new Date()
-      }
+    await notificationService.update(id, {
+      read_date: new Date()
     });
 
     return json(

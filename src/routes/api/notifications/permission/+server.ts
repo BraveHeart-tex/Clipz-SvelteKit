@@ -1,8 +1,8 @@
 import { json, type RequestHandler } from '@sveltejs/kit';
-import prisma from '$lib/server/prisma';
 import userService from '$/src/lib/services/user-service';
+import { fcmService } from '$/src/lib/services/fcm-token-service';
+import { notificationSettingsService } from '$/src/lib/services/notification-settings-service';
 
-// TODO:
 export const POST: RequestHandler = async ({ locals, request }) => {
   const session = await locals.auth.validate();
   if (!session) {
@@ -16,16 +16,10 @@ export const POST: RequestHandler = async ({ locals, request }) => {
   }
 
   try {
-    const existingToken = await prisma.fCM_Token.findUnique({
-      where: {
-        id: token,
-        user_id: session.user.userId
-      }
-    });
+    const existingToken = await fcmService.getOne(token);
 
     if (existingToken) {
-      // update the stale time of the token
-      await prisma.fCM_Token.update({
+      await fcmService.update({
         where: {
           id: token
         },
@@ -39,7 +33,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
       );
     }
 
-    await prisma.fCM_Token.create({
+    await fcmService.create({
       data: {
         user_id: session.user.userId,
         id: token,
@@ -47,7 +41,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
       }
     });
 
-    await prisma.notificationSettings.update({
+    await notificationSettingsService.update({
       where: {
         user_id: session.user.userId
       },
@@ -109,13 +103,13 @@ export const DELETE: RequestHandler = async ({ locals }) => {
   }
 
   try {
-    await prisma.fCM_Token.deleteMany({
+    await fcmService.deleteMany({
       where: {
         user_id: session.user.userId
       }
     });
 
-    await prisma.notificationSettings.update({
+    await notificationSettingsService.update({
       where: {
         user_id: session.user.userId
       },

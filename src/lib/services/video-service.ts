@@ -29,6 +29,10 @@ export class VideoService {
   async getOne(args: Prisma.VideoFindUniqueArgs) {
     return this.dbService.video.findUnique(args);
   }
+
+  async getCount(args: Prisma.VideoCountArgs) {
+    return this.dbService.video.count(args);
+  }
 }
 
 export const videoService = new VideoService(dbService);

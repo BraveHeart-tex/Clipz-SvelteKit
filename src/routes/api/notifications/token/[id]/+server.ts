@@ -1,4 +1,4 @@
-import prisma from '$lib/server/prisma';
+import { fcmService } from '$/src/lib/services/fcm-token-service';
 import { json, type RequestHandler } from '@sveltejs/kit';
 
 export const DELETE: RequestHandler = async ({ locals, params }) => {
@@ -28,7 +28,7 @@ export const DELETE: RequestHandler = async ({ locals, params }) => {
   }
 
   try {
-    await prisma.fCM_Token.delete({
+    await fcmService.delete({
       where: {
         id: token
       }

@@ -14,6 +14,10 @@ export class NotificationSettingsService {
   async getOne(args: Prisma.NotificationSettingsFindUniqueArgs) {
     return await this.dbService.notificationSettings.findUnique(args);
   }
+
+  async update(args: Prisma.NotificationSettingsUpdateArgs) {
+    return await this.dbService.notificationSettings.update(args);
+  }
 }
 
 export const notificationSettingsService = new NotificationSettingsService(

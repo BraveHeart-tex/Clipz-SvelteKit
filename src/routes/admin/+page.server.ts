@@ -2,6 +2,7 @@ import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import { VideoStatus } from '@prisma/client';
 import { videoService } from '$/src/lib/services/video-service';
+import { ticketService } from '$/src/lib/services/ticket-service';
 
 export const load = (async ({ locals, depends }) => {
   const session = await locals.auth.validate();
@@ -21,8 +22,7 @@ export const load = (async ({ locals, depends }) => {
     }
   });
 
-  // TODO: add ticket service
-  const openTickets = await prisma?.ticket.findMany({});
+  const openTickets = await ticketService.getMany({});
 
   return {
     pendingRequests,
