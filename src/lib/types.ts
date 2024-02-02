@@ -6,6 +6,7 @@ import type { ModalStore, ToastStore } from '@skeletonlabs/skeleton';
 import { type Subscriber, type Writable } from 'svelte/store';
 import type { Video } from '@prisma/client';
 import type uploadVideoSchema from './schemas/UploadVideoSchema';
+import type { FirebaseVideoService } from './services/firebase-video-service';
 
 export interface IClip {
   id: string;
@@ -72,6 +73,7 @@ export interface IVideoFormHandlerParams {
   superFrm: SuperForm<typeof uploadVideoSchema>;
   storage: FirebaseStorage;
   currentVideo: Video | null;
+  firebaseVideoService: FirebaseVideoService;
 }
 
 export interface IVideoFormHandler {

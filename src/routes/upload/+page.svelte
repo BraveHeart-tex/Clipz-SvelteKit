@@ -126,7 +126,7 @@
         handleRemoveThumbnail={videoFormHandler.handleRemoveThumbnail}
         videoSrc={$videoFormHandler.videoSrc}
         poster={$videoFormHandler.poster ||
-          data?.currentVideo?.poster_url ||
+          $videoFormHandler.currentVideo?.poster_url ||
           ''}
       />
     {:else if data.currentVideo?.url}
@@ -134,7 +134,7 @@
         handleRemoveThumbnail={videoFormHandler.handleRemoveThumbnail}
         videoSrc={data?.currentVideo?.url}
         poster={$videoFormHandler.poster ||
-          data?.currentVideo?.poster_url ||
+          $videoFormHandler?.currentVideo?.poster_url ||
           ''}
       />
     {/if}

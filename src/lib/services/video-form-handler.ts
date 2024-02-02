@@ -14,13 +14,14 @@ import type {
 } from '@skeletonlabs/skeleton';
 import { writable, type Subscriber, type Writable, get } from 'svelte/store';
 import { goto } from '$app/navigation';
-import { acceptedFileTypes, deleteVideoFromFirebaseStorage } from '$lib';
+import { acceptedFileTypes } from '$lib';
 import { v4 as uuidv4 } from 'uuid';
 import type {
   IVideoFormHandler,
   IVideoFormHandlerParams,
   UploadStore
 } from '$lib/types';
+import type { FirebaseVideoService } from './firebase-video-service';
 
 export class VideoFormHandler implements IVideoFormHandler {
   modalStore: ModalStore;
@@ -28,18 +29,21 @@ export class VideoFormHandler implements IVideoFormHandler {
   storage: FirebaseStorage;
   uploadStore: Writable<UploadStore>;
   superFrm: SuperForm<typeof uploadVideoSchema>;
+  firebaseVideoService: FirebaseVideoService;
 
   constructor({
     modalStore,
     toastStore,
     superFrm,
     storage,
-    currentVideo
+    currentVideo,
+    firebaseVideoService
   }: IVideoFormHandlerParams) {
     this.modalStore = modalStore;
     this.toastStore = toastStore;
     this.storage = storage;
     this.superFrm = superFrm;
+    this.firebaseVideoService = firebaseVideoService;
     this.uploadStore = writable({
       videoSrc: '',
       poster: '',
@@ -80,6 +84,16 @@ export class VideoFormHandler implements IVideoFormHandler {
         thumbnail: null,
         poster: ''
       }));
+
+      if (get(this.uploadStore).currentVideo) {
+        this.uploadStore.update((store) => ({
+          ...store,
+          currentVideo: {
+            ...store.currentVideo!,
+            poster_url: ''
+          }
+        }));
+      }
     };
 
     this.modalStore.trigger(confirmationModal);
@@ -229,7 +243,7 @@ export class VideoFormHandler implements IVideoFormHandler {
       const isEditMode = currentVideo ? true : false;
 
       if (isEditMode && videoSrc) {
-        await deleteVideoFromFirebaseStorage({
+        await this.firebaseVideoService.deleteVideoFromFirebaseStorage({
           video: currentVideo!,
           deleteThumbnail: poster ? true : false
         });

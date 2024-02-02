@@ -10,8 +10,6 @@ import type {
 } from '@skeletonlabs/skeleton';
 import type { Video } from '@prisma/client';
 import { invalidate } from '$app/navigation';
-import { deleteObject, ref } from 'firebase/storage';
-import { storage } from './firebase';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -271,34 +269,3 @@ export function getFirebaseStoragePath(url: string) {
     return;
   }
 }
-
-export const deleteVideoFromFirebaseStorage = async ({
-  video,
-  deleteThumbnail
-}: {
-  video: Video;
-  deleteThumbnail?: boolean;
-}) => {
-  try {
-    const videoStorageRef = ref(
-      storage,
-      '/videos/' + getFirebaseStoragePath(video.url)
-    );
-
-    const thumbnailStorageRef = ref(
-      storage,
-      '/thumbnails/' + getFirebaseStoragePath(video.poster_url!)
-    );
-
-    await deleteObject(videoStorageRef);
-
-    if (deleteThumbnail) {
-      await deleteObject(thumbnailStorageRef);
-    }
-  } catch (error) {
-    console.error(error);
-    return {
-      error
-    };
-  }
-};
