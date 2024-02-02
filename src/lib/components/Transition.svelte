@@ -4,17 +4,18 @@
 </script>
 
 {#key url}
-  <div
+  <main
+    class="transition"
     in:fly={{
-      y: -50,
+      x: 50,
       duration: 250,
       delay: 300
     }}
     out:fly={{
-      y: -50,
+      x: -50,
       duration: 250
     }}
   >
     <slot />
-  </div>
+  </main>
 {/key}
