@@ -71,21 +71,22 @@ export class VideoFormHandler implements IVideoFormHandler {
       body: 'Are you sure you want to remove this thumbnail?',
       buttonTextCancel: 'Cancel',
       buttonTextConfirm: 'Yes, remove the thumbnail',
-      response(r) {
+      async response(r) {
         if (r) {
-          handleConfirm();
+          await handleConfirm();
         }
       }
     };
 
-    const handleConfirm = () => {
+    const handleConfirm = async () => {
       this.uploadStore.update((store) => ({
         ...store,
         thumbnail: null,
         poster: ''
       }));
 
-      if (get(this.uploadStore).currentVideo) {
+      const currentVideo = get(this.uploadStore).currentVideo;
+      if (currentVideo) {
         this.uploadStore.update((store) => ({
           ...store,
           currentVideo: {
@@ -93,6 +94,10 @@ export class VideoFormHandler implements IVideoFormHandler {
             poster_url: ''
           }
         }));
+
+        await this.firebaseVideoService.deleteThumbnailFromFirebaseStorage({
+          video: currentVideo
+        });
       }
     };
 

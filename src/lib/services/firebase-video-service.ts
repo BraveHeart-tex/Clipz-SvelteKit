@@ -19,16 +19,27 @@ export class FirebaseVideoService {
         '/videos/' + getFirebaseStoragePath(video.url)
       );
 
+      await deleteObject(videoStorageRef);
+
+      if (deleteThumbnail) {
+        this.deleteThumbnailFromFirebaseStorage({ video });
+      }
+    } catch (error) {
+      console.error(error);
+      return {
+        error
+      };
+    }
+  }
+
+  async deleteThumbnailFromFirebaseStorage({ video }: { video: Video }) {
+    try {
       const thumbnailStorageRef = ref(
         storage,
         '/thumbnails/' + getFirebaseStoragePath(video.poster_url!)
       );
 
-      await deleteObject(videoStorageRef);
-
-      if (deleteThumbnail) {
-        await deleteObject(thumbnailStorageRef);
-      }
+      await deleteObject(thumbnailStorageRef);
     } catch (error) {
       console.error(error);
       return {
