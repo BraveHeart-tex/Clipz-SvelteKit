@@ -7,12 +7,12 @@
   <main
     class="transition"
     in:fly={{
-      x: 50,
+      x: 100,
       duration: 250,
       delay: 300
     }}
     out:fly={{
-      x: -50,
+      x: -100,
       duration: 250
     }}
   >

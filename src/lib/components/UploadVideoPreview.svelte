@@ -70,7 +70,7 @@
       <img
         src={poster}
         alt="video thumbnail"
-        class="rounded-md shadow-md w-full h-full lg:w-[800px] lg:h-[500px] object-cover"
+        class="w-full h-full lg:w-[800px] lg:h-[390px] object-scale-down"
         width="800"
         height="600"
       />

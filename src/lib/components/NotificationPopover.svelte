@@ -80,7 +80,7 @@
         class="absolute top-10 -bottom-5 lg:right-0 -right-[62px] z-[100]"
       >
         <div
-          class="flex flex-col md:items-start p-4 gap-2 w-[100vw] md:w-max md:min-w-max bg-surface-50 dark:bg-surface-600 dark:text-white rounded-md overflow-hidden shadow-xl z-[100]"
+          class="flex flex-col md:items-start p-4 gap-2 w-[98vw] md:w-96 md:min-w-96 bg-surface-50 dark:bg-surface-600 dark:text-white rounded-md overflow-hidden shadow-xl z-[100]"
         >
           {#if notifications.length === 0}
             <div class="flex flex-col gap-1 w-full">
@@ -98,7 +98,7 @@
               </span>
             </h2>
             <div
-              class="max-h-[400px] overflow-auto flex flex-col items-start gap-2"
+              class="max-h-[400px] w-full overflow-auto flex flex-col items-start gap-2"
             >
               {#each notifications as notification (notification.id)}
                 <NotificationPopoverItem {notification} />

@@ -208,8 +208,8 @@
 
 <AppShell
   slotSidebarLeft={cn(
-    'hidden md:block md:w-52 bg-surface-500/10',
-    sidebarCollapsed && 'md:w-0'
+    'hidden md:block md:w-52 bg-surface-500/10 transition-all duration-300 ease-in-out',
+    sidebarCollapsed && 'md:opacity-0 md:w-0'
   )}
 >
   <svelte:fragment slot="header">

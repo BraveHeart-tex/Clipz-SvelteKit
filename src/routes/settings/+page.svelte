@@ -25,6 +25,7 @@
   } from 'firebase/storage';
   import ProgressModal from '$/src/lib/components/ProgressModal.svelte';
   import { cn } from '$/src/lib';
+  import { firebaseVideoService } from '$/src/lib/services/firebase-video-service';
 
   export let data: PageData;
 
@@ -210,6 +211,7 @@
       async () => {
         try {
           const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+
           const response = await fetch('/settings?/profilePicture', {
             method: 'POST',
             body: JSON.stringify({
@@ -220,6 +222,11 @@
           const data = await response.json();
 
           if (data.type === 'success') {
+            // @ts-expect-error
+            user.update((user) => ({
+              ...user,
+              profilePicture: downloadURL
+            }));
             progress = 0;
             const successToast: ToastSettings = {
               message: 'Avatar uploaded successfully.',
@@ -228,11 +235,6 @@
             };
 
             toastStore.trigger(successToast);
-            // @ts-expect-error
-            user.update((user) => ({
-              ...user,
-              profilePicture: downloadURL
-            }));
             uploading = false;
           }
         } catch (error) {
